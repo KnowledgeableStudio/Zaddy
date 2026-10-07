@@ -1,0 +1,1439 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>iZad Casanova - Music Artist</title>
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <!-- Modern UI + Display -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet" />
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ["Inter", "system-ui", "-apple-system", "Segoe UI", "Roboto", "Arial", "sans-serif"],
+            display: ["Poppins", "Inter", "system-ui", "sans-serif"]
+          },
+          colors: {
+            brand: {
+              50: "#E9FFF1",
+              100: "#CFFFE0",
+              200: "#9FFFC1",
+              300: "#63FF9A",
+              400: "#2BFF78",
+              500: "#1DB954", /* Spotify green */
+              600: "#149346",
+              700: "#0F7236",
+              800: "#0B5428",
+              900: "#073D1D"
+            }
+          },
+          boxShadow: {
+            glow: "0 0 0 1px rgba(29,185,84,.25), 0 8px 30px rgba(29,185,84,.18)",
+            soft: "0 10px 30px rgba(0,0,0,.35)",
+            card: "0 12px 40px rgba(0,0,0,.45)"
+          },
+          backgroundImage: {
+            "hero-overlay": "radial-gradient(80% 80% at 50% 20%, rgba(29,185,84,.20) 0%, rgba(0,0,0,.65) 45%, rgba(0,0,0,.92) 100%)",
+            "grid-soft": "linear-gradient(to right, rgba(255,255,255,.06) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,.06) 1px, transparent 1px)"
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    :root {
+      --bg: #050607;
+      --card: rgba(17, 24, 39, .65);
+      --card2: rgba(17, 24, 39, .85);
+      --stroke: rgba(255, 255, 255, .10);
+      --stroke2: rgba(255, 255, 255, .14);
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --accent: #1db954;
+      --danger: #ef4444;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background: radial-gradient(1200px 700px at 50% 0%, rgba(29, 185, 84, .12), transparent 60%), var(--bg);
+      color: var(--text);
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* Accessible focus */
+    :focus-visible {
+      outline: 3px solid rgba(29, 185, 84, .75);
+      outline-offset: 3px;
+      border-radius: 10px;
+    }
+
+    /* Subtle animated grain */
+    .grain::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.14'/%3E%3C/svg%3E");
+      mix-blend-mode: overlay;
+      opacity: .20;
+      z-index: -2;
+    }
+
+    /* Matrix canvas (faster + cleaner than many DOM nodes) */
+    #matrixCanvas {
+      position: fixed;
+      inset: 0;
+      z-index: -3;
+      opacity: .35;
+      filter: saturate(1.1);
+    }
+
+    /* Soft background grid */
+    .bg-grid {
+      position: fixed;
+      inset: 0;
+      z-index: -4;
+      background-size: 60px 60px;
+      background-position: center;
+      opacity: .13;
+    }
+
+    /* Glass cards */
+    .glass {
+      background: rgba(17, 24, 39, .58);
+      border: 1px solid rgba(255, 255, 255, .09);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    .glass-strong {
+      background: rgba(17, 24, 39, .78);
+      border: 1px solid rgba(255, 255, 255, .12);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+    }
+
+    /* Navigation underline */
+    .nav-link {
+      position: relative;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 0.95rem;
+      padding: 0.4rem 0;
+      letter-spacing: .2px;
+    }
+
+    .nav-link::after {
+      content: "";
+      position: absolute;
+      width: 0;
+      height: 2px;
+      bottom: -6px;
+      left: 0;
+      background: linear-gradient(90deg, #1db954, #63ff9a);
+      transition: width .25s ease;
+    }
+
+    .nav-link:hover::after,
+    .nav-link[aria-current="page"]::after {
+      width: 100%;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: .5rem;
+      border-radius: 999px;
+      padding: .65rem 1rem;
+      font-weight: 600;
+      transition: transform .18s ease, box-shadow .18s ease, background-color .18s ease, border-color .18s ease;
+      border: 1px solid rgba(255, 255, 255, .12);
+      background: rgba(0, 0, 0, .35);
+      backdrop-filter: blur(10px);
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, .35);
+    }
+
+    .btn-primary {
+      border: 1px solid rgba(29, 185, 84, .40);
+      background: linear-gradient(135deg, rgba(29, 185, 84, .95), rgba(99, 255, 154, .65));
+      color: #07150d;
+      box-shadow: 0 12px 30px rgba(29, 185, 84, .20);
+    }
+
+    .btn-primary:hover {
+      box-shadow: 0 14px 34px rgba(29, 185, 84, .28);
+    }
+
+    .btn-ghost {
+      background: rgba(255, 255, 255, .06);
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+
+    .icon-img {
+      width: 18px;
+      height: 18px;
+      object-fit: contain;
+    }
+
+    .platform-chip:hover img {
+      transform: scale(1.08);
+    }
+
+    .platform-chip img {
+      transition: transform .2s ease;
+    }
+
+    /* Section fade-in */
+    .section-hidden {
+      opacity: 0;
+      transform: translateY(26px);
+      transition: opacity .65s ease, transform .65s ease;
+    }
+
+    .section-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Page switching */
+    .page.hidden {
+      display: none;
+    }
+
+    /* ---------- HEADER: prevent logo collisions on zoom ---------- */
+    #mainHeader .header-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      row-gap: .5rem;
+      column-gap: 1rem;
+      min-width: 0;
+    }
+
+    #mainHeader .header-nav {
+      flex: 1 1 18rem;
+      min-width: 12rem;
+    }
+
+    #mainHeader .header-actions {
+      flex: 0 1 auto;
+      min-width: 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: .75rem;
+      justify-content: flex-end;
+    }
+
+    @media (min-width: 768px) {
+      #mainHeader .header-actions {
+        justify-self: end;
+      }
+    }
+
+    /* ---------- HERO: prevent overlay logo from colliding on zoom ---------- */
+    .hero-cover {
+      position: relative;
+      --hero-logo-safe: 240px;
+      overflow: hidden;
+    }
+
+    .hero-logo {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      top: clamp(18px, 5vh, 56px);
+      width: clamp(1100px, 20vw, 360px);
+      height: auto;
+      z-index: 20;
+      filter: drop-shadow(0 8px 20px rgba(0, 0, 0, .45));
+      pointer-events: none;
+      max-width: calc(100% - 2rem);
+    }
+
+    .hero-content {
+      padding-top: calc(clamp(18px, 5vh, 56px) + var(--hero-logo-safe) + 32px);
+    }
+
+    /* Checkout specific styles */
+    .checkout-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.2fr;
+      gap: 1.5rem;
+    }
+
+    @media (max-width: 768px) {
+      .checkout-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+    }
+
+    .form-input {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 0.75rem 1rem;
+      color: white;
+      width: 100%;
+      transition: border-color 0.2s ease;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: #1db954;
+      box-shadow: 0 0 0 3px rgba(29, 185, 84, 0.2);
+    }
+
+    .form-input::placeholder {
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.7);
+      margin-bottom: 0.5rem;
+    }
+
+    .error-message {
+      color: #ef4444;
+      font-size: 0.875rem;
+      margin-top: 0.25rem;
+    }
+
+    .trust-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 999px;
+      padding: 0.5rem 1rem;
+      font-size: 0.875rem;
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    /* Reduce motion */
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+
+      .section-hidden,
+      .section-visible,
+      .btn,
+      .platform-chip img {
+        transition: none !important;
+      }
+    }
+  </style>
+</head>
+
+<body class="antialiased grain">
+  <div class="bg-grid bg-grid-soft"></div>
+  <canvas id="matrixCanvas" aria-hidden="true"></canvas>
+
+  <!-- Header -->
+  <header id="mainHeader" class="fixed top-0 w-full z-50">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6">
+      <div class="mt-3 glass-strong rounded-2xl shadow-soft border border-white/10">
+        <div class="header-bar px-4 sm:px-6 py-2">
+
+          <!-- Logo removed as requested -->
+
+          <!-- Navigation – centered with flex-1 and justify-center (hidden on mobile, visible on desktop) -->
+          <nav class="header-nav hidden md:flex items-center justify-center flex-1 gap-8">
+            <button class="nav-link text-gray-300 hover:text-white font-medium" data-page="home" aria-current="page">Home</button>
+            <button class="nav-link text-gray-300 hover:text-white font-medium" data-page="about">About</button>
+            <button class="nav-link text-gray-300 hover:text-white font-medium" data-page="contact">Contact</button>
+          </nav>
+
+          <!-- Desktop & Mobile unified actions: FX + Cart (always visible) -->
+          <div class="header-actions flex items-center gap-3">
+            <button class="btn btn-ghost text-white/90 hover:text-white" id="toggleMatrixBtn" type="button" title="Toggle background effect">
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M12 3v18M3 12h18"/>
+              </svg>
+              FX
+            </button>
+
+            <button class="btn btn-primary" type="button" onclick="openCheckout()" title="Open cart">
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M6 6h15l-1.5 9h-13z"/>
+                <path stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M6 6l-2-3H2"/>
+                <path stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M9 21a1 1 0 100-2 1 1 0 000 2zM18 21a1 1 0 100-2 1 1 0 000 2z"/>
+              </svg>
+              Cart <span id="cartCount" class="ml-1 inline-flex items-center justify-center text-xs font-bold rounded-full bg-black/25 px-2 py-0.5">0</span>
+            </button>
+          </div>
+
+          <!-- Mobile: only hamburger menu (FX & Cart are already in header-actions above) -->
+          <div class="md:hidden flex items-center gap-2">
+            <button class="btn btn-ghost text-white" id="mobileMenuBtn" type="button" aria-label="Open menu">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Mobile menu (navigation only) -->
+        <div class="md:hidden hidden border-t border-white/10 px-4 py-3" id="mobileMenu">
+          <div class="flex flex-col gap-2">
+            <button class="nav-link text-gray-300 hover:text-white font-medium py-2 text-left" data-page="home" aria-current="page">Home</button>
+            <button class="nav-link text-gray-300 hover:text-white font-medium py-2 text-left" data-page="about">About</button>
+            <button class="nav-link text-gray-300 hover:text-white font-medium py-2 text-left" data-page="contact">Contact</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <main id="top" class="pt-28 sm:pt-32">
+    <div id="main-content">
+      <!-- HOME -->
+      <div id="home-page" class="page">
+        <!-- Hero -->
+        <section class="relative overflow-hidden">
+          <div class="relative min-h-[88vh] flex items-center justify-center bg-cover bg-center hero-cover"
+            style="background-image:url('https://huggingface.co/spaces/juanlivex/izac-casanova/resolve/main/images/ChatGPT%20Image%20Jan%205,%202026,%2009_14_08%20PM.png');">
+            <div class="absolute inset-0 bg-hero-overlay"></div>
+            <div class="absolute inset-0 opacity-20 bg-grid bg-grid-soft" style="background-size:80px 80px;"></div>
+
+            <img
+              src="https://image2url.com/r2/default/images/1771456503799-7e959b4b-e38f-4f3e-96a3-4d73ece5e786.blob"
+              alt="Logo"
+              class="hero-logo"
+              loading="lazy"
+              decoding="async"
+            />
+
+            <div class="relative z-10 px-4 text-center max-w-3xl mx-auto hero-content">
+              <p
+                class="inline-flex items-center gap-2 text-xs sm:text-sm tracking-widest uppercase text-white/70 font-semibold mb-4">
+                <span class="w-1.5 h-1.5 rounded-full bg-brand-500"></span>
+                Official Artist Page
+              </p>
+
+              <h1 class="font-display text-4xl sm:text-6xl font-extrabold text-white leading-tight">
+                iZad Casanova
+              </h1>
+              <p class="mt-4 text-lg sm:text-2xl text-white/80">
+                De Nueva York Pa' El Universo
+              </p>
+
+              <div class="mt-8 flex flex-col sm:flex-row gap-3 justify-center items-center">
+                <button class="btn btn-primary w-full sm:w-auto" type="button" onclick="document.getElementById('latest-songs').scrollIntoView({behavior:'smooth'})">
+                  <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M12 5v14m0 0l-6-6m6 6l6-6"/>
+                  </svg>
+                  Listen Now
+                </button>
+                <button class="btn btn-ghost w-full sm:w-auto" type="button" onclick="document.getElementById('store-section').scrollIntoView({behavior:'smooth'})">
+                  Shop Merch
+                </button>
+              </div>
+
+              <!-- Platforms -->
+              <div class="mt-10 glass rounded-2xl p-4 sm:p-5 shadow-card border border-white/10">
+                <div class="flex items-center justify-between mb-3">
+                  <h2 class="text-sm sm:text-base font-semibold text-white/90">Find iZad on</h2>
+                  <span class="text-xs text-white/60">Tap to open</span>
+                </div>
+
+                <div id="music" class="flex flex-wrap justify-center gap-2">
+                  <a class="btn platform-chip" href="https://www.instagram.com/izadcasanovaofficial/" target="_blank"
+                    rel="noopener noreferrer"
+                    style="background:linear-gradient(135deg, rgba(147,51,234,.9), rgba(236,72,153,.8)); border-color: rgba(255,255,255,.15);">
+                    <img class="icon-img" src="https://upload.wikimedia.org/wikipedia/commons/e/e7/Instagram_logo_2016.svg" alt="Instagram" />
+                    Instagram
+                  </a>
+                  <a class="btn platform-chip" href="https://www.threads.com/@izadcasanovaofficial" target="_blank"
+                    rel="noopener noreferrer" style="background:rgba(0,0,0,.55);">
+                    <img class="icon-img" src="https://img.icons8.com/ios-filled/50/ffffff/threads.png" alt="Threads" />
+                    Threads
+                  </a>
+                  <a class="btn platform-chip" href="https://www.tiktok.com/@izadcasanovaofficial" target="_blank"
+                    rel="noopener noreferrer" style="background:rgba(0,0,0,.55);">
+                    <img class="icon-img" src="https://img.icons8.com/ios-filled/50/ffffff/tiktok--v1.png" alt="TikTok" />
+                    TikTok
+                  </a>
+                  <a class="btn platform-chip" href="https://www.facebook.com/izadcasanova" target="_blank"
+                    rel="noopener noreferrer" style="background:rgba(37,99,235,.85);">
+                    <img class="icon-img" src="https://upload.wikimedia.org/wikipedia/commons/0/05/Facebook_Logo_(2019).png" alt="Facebook" />
+                    Facebook
+                  </a>
+                  <a class="btn platform-chip" href="https://music.apple.com/us/album/lleno-de-balas-single/1797028897"
+                    target="_blank" rel="noopener noreferrer" style="background:rgba(0,0,0,.55);">
+                    <img class="icon-img" src="https://img.icons8.com/ios-filled/50/ffffff/music.png" alt="Apple Music" />
+                    Apple Music
+                  </a>
+                  <a class="btn platform-chip" href="https://www.youtube.com/@iZadCasanovaOfficial" target="_blank"
+                    rel="noopener noreferrer" style="background:rgba(239,68,68,.85);">
+                    <img class="icon-img" src="https://upload.wikimedia.org/wikipedia/commons/4/42/YouTube_icon_%282013-2017%29.png" alt="YouTube" />
+                    YouTube
+                  </a>
+                  <a class="btn platform-chip"
+                    href="https://open.spotify.com/artist/3OJiIxT52kCVJzQOWdmAj3?si=SOgvVyXVRJiks07atS2KGQ"
+                    target="_blank" rel="noopener noreferrer"
+                    style="background:rgba(29,185,84,.92); border-color: rgba(0,0,0,.08); color:#06150c;">
+                    <img class="icon-img" src="https://upload.wikimedia.org/wikipedia/commons/2/26/Spotify_logo_with_text.svg" alt="Spotify" />
+                    Spotify
+                  </a>
+                  <a class="btn platform-chip" href="https://music.amazon.es/artists/B0DX8BB36T/izad-casanova"
+                    target="_blank" rel="noopener noreferrer" style="background:rgba(59,130,246,.78);">
+                    <img class="icon-img" src="https://llamapress-ai-image-uploads.s3.us-west-2.amazonaws.com/0dvhru5j4cxc600wz9rzau0mytfv" alt="Amazon Music" />
+                    Amazon Music
+                  </a>
+                  <a class="btn platform-chip" href="https://www.boomplay.com/artists/106538924" target="_blank"
+                    rel="noopener noreferrer" style="background:rgba(59,130,246,.85);">
+                    <img class="icon-img" src="https://img.icons8.com/ios-filled/50/ffffff/boomplay.png" alt="Boomplay" />
+                    Boomplay
+                  </a>
+                  <a class="btn platform-chip" href="https://www.deezer.com/us/artist/303122241" target="_blank"
+                    rel="noopener noreferrer" style="background:rgba(37,99,235,.8);">
+                    <img class="icon-img" src="https://img.icons8.com/ios-filled/50/ffffff/deezer.png" alt="Deezer" />
+                    Deezer
+                  </a>
+                  <a class="btn platform-chip" href="https://www.shazam.com/artist/izad-casanova/1796466691"
+                    target="_blank" rel="noopener noreferrer" style="background:rgba(0,0,0,.55);">
+                    <img class="icon-img" src="https://img.icons8.com/ios-filled/50/ffffff/shazam.png" alt="Shazam" />
+                    Shazam
+                  </a>
+                  <a class="btn platform-chip" href="https://soundcloud.com/izad-casanova" target="_blank"
+                    rel="noopener noreferrer"
+                    style="background:rgba(249,115,22,.9); border-color: rgba(255,255,255,.12);">
+                    <img class="icon-img" src="https://img.icons8.com/ios-filled/50/ffffff/soundcloud.png" alt="SoundCloud" />
+                    SoundCloud
+                  </a>
+                </div>
+              </div>
+
+              <!-- Scroll cue -->
+              <button
+                class="mt-10 inline-flex items-center justify-center w-12 h-12 rounded-full bg-white/10 border border-white/15 hover:bg-white/15 transition animate-bounce"
+                type="button"
+                aria-label="Scroll to latest songs"
+                onclick="document.getElementById('latest-songs').scrollIntoView({behavior:'smooth'})"
+              >
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Latest Songs -->
+        <section id="latest-songs" class="section-hidden py-16 sm:py-20 px-4">
+          <div class="mx-auto max-w-6xl">
+            <div class="flex items-end justify-between gap-4 mb-8">
+              <div>
+                <h2 class="font-display text-3xl sm:text-4xl font-extrabold text-white">Latest Songs
+                </h2>
+                <p class="text-white/65 mt-2">New releases & official videos</p>
+              </div>
+              <div class="hidden sm:flex items-center gap-2 text-xs text-white/55">
+                <span class="w-2 h-2 rounded-full bg-brand-500"></span> Updated regularly
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <!-- Song Card -->
+              <article
+                class="glass rounded-2xl p-5 sm:p-6 shadow-card hover:shadow-soft transition border border-white/10">
+                <div class="flex gap-5">
+                  <div class="w-24 h-24 rounded-xl overflow-hidden flex-shrink-0 border border-white/10">
+                    <img
+                      src="https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/56/ba/90/56ba9059-2a93-5d7b-babc-497b4adcd601/artwork.jpg/300x300bb.webp"
+                      alt="Lleno de Balas cover"
+                      class="w-full h-full object-cover"
+                      loading="lazy"
+                    />
+                  </div>
+
+                  <div class="flex-1">
+                    <h3 class="text-xl font-bold text-white">Lleno de Balas</h3>
+                    <p class="text-white/60 mt-1">Single • 2025</p>
+
+                    <div class="mt-4 flex flex-wrap gap-2">
+                      <a href="https://www.youtube.com/watch?v=6uzyCcCB4Ak&list=OLAK5uy_lVShiu6B5qmErJk-HaA3akJPpdWIqQzXY&index=1"
+                        target="_blank" rel="noopener noreferrer" class="btn btn-primary !rounded-xl !px-4 !py-2">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                          <path
+                            d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zM9 16V8l8 3.993L9 16z" />
+                        </svg>
+                        Watch
+                      </a>
+                      <a href="https://music.apple.com/us/album/lleno-de-balas-single/1797028897" target="_blank"
+                        rel="noopener noreferrer" class="btn btn-ghost !rounded-xl !px-4 !py-2 text-white">
+                        Apple Music
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </article>
+
+              <!-- Song Card -->
+              <article
+                class="glass rounded-2xl p-5 sm:p-6 shadow-card hover:shadow-soft transition border border-white/10">
+                <div class="flex gap-5">
+                  <div class="w-24 h-24 rounded-xl overflow-hidden flex-shrink-0 border border-white/10">
+                    <img
+                      src="https://huggingface.co/spaces/juanlivex/izac-casanova/resolve/main/images/WhatsApp%20Image%202025-12-28%20at%2013.06.05.jpeg"
+                      alt="Todavía te recuerdo cover"
+                      class="w-full h-full object-cover"
+                      loading="lazy"
+                    />
+                  </div>
+
+                  <div class="flex-1">
+                    <h3 class="text-xl font-bold text-white">Todavía te recuerdo</h3>
+                    <p class="text-white/60 mt-1">Single • 2025</p>
+
+                    <div class="mt-4 flex flex-wrap gap-2">
+                      <a href="https://www.youtube.com/watch?v=B3WeEKW2Yys" target="_blank" rel="noopener noreferrer"
+                        class="btn btn-primary !rounded-xl !px-4 !py-2">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                          <path
+                            d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zM9 16V8l8 3.993L9 16z" />
+                        </svg>
+                        Watch
+                      </a>
+                      <a href="https://open.spotify.com/artist/3OJiIxT52kCVJzQOWdmAj3?si=SOgvVyXVRJiks07atS2KGQ"
+                        target="_blank" rel="noopener noreferrer"
+                        class="btn btn-ghost !rounded-xl !px-4 !py-2 text-white">
+                        Spotify
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <!-- Store -->
+        <section id="store-section" class="section-hidden py-16 sm:py-20 px-4">
+          <div class="mx-auto max-w-6xl">
+            <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6 mb-8">
+              <div>
+                <div class="flex items-end gap-3">
+                  <h2 class="font-display text-4xl sm:text-6xl font-extrabold text-white leading-none">
+                    Zaddy</h2>
+                  <span class="text-xl sm:text-3xl text-white/75 pb-1">Collection</span>
+                </div>
+                <p class="text-white/65 mt-3 text-lg">Official Merchandise</p>
+              </div>
+
+              <div class="flex gap-2">
+                <button class="btn btn-ghost" type="button" onclick="openCheckout()">View Cart</button>
+                <button class="btn btn-primary" type="button" onclick="showNotification('New drops coming soon 🔥')">Notify Me</button>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <!-- Product -->
+              <article class="glass rounded-2xl p-6 shadow-card hover:shadow-soft transition border border-white/10">
+                <div class="h-64 mb-5 flex items-center justify-center">
+                  <a href="https://i.postimg.cc/nzPXCspk/MASK1-removebg-preview.png" target="_blank"
+                    rel="noopener noreferrer"
+                    class="block transform rotate-3 hover:rotate-0 transition-transform duration-300">
+                    <img src="https://i.postimg.cc/nzPXCspk/MASK1-removebg-preview.png" alt="Signature Mask" class="h-56 object-contain" loading="lazy" />
+                  </a>
+                </div>
+                <h3 class="text-xl font-bold text-white">Signature Mask</h3>
+                <p class="text-white/60 mt-2">Limited edition iZad Casanova Signature Mask</p>
+                <div class="mt-5 flex items-center justify-between">
+                  <span class="text-2xl font-extrabold text-white">$200.00</span>
+                  <button onclick="addToCart('Signature Mask', 200.00)" class="btn btn-primary !rounded-xl !px-4 !py-2" type="button">
+                    Add
+                  </button>
+                </div>
+              </article>
+
+              <!-- Product -->
+              <article class="glass rounded-2xl p-6 shadow-card hover:shadow-soft transition border border-white/10">
+                <div class="h-64 mb-5 flex items-center justify-center">
+                  <a href="https://i.postimg.cc/3xxWCCNB/MASK2-removebg-preview.png" target="_blank"
+                    rel="noopener noreferrer"
+                    class="block transform rotate-3 hover:rotate-0 transition-transform duration-300">
+                    <img src="https://i.postimg.cc/3xxWCCNB/MASK2-removebg-preview.png" alt="Urban Mask" class="h-56 object-contain" loading="lazy" />
+                  </a>
+                </div>
+                <h3 class="text-xl font-bold text-white">Urban Mask</h3>
+                <p class="text-white/60 mt-2">Premium edition iZad Casanova Urban Mask</p>
+                <div class="mt-5 flex items-center justify-between">
+                  <span class="text-2xl font-extrabold text-white">$200.00</span>
+                  <button onclick="addToCart('Urban Mask', 200.00)" class="btn btn-primary !rounded-xl !px-4 !py-2" type="button">
+                    Add
+                  </button>
+                </div>
+              </article>
+
+              <!-- Product -->
+              <article
+                class="glass rounded-2xl p-6 shadow-card hover:shadow-soft transition border border-white/10 relative overflow-hidden">
+                <div
+                  class="absolute top-4 right-4 text-xs font-extrabold tracking-widest uppercase bg-brand-500 text-black px-3 py-1 rounded-full shadow-glow">
+                  Limited
+                </div>
+                <div class="h-64 mb-5 flex items-center justify-center">
+                  <a href="https://i.postimg.cc/nh9fJCPx/MASK3-removebg-preview.png" target="_blank"
+                    rel="noopener noreferrer"
+                    class="block transform rotate-3 hover:rotate-0 transition-transform duration-300">
+                    <img src="https://i.postimg.cc/nh9fJCPx/MASK3-removebg-preview.png" alt="Elite Mask" class="h-56 object-contain" loading="lazy" />
+                  </a>
+                </div>
+                <h3 class="text-xl font-bold text-white">Elite Mask</h3>
+                <p class="text-white/60 mt-2">Street-inspired edition iZad Casanova Elite Mask</p>
+                <div class="mt-5 flex items-center justify-between">
+                  <span class="text-2xl font-extrabold text-white">$200.00</span>
+                  <button onclick="addToCart('Elite Mask', 200.00)" class="btn btn-primary !rounded-xl !px-4 !py-2" type="button">
+                    Add
+                  </button>
+                </div>
+              </article>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- ABOUT -->
+      <div id="about-page" class="page hidden">
+        <section class="py-16 sm:py-20 px-4">
+          <div class="mx-auto max-w-6xl">
+            <div class="glass-strong rounded-2xl p-6 sm:p-10 shadow-card border border-white/10">
+              <div class="flex items-start justify-between gap-6 flex-col md:flex-row">
+                <div class="flex-1">
+                  <h2 class="font-display text-3xl sm:text-4xl font-extrabold text-white">iZad
+                    Casanova – Biography</h2>
+                  <p class="text-white/60 mt-2">The story behind the music</p>
+                </div>
+                <div class="flex gap-2">
+                  <button class="btn btn-ghost" type="button" onclick="switchPage('home')">Back to Home</button>
+                  <button class="btn btn-primary" type="button" onclick="switchPage('contact')">Book / Contact</button>
+                </div>
+              </div>
+
+              <div class="mt-8 space-y-6 text-white/80 leading-relaxed">
+                <p class="text-lg">
+                  My name is iZad Casanova, and I was born in New York City on November 11, 1989. I'm
+                  a first-generation American,
+                  still living in the Bronx, and still chasing a dream. I graduated from Monroe
+                  College with a degree in Computer Analysis,
+                  but life hasn't made things easy. Despite the obstacles, I've kept pushing forward.
+                </p>
+                <p class="text-lg">
+                  Between 1996 and 2006, I lived in the Dominican Republic after my parents and family
+                  were indicted for drug trafficking.
+                  Their decisions shaped my path and brought a lot of struggle into my life. Ever
+                  since then, I've been fighting to rise above it—to
+                  create a future beyond the shadows of my past. I've been offered many opportunities
+                  tied to criminal activity, but I've never let my soul fall.
+                  I remain strong, choosing to do what's right.
+                </p>
+                <p class="text-lg">
+                  Music is my therapy. It's how I deal with emotions, depression, pain, and survival.
+                  It's the voice I use when words fail me.
+                  I've faced betrayal and heartbreak, especially from my own siblings who have turned
+                  their backs on our mother and our sister—who's battling leukemia.
+                  I've carried the weight alone: paying rent, medicine, food, and everything else,
+                  often at the cost of my own dreams.
+                </p>
+                <p class="text-lg">
+                  But I'm not chasing fame for money. I'm chasing fame to mentally go to war with the
+                  system—to challenge injustice, to speak up for the unheard,
+                  and to help humanity live a better life. My mission is bigger than me.
+                </p>
+                <p class="text-lg">
+                  I believe in something greater. I believe in Allah, in Judgment Day, and in karma. I
+                  live by values rooted in faith, resilience, and love.
+                  Helping others is what brings me peace—and I want to take that mission even further
+                  through my music.
+                </p>
+                <p class="text-lg">
+                  Outside of music, I'm passionate about technology—from coding (SQL, CSS, HTML) to
+                  content creation and even sustainable agriculture.
+                  I've developed a unique method to grow fruits and vegetables sustainably, using
+                  techniques that could benefit under-resourced communities.
+                  But like many of my ideas, it's stuck on the shelf—not because of lack of vision,
+                  but because of lack of funding.
+                  I believe this project could change lives, but without the resources to get it off
+                  the ground, it remains a dream waiting to be realized.
+                </p>
+                <p class="text-lg">
+                  Most importantly, I'm a proud father of two—a daughter and a son. Their existence
+                  gives my life meaning.
+                  They are my reason to keep dreaming, to keep fighting, to never give up.
+                </p>
+                <p class="text-lg">
+                  Through my music, I don't just want to be heard—I want to be felt. I want people to
+                  hear my story and know that they're not alone.
+                  That no matter how broken life gets, there's still hope.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- CONTACT -->
+      <div id="contact-page" class="page hidden">
+        <section class="py-16 sm:py-20 px-4">
+          <div class="mx-auto max-w-6xl">
+            <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6 mb-8">
+              <div>
+                <h2 class="font-display text-3xl sm:text-4xl font-extrabold text-white">Get In Touch
+                </h2>
+                <p class="text-white/65 mt-2 text-lg">For bookings, collaborations, and inquiries</p>
+              </div>
+              <button class="btn btn-ghost" type="button" onclick="switchPage('home')">Back to Home</button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="glass rounded-2xl p-6 sm:p-7 shadow-card border border-white/10">
+                <h3 class="text-2xl font-bold text-white">Contact Management</h3>
+                <p class="text-white/60 mt-2 mb-6">For professional inquiries and booking requests</p>
+                <a href="mailto:izadcasanovaofficial@gmail.com" class="btn btn-primary !rounded-xl w-full sm:w-auto">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z">
+                    </path>
+                  </svg>
+                  Email: izadcasanovaofficial@gmail.com
+                </a>
+              </div>
+
+              <div class="glass rounded-2xl p-6 sm:p-7 shadow-card border border-white/10">
+                <h3 class="text-2xl font-bold text-white">Social Media</h3>
+                <p class="text-white/60 mt-2 mb-6">Connect directly on social platforms</p>
+                <div class="flex flex-wrap gap-3">
+                  <a href="https://www.instagram.com/izadcasanovaofficial/" target="_blank" rel="noopener noreferrer"
+                    class="btn"
+                    style="background:linear-gradient(135deg, rgba(147,51,234,.9), rgba(236,72,153,.8)); border-color: rgba(255,255,255,.15);">
+                    <img class="icon-img" src="https://upload.wikimedia.org/wikipedia/commons/e/e7/Instagram_logo_2016.svg" alt="Instagram" />
+                    Instagram
+                  </a>
+                  <a href="https://www.facebook.com/izadcasanova" target="_blank" rel="noopener noreferrer" class="btn"
+                    style="background:rgba(37,99,235,.85);">
+                    <img class="icon-img" src="https://upload.wikimedia.org/wikipedia/commons/0/05/Facebook_Logo_(2019).png" alt="Facebook" />
+                    Facebook
+                  </a>
+                  <a href="https://www.tiktok.com/@izadcasanovaofficial" target="_blank" rel="noopener noreferrer"
+                    class="btn" style="background:rgba(0,0,0,.55);">
+                    <img class="icon-img" src="https://img.icons8.com/ios-filled/50/ffffff/tiktok--v1.png" alt="TikTok" />
+                    TikTok
+                  </a>
+                  <a href="https://www.boomplay.com/artists/106538924" target="_blank" rel="noopener noreferrer"
+                    class="btn" style="background:rgba(59,130,246,.85);">
+                    <img class="icon-img" src="https://img.icons8.com/ios-filled/50/ffffff/boomplay.png" alt="Boomplay" />
+                    Boomplay
+                  </a>
+                </div>
+
+                <div class="mt-6 text-xs text-white/50">
+                  Tip: For fastest response, email is best.
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <!-- Checkout Modal (formerly Cart Modal) -->
+  <div id="checkoutModal" class="fixed inset-0 z-[999] hidden overflow-y-auto" role="dialog" aria-modal="true"
+    aria-labelledby="checkoutTitle">
+    <div class="absolute inset-0 bg-black/70" onclick="closeCheckout()" aria-hidden="true"></div>
+
+    <div
+      class="relative mx-auto my-8 w-[95%] max-w-5xl glass-strong rounded-2xl shadow-card border border-white/10 overflow-hidden">
+      <div class="p-6 md:p-8">
+        <!-- Header -->
+        <div class="flex items-start justify-between gap-4 mb-6">
+          <div>
+            <h2 id="checkoutTitle" class="text-3xl font-extrabold text-white">Secure Checkout</h2>
+            <p class="text-white/60 mt-1">Complete your purchase</p>
+          </div>
+          <button onclick="closeCheckout()" class="btn btn-ghost !rounded-xl !px-3 !py-2 text-white/80 hover:text-white" type="button" aria-label="Close checkout">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Checkout Grid -->
+        <div class="checkout-grid">
+          <!-- Order Summary -->
+          <div class="glass rounded-2xl p-6 border border-white/10">
+            <h3 class="text-xl font-bold text-white mb-4">Order Summary</h3>
+            <div id="checkoutItems" class="space-y-4">
+              <!-- Dynamic items will be injected here -->
+            </div>
+            <div class="border-t border-white/10 my-4 pt-4 space-y-2">
+              <div class="flex justify-between text-white/70">
+                <span>Subtotal</span>
+                <span id="checkoutSubtotal">$0.00</span>
+              </div>
+              <div class="flex justify-between text-white/70">
+                <span>Shipping</span>
+                <span>$5.00</span>
+              </div>
+              <div class="flex justify-between text-lg font-extrabold text-white">
+                <span>Total</span>
+                <span id="checkoutTotal">$5.00</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Customer Information & Payment -->
+          <div class="space-y-6">
+            <!-- Customer Info -->
+            <div class="glass rounded-2xl p-6 border border-white/10">
+              <h3 class="text-xl font-bold text-white mb-4">Contact Information</h3>
+              <form id="checkoutForm" class="space-y-4">
+                <div>
+                  <label class="form-label" for="fullName">Full Name *</label>
+                  <input type="text" id="fullName" class="form-input" placeholder="John Doe" required>
+                </div>
+                <div>
+                  <label class="form-label" for="email">Email Address *</label>
+                  <input type="email" id="email" class="form-input" placeholder="john@example.com" required>
+                </div>
+                <div>
+                  <label class="form-label" for="address">Street Address *</label>
+                  <input type="text" id="address" class="form-input" placeholder="123 Main St" required>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                  <div>
+                    <label class="form-label" for="city">City *</label>
+                    <input type="text" id="city" class="form-input" placeholder="New York" required>
+                  </div>
+                  <div>
+                    <label class="form-label" for="state">State *</label>
+                    <input type="text" id="state" class="form-input" placeholder="NY" required>
+                  </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                  <div>
+                    <label class="form-label" for="zip">ZIP Code *</label>
+                    <input type="text" id="zip" class="form-input" placeholder="10001" required>
+                  </div>
+                  <div>
+                    <label class="form-label" for="country">Country *</label>
+                    <select id="country" class="form-input" required>
+                      <option value="US" selected>United States</option>
+                      <option value="CA">Canada</option>
+                      <option value="GB">United Kingdom</option>
+                      <option value="AU">Australia</option>
+                    </select>
+                  </div>
+                </div>
+              </form>
+            </div>
+
+            <!-- Payment Section -->
+            <div class="glass rounded-2xl p-6 border border-white/10">
+              <div class="flex items-center gap-3 mb-4">
+                <svg class="w-6 h-6 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+                <h3 class="text-xl font-bold text-white">Payment Method</h3>
+              </div>
+
+              <!-- PayPal Button Container -->
+              <div id="paypal-button-container" class="mt-4"></div>
+
+              <!-- Trust Badges -->
+              <div class="flex flex-wrap gap-3 mt-6 justify-center">
+                <span class="trust-badge">
+                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                  </svg>
+                  Secure SSL
+                </span>
+                <span class="trust-badge">
+                  <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+                  </svg>
+                  PayPal Protection
+                </span>
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex justify-between gap-4">
+              <button onclick="clearCart()" class="btn btn-ghost !rounded-xl px-6 py-3 text-white">Clear Cart</button>
+              <button onclick="closeCheckout()" class="btn btn-ghost !rounded-xl px-6 py-3 text-white">Continue Shopping</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="py-10 text-center">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6">
+      <div class="glass rounded-2xl border border-white/10 p-6">
+        <p class="text-white/55 text-sm">© 2024 iZad Casanova. All rights reserved.</p>
+        <p class="text-white/40 text-xs mt-2">Website designed with passion</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- PayPal SDK (UPDATED CLIENT ID + card funding enabled) -->
+  <script
+    src="https://www.paypal.com/sdk/js?client-id=ATREYJecc_skxjfSQa73hvdfNu8SXE77XJX5Zl2WGCNbgLPNdWbUNV6OJ5bjkTDcqOqlvGhG2Q-vZDy0&currency=USD&enable-funding=venmo,card&disable-funding=credit">
+  </script>
+
+  <script>
+    /********************
+     * Matrix Effect (Canvas)
+     ********************/
+    const matrix = {
+      enabled: true,
+      canvas: null,
+      ctx: null,
+      w: 0,
+      h: 0,
+      fontSize: 16,
+      columns: 0,
+      drops: [],
+      chars: "iZad Casanova 01 ",
+      color: "rgba(255, 40, 40, 0.95)",
+      fade: "rgba(0, 0, 0, 0.08)"
+    };
+
+    function initMatrix() {
+      matrix.canvas = document.getElementById("matrixCanvas");
+      matrix.ctx = matrix.canvas.getContext("2d");
+      resizeMatrix();
+
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        matrix.enabled = false;
+        matrix.canvas.style.display = "none";
+        return;
+      }
+
+      requestAnimationFrame(drawMatrix);
+    }
+
+    function resizeMatrix() {
+      matrix.w = matrix.canvas.width = window.innerWidth;
+      matrix.h = matrix.canvas.height = window.innerHeight;
+      matrix.columns = Math.floor(matrix.w / matrix.fontSize);
+      matrix.drops = Array(matrix.columns).fill(0).map(() => Math.random() * matrix.h);
+    }
+
+    function drawMatrix() {
+      if (!matrix.enabled) return;
+
+      const ctx = matrix.ctx;
+      ctx.fillStyle = matrix.fade;
+      ctx.fillRect(0, 0, matrix.w, matrix.h);
+
+      ctx.fillStyle = matrix.color;
+      ctx.font = `${matrix.fontSize}px monospace`;
+
+      for (let i = 0; i < matrix.drops.length; i++) {
+        const text = matrix.chars[Math.floor(Math.random() * matrix.chars.length)];
+        const x = i * matrix.fontSize;
+        const y = matrix.drops[i];
+
+        ctx.fillText(text, x, y);
+
+        if (y > matrix.h && Math.random() > 0.975) {
+          matrix.drops[i] = 0;
+        } else {
+          matrix.drops[i] += matrix.fontSize;
+        }
+      }
+
+      requestAnimationFrame(drawMatrix);
+    }
+
+    function toggleMatrix() {
+      matrix.enabled = !matrix.enabled;
+      matrix.canvas.style.display = matrix.enabled ? "block" : "none";
+      if (matrix.enabled) requestAnimationFrame(drawMatrix);
+      showNotification(matrix.enabled ? "FX enabled" : "FX disabled");
+    }
+
+    /********************
+     * Hero logo spacing
+     ********************/
+    function setHeroLogoSpacing() {
+      const cover = document.querySelector(".hero-cover");
+      const logo = document.querySelector(".hero-logo");
+      if (!cover || !logo) return;
+
+      const apply = () => {
+        const h = Math.ceil(logo.getBoundingClientRect().height || 0);
+        const safe = Math.max(0, h) + 16;
+        cover.style.setProperty("--hero-logo-safe", safe + "px");
+      };
+
+      if (logo.complete) {
+        apply();
+      } else {
+        logo.addEventListener("load", apply, { once: true });
+      }
+      requestAnimationFrame(apply);
+    }
+
+    /********************
+     * Cart & Checkout
+     ********************/
+    let cart = [];
+    const SHIPPING = 5;
+
+    function initCart() {
+      const saved = localStorage.getItem("cart");
+      if (saved) cart = JSON.parse(saved);
+      updateCartUI();
+    }
+
+    function persistCart() {
+      localStorage.setItem("cart", JSON.stringify(cart));
+    }
+
+    function addToCart(itemName, price) {
+      cart.push({ name: itemName, price: price });
+      persistCart();
+      updateCartUI();
+      showNotification(`${itemName} added to cart`);
+      openCheckout(); // Open checkout directly for better flow
+    }
+
+    function removeFromCart(index) {
+      if (index >= 0 && index < cart.length) {
+        const removed = cart.splice(index, 1)[0];
+        persistCart();
+        updateCartUI();
+        updateCheckoutDisplay(); // Update checkout if open
+        showNotification(`${removed.name} removed`);
+      }
+    }
+
+    function calculateSubtotal() {
+      return cart.reduce((sum, item) => sum + item.price, 0);
+    }
+
+    function calculateTotal() {
+      return (calculateSubtotal() + SHIPPING).toFixed(2);
+    }
+
+    function updateCartUI() {
+      const count = cart.length;
+      document.getElementById("cartCount").textContent = count;
+      // mobile cart count removed (only one cart button now)
+    }
+
+    function updateCheckoutDisplay() {
+      const itemsContainer = document.getElementById("checkoutItems");
+      const subtotalSpan = document.getElementById("checkoutSubtotal");
+      const totalSpan = document.getElementById("checkoutTotal");
+
+      if (!itemsContainer) return;
+
+      itemsContainer.innerHTML = "";
+      if (cart.length === 0) {
+        itemsContainer.innerHTML = '<p class="text-white/60 text-sm">Your cart is empty.</p>';
+        subtotalSpan.textContent = "$0.00";
+        totalSpan.textContent = "$5.00";
+        return;
+      }
+
+      cart.forEach((item, index) => {
+        const div = document.createElement("div");
+        div.className = "flex justify-between items-center";
+        div.innerHTML = `
+          <div>
+            <p class="text-white font-medium">${item.name}</p>
+            <p class="text-white/60 text-sm">Qty: 1</p>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="text-white">$${item.price.toFixed(2)}</span>
+            <button onclick="removeFromCart(${index})" class="text-red-400 hover:text-red-300" aria-label="Remove">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </button>
+          </div>
+        `;
+        itemsContainer.appendChild(div);
+      });
+
+      const subtotal = calculateSubtotal();
+      subtotalSpan.textContent = `$${subtotal.toFixed(2)}`;
+      totalSpan.textContent = `$${(subtotal + SHIPPING).toFixed(2)}`;
+    }
+
+    function openCheckout() {
+      const modal = document.getElementById("checkoutModal");
+      updateCheckoutDisplay();
+      modal.classList.remove("hidden");
+      document.body.style.overflow = "hidden";
+
+      // Render PayPal buttons if not already rendered
+      if (cart.length > 0 && !window.paypalRendered) {
+        renderPayPalButtons();
+      } else if (cart.length > 0) {
+        // If cart changed, we need to re-render (clear and render)
+        document.getElementById("paypal-button-container").innerHTML = '';
+        renderPayPalButtons();
+      } else {
+        document.getElementById("paypal-button-container").innerHTML = '';
+      }
+    }
+
+    function closeCheckout() {
+      document.getElementById("checkoutModal").classList.add("hidden");
+      document.body.style.overflow = "";
+    }
+
+    function clearCart() {
+      cart = [];
+      localStorage.removeItem("cart");
+      updateCartUI();
+      updateCheckoutDisplay();
+      showNotification("Cart cleared");
+      closeCheckout();
+    }
+
+    // Form validation
+    function validateCheckoutForm() {
+      const form = document.getElementById("checkoutForm");
+      const requiredFields = form.querySelectorAll("[required]");
+      let isValid = true;
+
+      requiredFields.forEach(field => {
+        if (!field.value.trim()) {
+          field.classList.add("border-red-500");
+          isValid = false;
+        } else {
+          field.classList.remove("border-red-500");
+        }
+      });
+
+      // Email validation
+      const email = document.getElementById("email");
+      if (email.value && !/^\S+@\S+\.\S+$/.test(email.value)) {
+        email.classList.add("border-red-500");
+        isValid = false;
+      }
+
+      return isValid;
+    }
+
+    // PayPal button rendering
+    function renderPayPalButtons() {
+      if (typeof paypal === "undefined" || cart.length === 0) return;
+
+      const container = document.getElementById("paypal-button-container");
+      container.innerHTML = ""; // Clear previous buttons
+
+      paypal.Buttons({
+        style: {
+          layout: 'vertical',
+          color: 'gold',
+          shape: 'rect',
+          label: 'paypal'
+        },
+        createOrder: function(data, actions) {
+          if (!validateCheckoutForm()) {
+            showNotification("Please fill in all required fields correctly.");
+            return actions.reject();
+          }
+
+          const total = calculateTotal();
+          return actions.order.create({
+            purchase_units: [{
+              amount: {
+                value: total,
+                breakdown: {
+                  item_total: { value: calculateSubtotal().toFixed(2), currency_code: "USD" },
+                  shipping: { value: SHIPPING.toFixed(2), currency_code: "USD" }
+                }
+              },
+              items: cart.map(item => ({
+                name: item.name,
+                unit_amount: { value: item.price.toFixed(2), currency_code: "USD" },
+                quantity: 1
+              })),
+              shipping: {
+                name: { full_name: document.getElementById("fullName").value },
+                address: {
+                  address_line_1: document.getElementById("address").value,
+                  admin_area_2: document.getElementById("city").value,
+                  admin_area_1: document.getElementById("state").value,
+                  postal_code: document.getElementById("zip").value,
+                  country_code: document.getElementById("country").value
+                }
+              }
+            }]
+          });
+        },
+        onApprove: function(data, actions) {
+          return actions.order.capture().then(function(details) {
+            showNotification(`Payment completed! Thank you, ${details.payer.name.given_name}.`);
+            clearCart();
+            closeCheckout();
+          });
+        },
+        onError: function(err) {
+          console.error("PayPal error:", err);
+          showNotification("Payment failed. Please try again.");
+        }
+      }).render("#paypal-button-container").then(() => {
+        window.paypalRendered = true;
+      });
+    }
+
+    /********************
+     * Notifications (Toast)
+     ********************/
+    let toastTimeout = null;
+    function showNotification(message) {
+      const existing = document.getElementById("toast");
+      if (existing) existing.remove();
+      if (toastTimeout) clearTimeout(toastTimeout);
+
+      const toast = document.createElement("div");
+      toast.id = "toast";
+      toast.className = "fixed bottom-4 left-1/2 -translate-x-1/2 z-[1000] glass-strong border border-white/10 text-white px-4 py-3 rounded-2xl shadow-card flex items-center gap-3";
+      toast.innerHTML = `
+        <span class="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-brand-500/20 border border-brand-500/30">
+          <svg class="w-5 h-5 text-brand-300" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+          </svg>
+        </span>
+        <div class="text-sm font-semibold">${message}</div>
+      `;
+      document.body.appendChild(toast);
+
+      toastTimeout = setTimeout(() => {
+        toast.style.transition = "opacity .25s ease, transform .25s ease";
+        toast.style.opacity = "0";
+        toast.style.transform = "translate(-50%, 12px)";
+        setTimeout(() => toast.remove(), 260);
+      }, 2600);
+    }
+
+    /********************
+     * Page switching
+     ********************/
+    function switchPage(pageId) {
+      document.querySelectorAll(".page").forEach(p => p.classList.add("hidden"));
+      const el = document.getElementById(`${pageId}-page`);
+      if (el) el.classList.remove("hidden");
+
+      document.querySelectorAll("[data-page]").forEach(btn => btn.removeAttribute("aria-current"));
+      document.querySelectorAll(`[data-page="${pageId}"]`).forEach(btn => btn.setAttribute("aria-current", "page"));
+
+      document.getElementById("mobileMenu")?.classList.add("hidden");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    /********************
+     * Section reveal
+     ********************/
+    function initReveal() {
+      const sections = document.querySelectorAll(".section-hidden");
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) entry.target.classList.add("section-visible");
+        });
+      }, { threshold: 0.12 });
+      sections.forEach(s => observer.observe(s));
+    }
+
+    /********************
+     * Init + Events
+     ********************/
+    function setScrollPadding() {
+      const header = document.getElementById("mainHeader");
+      if (!header) return;
+      const rect = header.getBoundingClientRect();
+      const height = rect.height + 16;
+      document.documentElement.style.scrollPaddingTop = height + "px";
+    }
+
+    document.querySelectorAll("[data-page]").forEach(btn => {
+      btn.addEventListener("click", (e) => switchPage(e.currentTarget.getAttribute("data-page")));
+    });
+
+    document.getElementById("mobileMenuBtn").addEventListener("click", () => {
+      document.getElementById("mobileMenu").classList.toggle("hidden");
+    });
+
+    document.getElementById("toggleMatrixBtn").addEventListener("click", toggleMatrix);
+    // mobileFxBtn removed – no duplicate
+
+    // Close modal on ESC
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") closeCheckout();
+    });
+
+    window.addEventListener("load", () => {
+      initCart();
+      initMatrix();
+      initReveal();
+      setScrollPadding();
+      setHeroLogoSpacing();
+      switchPage("home");
+      showNotification("Welcome 👋");
+    });
+
+    window.addEventListener("resize", () => {
+      setScrollPadding();
+      resizeMatrix();
+      setHeroLogoSpacing();
+    });
+
+    // Expose functions globally
+    window.addToCart = addToCart;
+    window.removeFromCart = removeFromCart;
+    window.openCheckout = openCheckout;
+    window.closeCheckout = closeCheckout;
+    window.clearCart = clearCart;
+    window.switchPage = switchPage;
+    window.showNotification = showNotification;
+  </script>
+</body>
+
+</html>

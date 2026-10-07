@@ -1,0 +1,67 @@
+
+body {
+	padding: 0;
+	font-family: -apple-system, BlinkMacSystemFont, "Arial", sans-serif;
+    margin-top: 100px; /* Compensate for header height */
+}
+
+header.scrolled-up {
+    transform: translateY(0);
+}
+
+header.scrolled-down {
+    transform: translateY(-100%);
+}
+
+header {
+    top: 0;
+}
+
+@keyframes subtlePulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.02); }
+    100% { transform: scale(1); }
+}
+.zaddy-logo {
+    animation: subtlePulse 3s ease-in-out infinite;
+    height: 48px;
+    width: auto;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+    transition: all 0.3s ease;
+    margin-right: 1rem;
+}
+
+.zaddy-logo:hover {
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4));
+    transform: translateY(-1px);
+}
+
+/* Logo container for better alignment */
+.logo-container {
+    display: flex;
+    align-items: center;
+    height: 100%;
+}
+h1 {
+	font-size: 16px;
+	margin-top: 0;
+}
+
+p {
+	color: rgb(107, 114, 128);
+	font-size: 15px;
+	margin-bottom: 10px;
+	margin-top: 5px;
+}
+
+.card {
+	max-width: 620px;
+	margin: 0 auto;
+	padding: 16px;
+	border: 1px solid lightgray;
+	border-radius: 16px;
+}
+
+.card p:last-child {
+	margin-bottom: 0;
+}
