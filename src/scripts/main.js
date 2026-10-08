@@ -589,6 +589,8 @@ if (bgMusic && musicBtn) {
   const syncMusicBtn = () => {
     const audible = !bgMusic.paused && !bgMusic.muted;
     musicBtn.classList.toggle('is-on', audible);
+    // pulse for attention while it's playing silently (blocked/muted)
+    musicBtn.classList.toggle('needs-tap', !audible && !userMuted);
     musicBtn.setAttribute('aria-pressed', String(audible));
     musicBtn.setAttribute(
       'aria-label',
@@ -618,15 +620,22 @@ if (bgMusic && musicBtn) {
   };
 
   const unlock = () => {
-    if (soundBlocked && !userMuted && !bgMusic.paused) {
+    if (userMuted) return;
+    // browsers that blocked ALL playback need a fresh play() inside
+    // the gesture; browsers that only blocked sound just need unmute
+    if (bgMusic.paused) {
+      bgMusic.muted = false;
+      bgMusic.play().then(() => { soundBlocked = false; syncMusicBtn(); }).catch(syncMusicBtn);
+    } else if (soundBlocked) {
       bgMusic.muted = false;
       soundBlocked = false;
       syncMusicBtn();
     }
   };
-  // one gesture anywhere unmutes — covers browsers that blocked sound
-  window.addEventListener('pointerdown', unlock, { once: false });
-  window.addEventListener('keydown', unlock, { once: false });
+  // one gesture anywhere enables sound — covers every block scenario
+  window.addEventListener('pointerdown', unlock);
+  window.addEventListener('touchstart', unlock, { passive: true });
+  window.addEventListener('keydown', unlock);
 
   musicBtn.addEventListener('click', () => {
     userMuted = !userMuted;

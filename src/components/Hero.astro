@@ -262,6 +262,22 @@ import { ARTIST } from '../data/site.js';
       0 0 22px rgba(34, 216, 97, 0.22);
   }
 
+  /* autoplay blocked / currently muted — gentle pulse inviting a tap */
+  .music-toggle.needs-tap {
+    color: var(--text);
+    border-color: rgba(34, 216, 97, 0.4);
+    animation: mt-pulse 2.2s ease-in-out infinite;
+  }
+
+  @keyframes mt-pulse {
+    0%, 100% {
+      box-shadow: 0 0 0 0 rgba(34, 216, 97, 0.35);
+    }
+    50% {
+      box-shadow: 0 0 0 7px rgba(34, 216, 97, 0);
+    }
+  }
+
   .mt-icon {
     flex-shrink: 0;
   }
