@@ -583,8 +583,7 @@ const musicBtn = document.getElementById('music-toggle');
 
 if (bgMusic && musicBtn) {
   bgMusic.volume = 0.55;
-  const MUTE_KEY = 'bg-music-muted';
-  let userMuted = localStorage.getItem(MUTE_KEY) === '1';
+  let userMuted = false;
   let soundBlocked = false;
 
   const syncMusicBtn = () => {
@@ -631,7 +630,6 @@ if (bgMusic && musicBtn) {
 
   musicBtn.addEventListener('click', () => {
     userMuted = !userMuted;
-    localStorage.setItem(MUTE_KEY, userMuted ? '1' : '0');
     bgMusic.muted = userMuted;
     if (bgMusic.paused) bgMusic.play().catch(() => {});
     syncMusicBtn();
