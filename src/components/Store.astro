@@ -4,12 +4,39 @@ import zaddyWordmark from '../assets/zaddy-wordmark.png';
 import maskSignature from '../assets/mask-signature.png';
 import maskUrban from '../assets/mask-urban.png';
 import maskElite from '../assets/mask-elite.png';
-import { PRODUCTS } from '../data/site.js';
+import teeConcretePoetry from '../assets/tee-concrete-poetry.png';
+import teeDestiny from '../assets/tee-destiny.png';
+import teeAfterHours from '../assets/tee-after-hours.png';
+import hoodieAfterMidnight from '../assets/hoodie-after-midnight.png';
+import hoodieConcretePoet from '../assets/hoodie-concrete-poet.png';
+import hoodieGhettoGarden from '../assets/hoodie-ghetto-garden.png';
+import jeansRoseRust from '../assets/jeans-rose-rust.png';
+import jeansIcedGraffiti from '../assets/jeans-iced-graffiti.png';
+import jeansSubwayMosaic from '../assets/jeans-subway-mosaic.png';
+import { PRODUCTS, UPCOMING, UPCOMING_HOODIES, UPCOMING_JEANS } from '../data/site.js';
 
 const productArt = {
   'mask-signature': maskSignature,
   'mask-urban': maskUrban,
   'mask-elite': maskElite,
+} as const;
+
+const upcomingArt = {
+  'tee-concrete-poetry': teeConcretePoetry,
+  'tee-destiny': teeDestiny,
+  'tee-after-hours': teeAfterHours,
+} as const;
+
+const hoodieArt = {
+  'hoodie-after-midnight': hoodieAfterMidnight,
+  'hoodie-concrete-poet': hoodieConcretePoet,
+  'hoodie-ghetto-garden': hoodieGhettoGarden,
+} as const;
+
+const jeansArt = {
+  'jeans-rose-rust': jeansRoseRust,
+  'jeans-iced-graffiti': jeansIcedGraffiti,
+  'jeans-subway-mosaic': jeansSubwayMosaic,
 } as const;
 ---
 
@@ -62,7 +89,117 @@ const productArt = {
       }
     </div>
 
-    <p class="store-note reveal">Secure checkout via PayPal · Ships worldwide</p>
+    <div class="upcoming-head reveal">
+      <span class="section-index">Next Drop</span>
+      <h3 class="upcoming-title">Coming <span class="serif-accent">Soon</span></h3>
+      <p class="upcoming-sub">Three heavyweight tees in the works. Lock in early — these won't sit.</p>
+    </div>
+
+    <div class="product-grid">
+      {
+        UPCOMING.map((product, i) => (
+          <article class="product-card reveal" data-delay={String(i)} style={`--card-i:${i + 3}`}>
+            <span class="card-scan" aria-hidden="true"></span>
+            <span class="card-frame" aria-hidden="true"></span>
+            <span class="product-badge">Coming Soon</span>
+            <div class="product-stage product-stage--photo">
+              <Image
+                src={upcomingArt[product.image]}
+                alt={`${product.name} — front and back mockup`}
+                widths={[480, 800]}
+                sizes="(max-width: 720px) 90vw, 340px"
+                loading="lazy"
+              />
+            </div>
+            <div class="product-info">
+              <h3>{product.name}</h3>
+              <p>{product.description}</p>
+              <div class="product-buy">
+                <span class="product-price">${product.price.toFixed(2)}</span>
+                <button class="btn btn-sm" type="button" data-notify>
+                  Notify Me
+                </button>
+              </div>
+            </div>
+          </article>
+        ))
+      }
+    </div>
+
+    <div class="upcoming-head reveal">
+      <span class="section-index">Next Drop — 02</span>
+      <h3 class="upcoming-title">Heavyweight <span class="serif-accent">Hoodies</span></h3>
+      <p class="upcoming-sub">Acid-washed fleece, oversized fit. Numbered pieces — no restocks.</p>
+    </div>
+
+    <div class="product-grid">
+      {
+        UPCOMING_HOODIES.map((product, i) => (
+          <article class="product-card reveal" data-delay={String(i)} style={`--card-i:${i + 6}`}>
+            <span class="card-scan" aria-hidden="true"></span>
+            <span class="card-frame" aria-hidden="true"></span>
+            <span class="product-badge">Coming Soon</span>
+            <div class="product-stage product-stage--photo">
+              <Image
+                src={hoodieArt[product.image]}
+                alt={`${product.name} — front and back mockup`}
+                widths={[480, 800]}
+                sizes="(max-width: 720px) 90vw, 340px"
+                loading="lazy"
+              />
+            </div>
+            <div class="product-info">
+              <h3>{product.name}</h3>
+              <p>{product.description}</p>
+              <div class="product-buy">
+                <span class="product-price">${product.price.toFixed(2)}</span>
+                <button class="btn btn-sm" type="button" data-notify>
+                  Notify Me
+                </button>
+              </div>
+            </div>
+          </article>
+        ))
+      }
+    </div>
+
+    <div class="upcoming-head reveal">
+      <span class="section-index">Next Drop — 03</span>
+      <h3 class="upcoming-title">Statement <span class="serif-accent">Denim</span></h3>
+      <p class="upcoming-sub">Distressed, patched, engineered — three cuts built for the city.</p>
+    </div>
+
+    <div class="product-grid">
+      {
+        UPCOMING_JEANS.map((product, i) => (
+          <article class="product-card reveal" data-delay={String(i)} style={`--card-i:${i + 9}`}>
+            <span class="card-scan" aria-hidden="true"></span>
+            <span class="card-frame" aria-hidden="true"></span>
+            <span class="product-badge">Coming Soon</span>
+            <div class="product-stage product-stage--photo product-stage--tall">
+              <Image
+                src={jeansArt[product.image]}
+                alt={`${product.name} — front and back mockup`}
+                widths={[480, 800]}
+                sizes="(max-width: 720px) 90vw, 340px"
+                loading="lazy"
+              />
+            </div>
+            <div class="product-info">
+              <h3>{product.name}</h3>
+              <p>{product.description}</p>
+              <div class="product-buy">
+                <span class="product-price">${product.price.toFixed(2)}</span>
+                <button class="btn btn-sm" type="button" data-notify>
+                  Notify Me
+                </button>
+              </div>
+            </div>
+          </article>
+        ))
+      }
+    </div>
+
   </div>
 </section>
 
@@ -143,6 +280,79 @@ const productArt = {
       drop-shadow(0 0 40px rgba(34, 216, 97, 0.28));
   }
 
+  .upcoming-head {
+    margin-top: clamp(2.4rem, 5vw, 3.6rem);
+    padding-top: clamp(1.8rem, 4vw, 2.8rem);
+    border-top: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+    margin-bottom: clamp(1.6rem, 4vw, 2.4rem);
+  }
+
+  .upcoming-title {
+    font-family: var(--font-display);
+    font-stretch: 120%;
+    font-weight: 800;
+    font-size: clamp(1.3rem, 3vw, 2rem);
+    text-transform: uppercase;
+    letter-spacing: -0.015em;
+    line-height: 0.95;
+  }
+
+  .upcoming-title .serif-accent {
+    text-transform: none;
+    letter-spacing: 0;
+    color: var(--accent);
+  }
+
+  .upcoming-sub {
+    color: var(--muted);
+    font-size: 0.78rem;
+    max-width: 46ch;
+  }
+
+  /* photo mockups fill the stage edge-to-edge like a lookbook frame */
+  .product-stage--photo {
+    position: relative;
+    height: auto;
+    aspect-ratio: 4 / 3;
+    padding: 0;
+  }
+
+  .product-stage--photo::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(
+      180deg,
+      rgba(10, 10, 12, 0.22),
+      transparent 24%,
+      transparent 76%,
+      rgba(10, 10, 12, 0.38)
+    );
+  }
+
+  .product-stage--photo img {
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    object-fit: cover;
+    transform: none;
+    filter: saturate(0.96) contrast(1.02);
+  }
+
+  .product-card:hover .product-stage--photo img {
+    transform: scale(1.045);
+    filter: saturate(1) contrast(1.03);
+  }
+
+  /* portrait spec-sheet mockups (jeans) — taller frame, no crop */
+  .product-stage--tall {
+    aspect-ratio: 4 / 5;
+  }
+
   .product-info {
     padding: 1.15rem;
   }
@@ -175,14 +385,6 @@ const productArt = {
     font-weight: 800;
     font-size: 1.1rem;
     font-variant-numeric: tabular-nums;
-  }
-
-  .store-note {
-    margin-top: 1.6rem;
-    text-align: center;
-    font-size: 0.72rem;
-    color: var(--faint);
-    letter-spacing: 0.06em;
   }
 
   /* auto-fit: three columns on desktop, two on tablets, one on phones —

@@ -32,9 +32,83 @@ export const PRODUCTS = [
     id: 'elite-mask',
     name: 'Elite Mask',
     description: 'Street-inspired edition iZad Casanova Elite Mask',
-    price: 200,
+    price: 250,
     image: 'mask-elite',
     badge: 'Limited',
+  },
+];
+
+// Upcoming drops — preview only, not purchasable, kept out of PRODUCTS
+// so they can never enter the cart or checkout.
+export const UPCOMING = [
+  {
+    id: 'tee-concrete-poetry',
+    name: 'Concrete Poetry Tee',
+    description: 'Cream washed heavyweight tee — classical statue artwork, red splatter finish',
+    price: 60,
+    image: 'tee-concrete-poetry',
+  },
+  {
+    id: 'tee-same-destiny',
+    name: 'Same Destiny Tee',
+    description: 'Plum washed heavyweight tee — gold chrome gothic print, tarot artwork',
+    price: 60,
+    image: 'tee-destiny',
+  },
+  {
+    id: 'tee-after-hours',
+    name: 'After Hours Tee',
+    description: 'Black acid-washed heavyweight tee — chrome city graphic, red script print',
+    price: 60,
+    image: 'tee-after-hours',
+  },
+];
+
+export const UPCOMING_HOODIES = [
+  {
+    id: 'hoodie-after-midnight',
+    name: 'After Midnight Hoodie',
+    description: 'Black acid-washed hoodie — After Midnight District city graphic, red chrome print',
+    price: 130,
+    image: 'hoodie-after-midnight',
+  },
+  {
+    id: 'hoodie-concrete-poet',
+    name: 'Concrete Poet Hoodie',
+    description: 'Grey acid-washed hoodie — statue artwork, brutalist back print',
+    price: 130,
+    image: 'hoodie-concrete-poet',
+  },
+  {
+    id: 'hoodie-ghetto-garden',
+    name: 'Ghetto Garden Hoodie',
+    description: 'Olive washed hoodie — cracked gothic type, roses & chain-link print',
+    price: 130,
+    image: 'hoodie-ghetto-garden',
+  },
+];
+
+export const UPCOMING_JEANS = [
+  {
+    id: 'jeans-rose-rust',
+    name: 'Rose Rust Jeans',
+    description: 'Rust-washed distressed denim — tonal rose embroidery, cargo details',
+    price: 145,
+    image: 'jeans-rose-rust',
+  },
+  {
+    id: 'jeans-iced-graffiti',
+    name: 'Iced Graffiti Jeans',
+    description: 'Light-wash distressed denim — graffiti print, rhinestone cross detailing',
+    price: 145,
+    image: 'jeans-iced-graffiti',
+  },
+  {
+    id: 'jeans-subway-mosaic',
+    name: 'Subway Mosaic Jeans',
+    description: 'Two-tone patchwork denim — transit-map stitching, skyline patch',
+    price: 145,
+    image: 'jeans-subway-mosaic',
   },
 ];
 
