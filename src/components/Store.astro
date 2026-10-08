@@ -1,5 +1,5 @@
 ---
-import { Image } from 'astro:assets';
+import { getImage, Image } from 'astro:assets';
 import zaddyWordmark from '../assets/zaddy-wordmark.png';
 import maskSignature from '../assets/mask-signature.png';
 import maskUrban from '../assets/mask-urban.png';
@@ -38,6 +38,17 @@ const jeansArt = {
   'jeans-iced-graffiti': jeansIcedGraffiti,
   'jeans-subway-mosaic': jeansSubwayMosaic,
 } as const;
+
+// ~1200px webp variants for the lightbox — raw PNGs are ~3MB each
+const allArt = { ...productArt, ...upcomingArt, ...hoodieArt, ...jeansArt };
+const viewerSrc = Object.fromEntries(
+  await Promise.all(
+    Object.entries(allArt).map(async ([key, img]) => [
+      key,
+      (await getImage({ src: img, width: 1400, format: 'webp' })).src,
+    ])
+  )
+);
 ---
 
 <section id="store" class="section" aria-labelledby="store-heading">
@@ -58,7 +69,7 @@ const jeansArt = {
       <button class="btn btn-sm" type="button" data-notify>Notify Me About New Drops</button>
     </div>
 
-    <div class="product-grid">
+    <div class="product-grid" tabindex="0" role="group" aria-label="Masks — scroll horizontally on small screens">
       {
         PRODUCTS.map((product, i) => (
           <article class="product-card reveal" data-delay={String(i)} style={`--card-i:${i}`}>
@@ -66,13 +77,22 @@ const jeansArt = {
             <span class="card-frame" aria-hidden="true"></span>
             {product.badge && <span class="product-badge">{product.badge}</span>}
             <div class="product-stage">
-              <Image
-                src={productArt[product.image]}
-                alt={product.name}
-                widths={[320, 560]}
-                sizes="(max-width: 720px) 80vw, 300px"
-                loading="lazy"
-              />
+              <button
+                class="stage-view"
+                type="button"
+                data-viewer-group="masks"
+                data-viewer-src={viewerSrc[product.image]}
+                data-viewer-alt={product.name}
+                aria-label={`Enlarge ${product.name} image`}
+              >
+                <Image
+                  src={productArt[product.image]}
+                  alt=""
+                  widths={[320, 560]}
+                  sizes="(max-width: 720px) 80vw, 300px"
+                  loading="lazy"
+                />
+              </button>
             </div>
             <div class="product-info">
               <h3>{product.name}</h3>
@@ -95,7 +115,7 @@ const jeansArt = {
       <p class="upcoming-sub">Three heavyweight tees in the works. Lock in early — these won't sit.</p>
     </div>
 
-    <div class="product-grid">
+    <div class="product-grid" tabindex="0" role="group" aria-label="Upcoming tees — scroll horizontally on small screens">
       {
         UPCOMING.map((product, i) => (
           <article class="product-card reveal" data-delay={String(i)} style={`--card-i:${i + 3}`}>
@@ -103,13 +123,22 @@ const jeansArt = {
             <span class="card-frame" aria-hidden="true"></span>
             <span class="product-badge">Coming Soon</span>
             <div class="product-stage product-stage--photo">
-              <Image
-                src={upcomingArt[product.image]}
-                alt={`${product.name} — front and back mockup`}
-                widths={[480, 800]}
-                sizes="(max-width: 720px) 90vw, 340px"
-                loading="lazy"
-              />
+              <button
+                class="stage-view"
+                type="button"
+                data-viewer-group="tees"
+                data-viewer-src={viewerSrc[product.image]}
+                data-viewer-alt={product.name}
+                aria-label={`Enlarge ${product.name} image`}
+              >
+                <Image
+                  src={upcomingArt[product.image]}
+                  alt=""
+                  widths={[480, 800]}
+                  sizes="(max-width: 720px) 90vw, 340px"
+                  loading="lazy"
+                />
+              </button>
             </div>
             <div class="product-info">
               <h3>{product.name}</h3>
@@ -132,7 +161,7 @@ const jeansArt = {
       <p class="upcoming-sub">Acid-washed fleece, oversized fit. Numbered pieces — no restocks.</p>
     </div>
 
-    <div class="product-grid">
+    <div class="product-grid" tabindex="0" role="group" aria-label="Upcoming hoodies — scroll horizontally on small screens">
       {
         UPCOMING_HOODIES.map((product, i) => (
           <article class="product-card reveal" data-delay={String(i)} style={`--card-i:${i + 6}`}>
@@ -140,13 +169,22 @@ const jeansArt = {
             <span class="card-frame" aria-hidden="true"></span>
             <span class="product-badge">Coming Soon</span>
             <div class="product-stage product-stage--photo">
-              <Image
-                src={hoodieArt[product.image]}
-                alt={`${product.name} — front and back mockup`}
-                widths={[480, 800]}
-                sizes="(max-width: 720px) 90vw, 340px"
-                loading="lazy"
-              />
+              <button
+                class="stage-view"
+                type="button"
+                data-viewer-group="hoodies"
+                data-viewer-src={viewerSrc[product.image]}
+                data-viewer-alt={product.name}
+                aria-label={`Enlarge ${product.name} image`}
+              >
+                <Image
+                  src={hoodieArt[product.image]}
+                  alt=""
+                  widths={[480, 800]}
+                  sizes="(max-width: 720px) 90vw, 340px"
+                  loading="lazy"
+                />
+              </button>
             </div>
             <div class="product-info">
               <h3>{product.name}</h3>
@@ -169,7 +207,7 @@ const jeansArt = {
       <p class="upcoming-sub">Distressed, patched, engineered — three cuts built for the city.</p>
     </div>
 
-    <div class="product-grid">
+    <div class="product-grid" tabindex="0" role="group" aria-label="Upcoming jeans — scroll horizontally on small screens">
       {
         UPCOMING_JEANS.map((product, i) => (
           <article class="product-card reveal" data-delay={String(i)} style={`--card-i:${i + 9}`}>
@@ -177,13 +215,22 @@ const jeansArt = {
             <span class="card-frame" aria-hidden="true"></span>
             <span class="product-badge">Coming Soon</span>
             <div class="product-stage product-stage--photo product-stage--tall">
-              <Image
-                src={jeansArt[product.image]}
-                alt={`${product.name} — front and back mockup`}
-                widths={[480, 800]}
-                sizes="(max-width: 720px) 90vw, 340px"
-                loading="lazy"
-              />
+              <button
+                class="stage-view"
+                type="button"
+                data-viewer-group="jeans"
+                data-viewer-src={viewerSrc[product.image]}
+                data-viewer-alt={product.name}
+                aria-label={`Enlarge ${product.name} image`}
+              >
+                <Image
+                  src={jeansArt[product.image]}
+                  alt=""
+                  widths={[480, 800]}
+                  sizes="(max-width: 720px) 90vw, 340px"
+                  loading="lazy"
+                />
+              </button>
             </div>
             <div class="product-info">
               <h3>{product.name}</h3>
@@ -391,6 +438,32 @@ const jeansArt = {
      reflows by available width instead of a hard breakpoint */
   .product-grid {
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 15.5rem), 1fr));
+  }
+
+  /* mobile/tablet: each grid becomes a single swipeable row — scroll-snap
+     does the gesture natively, next card peeks as the affordance */
+  @media (max-width: 1023px) {
+    .product-grid {
+      display: flex;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scrollbar-width: none;
+      margin-inline: calc(var(--gutter) * -1);
+      padding-inline: var(--gutter);
+      scroll-padding-inline: var(--gutter);
+      padding-bottom: 0.5rem;
+      overscroll-behavior-inline: contain;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .product-grid::-webkit-scrollbar {
+      display: none;
+    }
+
+    .product-card {
+      flex: 0 0 min(80vw, 20rem);
+      scroll-snap-align: start;
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {

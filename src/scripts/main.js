@@ -120,7 +120,8 @@ drawer.addEventListener('keydown', (e) => {
 
 window.addEventListener('keydown', (e) => {
   if (e.key !== 'Escape') return;
-  if (!drawer.hidden) closeDrawer();
+  if (!viewer.hidden) closeViewer();
+  else if (!drawer.hidden) closeDrawer();
   else if (!mobileMenu.hidden) {
     mobileMenu.hidden = true;
     menuToggle.setAttribute('aria-expanded', 'false');
@@ -157,12 +158,16 @@ function renderCart() {
     const li = document.createElement('div');
     li.className = 'cart-item';
 
+    // thumbs JSON only ships on pages that render the Store —
+    // skip the img entirely when the map isn't available
     const img = document.createElement('img');
-    img.src = thumbs[p.id] || '';
-    img.alt = '';
-    img.width = 52;
-    img.height = 52;
-    img.loading = 'lazy';
+    if (thumbs[p.id]) {
+      img.src = thumbs[p.id];
+      img.alt = '';
+      img.width = 52;
+      img.height = 52;
+      img.loading = 'lazy';
+    }
 
     const info = document.createElement('div');
     info.className = 'item-info';
@@ -198,7 +203,8 @@ function renderCart() {
       '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>';
     remove.addEventListener('click', () => removeLine(i));
 
-    li.append(img, info, qty, remove);
+    if (img.hasAttribute('src')) li.append(img);
+    li.append(info, qty, remove);
     itemsEl.appendChild(li);
 
     // Checkout summary line
@@ -444,7 +450,10 @@ const navAnchors = nav.querySelectorAll('.nav-links a');
 const sectionObserver = new IntersectionObserver(
   (entries) => {
     entries.forEach((entry) => {
-      const link = nav.querySelector(`.nav-links a[href="#${entry.target.id}"]`);
+      // matches both anchor links ("/#story") and page links ("/story")
+      const link = nav.querySelector(
+        `.nav-links a[href$="#${entry.target.id}"], .nav-links a[href="/${entry.target.id}"]`
+      );
       if (!link) return;
       if (entry.isIntersecting) {
         navAnchors.forEach((a) => {
@@ -650,6 +659,113 @@ if (bgMusic && musicBtn) {
 
   tryPlay();
 }
+
+/* ============================================================
+   Image viewer — lightbox gallery scoped to each card collection.
+   Triggers are real <button>s so taps/keys work natively; browsers
+   cancel click during a scroll gesture, so swiping a row never
+   opens the viewer by accident.
+   ============================================================ */
+const viewer = document.getElementById('img-viewer');
+const viewerImg = document.getElementById('viewer-img');
+const viewerCaption = document.getElementById('viewer-caption');
+const viewerCount = viewer.querySelector('.viewer-count');
+const viewerPrev = viewer.querySelector('[data-viewer-prev]');
+const viewerNext = viewer.querySelector('[data-viewer-next]');
+const viewerClose = viewer.querySelector('.viewer-close');
+let viewerItems = [];
+let viewerIdx = 0;
+let viewerTrigger = null;
+
+function renderViewer() {
+  const btn = viewerItems[viewerIdx];
+  viewerImg.src = btn.dataset.viewerSrc;
+  viewerImg.alt = btn.dataset.viewerAlt || '';
+  viewerCaption.textContent = btn.dataset.viewerAlt || '';
+  const multi = viewerItems.length > 1;
+  viewerPrev.hidden = viewerNext.hidden = !multi;
+  viewerCount.hidden = !multi;
+  viewerCount.textContent = `${viewerIdx + 1} / ${viewerItems.length}`;
+  if (multi) {
+    for (const step of [-1, 1]) {
+      const next = viewerItems[(viewerIdx + step + viewerItems.length) % viewerItems.length];
+      if (next?.dataset.viewerSrc) new Image().src = next.dataset.viewerSrc;
+    }
+  }
+}
+
+function openViewer(trigger) {
+  viewerItems = [...document.querySelectorAll(`[data-viewer-group="${trigger.dataset.viewerGroup}"]`)];
+  viewerIdx = Math.max(viewerItems.indexOf(trigger), 0);
+  viewerTrigger = trigger;
+  renderViewer();
+  viewer.hidden = false;
+  requestAnimationFrame(() => viewer.classList.add('show'));
+  document.body.style.overflow = 'hidden';
+  viewerClose.focus();
+}
+
+function closeViewer() {
+  viewer.classList.remove('show');
+  document.body.style.overflow = '';
+  setTimeout(() => {
+    viewer.hidden = true;
+    viewerImg.removeAttribute('src');
+  }, 300);
+  viewerTrigger?.focus();
+}
+
+function stepViewer(delta) {
+  if (viewerItems.length < 2) return;
+  viewerIdx = (viewerIdx + delta + viewerItems.length) % viewerItems.length;
+  renderViewer();
+}
+
+document.querySelectorAll('[data-viewer-group]').forEach((btn) => {
+  btn.addEventListener('click', () => openViewer(btn));
+});
+viewerPrev.addEventListener('click', () => stepViewer(-1));
+viewerNext.addEventListener('click', () => stepViewer(1));
+viewer.querySelectorAll('[data-viewer-close]').forEach((el) => {
+  el.addEventListener('click', closeViewer);
+});
+
+// simple focus trap — Tab cycles through the visible controls
+viewer.addEventListener('keydown', (e) => {
+  if (e.key !== 'Tab') return;
+  const focusables = [...viewer.querySelectorAll('button')].filter((el) => el.offsetParent !== null);
+  if (!focusables.length) return;
+  const first = focusables[0];
+  const last = focusables[focusables.length - 1];
+  if (e.shiftKey && document.activeElement === first) {
+    e.preventDefault();
+    last.focus();
+  } else if (!e.shiftKey && document.activeElement === last) {
+    e.preventDefault();
+    first.focus();
+  }
+});
+
+window.addEventListener('keydown', (e) => {
+  if (viewer.hidden) return;
+  if (e.key === 'ArrowLeft') stepViewer(-1);
+  else if (e.key === 'ArrowRight') stepViewer(1);
+});
+
+// horizontal swipe navigates; small drags snap back harmlessly
+let viewerDrag = null;
+viewerImg.addEventListener('pointerdown', (e) => {
+  viewerDrag = { x: e.clientX, y: e.clientY, id: e.pointerId };
+  viewerImg.setPointerCapture(e.pointerId);
+});
+viewerImg.addEventListener('pointerup', (e) => {
+  if (!viewerDrag) return;
+  const dx = e.clientX - viewerDrag.x;
+  const dy = e.clientY - viewerDrag.y;
+  viewerDrag = null;
+  if (Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(dy)) stepViewer(dx < 0 ? 1 : -1);
+});
+viewerImg.addEventListener('pointercancel', () => (viewerDrag = null));
 
 /* ============================================================
    Init

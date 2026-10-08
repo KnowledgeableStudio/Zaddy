@@ -1,5 +1,5 @@
 ---
-import { Image } from 'astro:assets';
+import { getImage, Image } from 'astro:assets';
 import llenoArt from '../assets/lleno-de-balas.webp';
 import todaviaArt from '../assets/todavia-artwork.jpeg';
 import { RELEASES } from '../data/site.js';
@@ -14,6 +14,16 @@ const artwork = {
   'lleno-de-balas': llenoArt,
   todavia: todaviaArt,
 } as const;
+
+// larger webp variants for the lightbox viewer
+const viewerSrc = Object.fromEntries(
+  await Promise.all(
+    Object.entries(artwork).map(async ([key, img]) => [
+      key,
+      (await getImage({ src: img, width: 1200, format: 'webp' })).src,
+    ])
+  )
+);
 ---
 
 <section id="music" class="section" aria-labelledby="music-heading">
@@ -24,20 +34,29 @@ const artwork = {
       <p>New releases &amp; official videos — updated regularly.</p>
     </div>
 
-    <div class="releases-grid">
+    <div class="releases-grid" tabindex="0" role="group" aria-label="Releases — scroll horizontally on small screens">
       {
         RELEASES.map((release, i) => (
           <article class="release-card reveal" data-delay={String(i)} style={`--card-i:${i}`}>
             <span class="card-scan" aria-hidden="true"></span>
             <span class="card-frame" aria-hidden="true"></span>
             <div class="release-art">
-              <Image
-                src={artwork[release.artwork]}
-                alt={`${release.title} cover art`}
-                widths={[400, 640]}
-                sizes="(max-width: 480px) calc(100vw - 4.5rem), 108px"
-                loading="lazy"
-              />
+              <button
+                class="stage-view"
+                type="button"
+                data-viewer-group="releases"
+                data-viewer-src={viewerSrc[release.artwork]}
+                data-viewer-alt={`${release.title} cover art`}
+                aria-label={`Enlarge ${release.title} cover art`}
+              >
+                <Image
+                  src={artwork[release.artwork]}
+                  alt=""
+                  widths={[400, 640]}
+                  sizes="(max-width: 480px) calc(100vw - 4.5rem), 108px"
+                  loading="lazy"
+                />
+              </button>
             </div>
             <div class="release-info">
               <h3>{release.title}</h3>
@@ -238,6 +257,33 @@ const artwork = {
 
     .release-art {
       width: 100%;
+    }
+  }
+
+  /* mobile/tablet: one swipeable row instead of a stacked grid */
+  @media (max-width: 1023px) {
+    .releases-grid {
+      display: flex;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scrollbar-width: none;
+      margin-inline: calc(var(--gutter) * -1);
+      padding-inline: var(--gutter);
+      scroll-padding-inline: var(--gutter);
+      padding-bottom: 0.5rem;
+      overscroll-behavior-inline: contain;
+      -webkit-overflow-scrolling: touch;
+      max-width: none;
+      justify-content: flex-start;
+    }
+
+    .releases-grid::-webkit-scrollbar {
+      display: none;
+    }
+
+    .release-card {
+      flex: 0 0 min(82vw, 30rem);
+      scroll-snap-align: start;
     }
   }
 

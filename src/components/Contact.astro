@@ -11,7 +11,7 @@ import { ARTIST } from '../data/site.js';
       <p>For bookings, collaborations, and inquiries.</p>
     </div>
 
-    <div class="contact-grid">
+    <div class="contact-grid" tabindex="0" role="group" aria-label="Contact options — scroll horizontally on small screens">
       <div class="contact-card reveal" style="--card-i:0">
         <span class="card-scan" aria-hidden="true"></span>
         <span class="card-frame" aria-hidden="true"></span>
@@ -115,6 +115,31 @@ import { ARTIST } from '../data/site.js';
   @media (min-width: 860px) {
     .contact-grid {
       grid-template-columns: 5fr 7fr;
+    }
+  }
+
+  /* mobile/tablet: swipeable row, same pattern as the store grids */
+  @media (max-width: 1023px) {
+    .contact-grid {
+      display: flex;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scrollbar-width: none;
+      margin-inline: calc(var(--gutter) * -1);
+      padding-inline: var(--gutter);
+      scroll-padding-inline: var(--gutter);
+      padding-bottom: 0.5rem;
+      overscroll-behavior-inline: contain;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .contact-grid::-webkit-scrollbar {
+      display: none;
+    }
+
+    .contact-card {
+      flex: 0 0 min(80vw, 24rem);
+      scroll-snap-align: start;
     }
   }
 </style>

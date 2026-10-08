@@ -7,3 +7,6 @@ dist/
 /*.mp4
 /*.glb
 /*.png
+
+# task workflow scratchpad
+.specs/scratchpad/

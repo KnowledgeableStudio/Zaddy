@@ -15,6 +15,8 @@ const {
   title = 'iZad Casanova — Official Site | Music & Zaddy Collection',
   description = "Official website of iZad Casanova — Bronx-born artist. Stream the latest singles and shop the Zaddy Collection.",
 } = Astro.props;
+
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
 ---
 
 <!DOCTYPE html>
@@ -26,7 +28,7 @@ const {
     <meta name="description" content={description} />
     <meta name="theme-color" content="#0a0a0c" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
-    <link rel="canonical" href="https://zaddy.art/" />
+    <link rel="canonical" href={canonical} />
     <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32" />
     <link rel="icon" href="/favicon-64.png" type="image/png" sizes="64x64" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
@@ -37,7 +39,7 @@ const {
     <meta property="og:type" content="website" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:url" content="https://zaddy.art/" />
+    <meta property="og:url" content={canonical} />
     <meta property="og:image" content="https://zaddy.art/og-image.jpg" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:image" content="https://zaddy.art/og-image.jpg" />

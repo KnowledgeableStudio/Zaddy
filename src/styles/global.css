@@ -560,6 +560,27 @@ html.no-js .reveal {
   opacity: 0.9;
 }
 
+/* ---------- Image viewer triggers ---------- */
+/* wraps card imagery — full-stage tap target that opens the lightbox */
+.stage-view {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  cursor: zoom-in;
+}
+
+.stage-view img {
+  pointer-events: none; /* tap lands on the button, never a ghost drag */
+  user-select: none;
+}
+
+.stage-view:focus-visible {
+  outline-offset: -3px; /* card is overflow:hidden — keep the ring visible */
+}
+
 /* ---------- Marquee ---------- */
 .marquee {
   overflow: hidden;
