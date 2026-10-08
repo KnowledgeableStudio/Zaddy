@@ -77,11 +77,16 @@ async function initHologram() {
     depthWrite: false,
     side: THREE.DoubleSide,
     vertexShader: /* glsl */ `
+      uniform float uTime;
       varying vec3 vNormal;
       varying vec3 vWorldPos;
       varying vec3 vViewDir;
       void main() {
-        vec4 worldPos = modelMatrix * vec4(position, 1.0);
+        // subtle holographic wobble — the projection surface shimmers
+        vec3 p = position;
+        p.x += sin(p.y * 4.0 + uTime * 1.6) * 0.008;
+        p.z += cos(p.y * 3.0 + uTime * 1.2) * 0.006;
+        vec4 worldPos = modelMatrix * vec4(p, 1.0);
         vWorldPos = worldPos.xyz;
         vNormal = normalize(mat3(modelMatrix) * normal);
         vec4 mv = viewMatrix * worldPos;
@@ -514,6 +519,7 @@ async function initHologram() {
   loader.setMeshoptDecoder(MeshoptDecoder);
 
   let model = null;
+  let modelBaseY = 0; // rest height — idle float is added on top
   let spawnStart = -1;
   const clock = new THREE.Clock(false);
 
@@ -530,6 +536,7 @@ async function initHologram() {
       box.setFromObject(model);
       box.getCenter(center);
       model.position.sub(center);
+      modelBaseY = model.position.y;
 
       holoUniforms.uMinY.value = box.min.y;
       holoUniforms.uHeight.value = Math.max(size.y, 0.001);
@@ -676,6 +683,15 @@ async function initHologram() {
       manualVel *= 0.94;
     }
     rig.rotation.y = userYaw;
+
+    // alive idle — hover bob, micro-lean, breathing lens + beam
+    if (spawned && model) {
+      model.position.y = modelBaseY + Math.sin(t * 0.85) * 0.04;
+      model.rotation.z = Math.sin(t * 0.6) * 0.018;
+      model.rotation.x = Math.sin(t * 0.45 + 1.0) * 0.014;
+      lensLight.intensity = 8 * (0.82 + 0.18 * Math.sin(t * 2.2));
+      shared.uBeam.value = 1 + 0.09 * Math.sin(t * 1.7);
+    }
     renderer.render(scene, camera);
     raf = requestAnimationFrame(loop);
   }
