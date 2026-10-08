@@ -1,0 +1,529 @@
+---
+import { getImage, Image } from 'astro:assets';
+import { PAYPAL_CLIENT_ID } from '../data/site.js';
+import zaddyWordmark from '../assets/zaddy-wordmark.png';
+import maskSignature from '../assets/mask-signature.png';
+import maskUrban from '../assets/mask-urban.png';
+import maskElite from '../assets/mask-elite.png';
+
+const [sig, urb, eli] = await Promise.all(
+  [maskSignature, maskUrban, maskElite].map((img) =>
+    getImage({ src: img, width: 104, height: 104, format: 'webp' })
+  )
+);
+
+const thumbs = {
+  'signature-mask': sig.src,
+  'urban-mask': urb.src,
+  'elite-mask': eli.src,
+};
+---
+
+<div id="cart-backdrop" class="cart-backdrop" hidden></div>
+
+<aside
+  id="cart-drawer"
+  class="cart-drawer"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="cart-title"
+  hidden
+>
+  <header class="drawer-head">
+    <div class="drawer-brand">
+      <Image
+        src={zaddyWordmark}
+        alt="Zaddy Collection"
+        width={140}
+        height={44}
+        format="webp"
+        loading="eager"
+        class="drawer-logo"
+      />
+      <h2 id="cart-title">Your Cart</h2>
+    </div>
+    <button class="btn btn-icon" id="cart-close" type="button" aria-label="Close cart">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+        <path d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+  </header>
+
+  <!-- Cart view -->
+  <div id="cart-view" class="drawer-body">
+    <div id="cart-items" class="cart-items"></div>
+    <p id="cart-empty" class="cart-empty">Your cart is empty.</p>
+  </div>
+
+  <!-- Checkout view -->
+  <div id="checkout-view" class="drawer-body" hidden>
+    <div class="checkout-summary">
+      <div id="checkout-items" class="checkout-items"></div>
+      <div class="totals">
+        <div><span>Subtotal</span><span id="checkout-subtotal">$0.00</span></div>
+        <div><span>Shipping</span><span id="checkout-shipping">$5.00</span></div>
+        <div class="total-row"><span>Total</span><span id="checkout-total">$5.00</span></div>
+      </div>
+    </div>
+
+    <form id="checkout-form" novalidate>
+      <div class="field">
+        <label for="co-name">Full name</label>
+        <input id="co-name" name="name" type="text" autocomplete="name" placeholder="Jane Doe…" required />
+        <span class="error" id="err-name">Enter your full name.</span>
+      </div>
+      <div class="field">
+        <label for="co-email">Email</label>
+        <input id="co-email" name="email" type="email" autocomplete="email" spellcheck="false" placeholder="jane@example.com…" required />
+        <span class="error" id="err-email">Enter a valid email address.</span>
+      </div>
+      <div class="field">
+        <label for="co-address">Street address</label>
+        <input id="co-address" name="address" type="text" autocomplete="street-address" placeholder="123 Main St…" required />
+        <span class="error" id="err-address">Enter your street address.</span>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="co-city">City</label>
+          <input id="co-city" name="city" type="text" autocomplete="address-level2" placeholder="New York…" required />
+          <span class="error" id="err-city">Enter your city.</span>
+        </div>
+        <div class="field">
+          <label for="co-state">State</label>
+          <input id="co-state" name="state" type="text" autocomplete="address-level1" placeholder="NY…" required />
+          <span class="error" id="err-state">Enter your state.</span>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="co-zip">ZIP code</label>
+          <input id="co-zip" name="zip" type="text" inputmode="numeric" autocomplete="postal-code" placeholder="10001…" required />
+          <span class="error" id="err-zip">Enter your ZIP code.</span>
+        </div>
+        <div class="field">
+          <label for="co-country">Country</label>
+          <select id="co-country" name="country" autocomplete="country" required>
+            <option value="US" selected>United States</option>
+            <option value="CA">Canada</option>
+            <option value="GB">United Kingdom</option>
+            <option value="AU">Australia</option>
+          </select>
+        </div>
+      </div>
+    </form>
+
+    <div class="payment-block">
+      <div class="payment-head">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+        </svg>
+        <h3>Payment</h3>
+      </div>
+      <div id="paypal-button-container"></div>
+      <p class="payment-note">Secure SSL · PayPal Buyer Protection</p>
+    </div>
+  </div>
+
+  <footer class="drawer-foot">
+    <div id="cart-foot" class="drawer-foot-inner">
+      <div class="totals">
+        <div><span>Subtotal</span><span id="cart-subtotal">$0.00</span></div>
+        <div><span>Shipping</span><span>$5.00</span></div>
+        <div class="total-row"><span>Total</span><span id="cart-total">$5.00</span></div>
+      </div>
+      <div class="drawer-actions">
+        <button class="btn btn-sm" id="cart-clear" type="button">Clear</button>
+        <button class="btn btn-primary" id="to-checkout" type="button">Checkout</button>
+      </div>
+    </div>
+    <div id="checkout-foot" class="drawer-foot-inner" hidden>
+      <button class="btn" id="back-to-cart" type="button">Back to Cart</button>
+      <button class="btn" id="cart-clear-2" type="button">Clear Cart</button>
+    </div>
+  </footer>
+</aside>
+
+<div id="toast-region" aria-live="polite" aria-atomic="false"></div>
+
+<script is:inline id="product-thumbs" type="application/json" set:html={JSON.stringify(thumbs)} />
+
+<script src={`https://www.paypal.com/sdk/js?client-id=${PAYPAL_CLIENT_ID}&currency=USD&enable-funding=venmo,card&disable-funding=credit`} defer></script>
+
+<style>
+  .cart-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 110;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .cart-backdrop.show {
+    opacity: 1;
+  }
+
+  .cart-drawer {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 111;
+    width: min(26rem, 100vw);
+    display: flex;
+    flex-direction: column;
+    background:
+      linear-gradient(165deg, rgba(24, 36, 29, 0.72), rgba(6, 10, 8, 0.88) 45%),
+      var(--surface);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border-left: 1px solid rgba(34, 216, 97, 0.22);
+    box-shadow:
+      -24px 0 70px rgba(0, 0, 0, 0.55),
+      inset 1px 0 0 rgba(190, 255, 215, 0.08);
+    transform: translateX(100%);
+    transition: transform 0.4s var(--ease-out);
+    overscroll-behavior: contain;
+  }
+
+  /* accent light running down the panel's leading edge */
+  .cart-drawer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 2px;
+    background: linear-gradient(
+      180deg,
+      transparent,
+      rgba(34, 216, 97, 0.55) 30%,
+      rgba(34, 216, 97, 0.55) 70%,
+      transparent
+    );
+    box-shadow: 0 0 18px rgba(34, 216, 97, 0.3);
+    pointer-events: none;
+  }
+
+  /* faint scanlines — matches the card system */
+  .cart-drawer::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      rgba(34, 216, 97, 0.03) 0 1px,
+      transparent 1px 6px
+    );
+    pointer-events: none;
+  }
+
+  .cart-drawer.show {
+    transform: translateX(0);
+  }
+
+  .drawer-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.2rem 1.4rem;
+    border-bottom: 1px solid var(--line);
+    position: relative;
+  }
+
+  /* green hairline under the header */
+  .drawer-head::after {
+    content: '';
+    position: absolute;
+    left: 1.4rem;
+    right: 1.4rem;
+    bottom: -1px;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      rgba(34, 216, 97, 0.5),
+      transparent 60%
+    );
+  }
+
+  .drawer-brand {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+
+  .drawer-logo {
+    height: 1.55rem;
+    width: auto;
+    filter: drop-shadow(0 0 10px rgba(34, 216, 97, 0.25));
+  }
+
+  .drawer-head h2 {
+    font-family: var(--font-display);
+    font-stretch: 118%;
+    font-weight: 800;
+    font-size: 0.72rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .drawer-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.4rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+  }
+
+  .cart-items {
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+  }
+
+  .cart-item {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    border: 1px solid rgba(34, 216, 97, 0.16);
+    border-radius: 14px;
+    padding: 0.8rem;
+    background: linear-gradient(160deg, rgba(20, 30, 24, 0.55), rgba(8, 14, 10, 0.35));
+    transition: border-color 0.25s ease, box-shadow 0.25s ease;
+  }
+
+  .cart-item:hover {
+    border-color: rgba(34, 216, 97, 0.38);
+    box-shadow: inset 0 0 24px rgba(34, 216, 97, 0.05);
+  }
+
+  .cart-item img {
+    width: 52px;
+    height: 52px;
+    object-fit: contain;
+    border-radius: 10px;
+    background: rgba(34, 216, 97, 0.05);
+    border: 1px solid rgba(34, 216, 97, 0.14);
+    flex-shrink: 0;
+  }
+
+  .cart-item .item-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .cart-item .item-name {
+    font-weight: 700;
+    font-size: 0.92rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .cart-item .item-price {
+    color: var(--muted);
+    font-size: 0.82rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .qty {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid rgba(34, 216, 97, 0.28);
+    border-radius: 999px;
+    background: rgba(34, 216, 97, 0.05);
+  }
+
+  .qty button {
+    width: 1.9rem;
+    height: 1.9rem;
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--muted);
+    transition: color 0.15s ease;
+  }
+
+  .qty button:hover {
+    color: var(--accent);
+  }
+
+  .qty span {
+    min-width: 1.6rem;
+    text-align: center;
+    font-size: 0.85rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .item-remove {
+    color: var(--faint);
+    padding: 0.4rem;
+    border-radius: 8px;
+    transition: color 0.15s ease;
+  }
+
+  .item-remove:hover {
+    color: var(--danger);
+  }
+
+  .cart-empty {
+    color: var(--muted);
+    text-align: center;
+    padding: 3rem 1rem;
+  }
+
+  .drawer-foot {
+    border-top: 1px solid var(--line);
+    padding: 1.2rem 1.4rem;
+  }
+
+  .drawer-foot-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .totals {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .totals > div {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.88rem;
+    color: var(--muted);
+  }
+
+  .totals .total-row {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: var(--text);
+    padding-top: 0.4rem;
+    border-top: 1px solid rgba(34, 216, 97, 0.2);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .totals .total-row span:last-child {
+    color: var(--accent);
+    text-shadow: 0 0 14px rgba(34, 216, 97, 0.35);
+  }
+
+  .drawer-actions {
+    display: flex;
+    gap: 0.7rem;
+    justify-content: space-between;
+  }
+
+  #to-checkout {
+    flex: 1;
+  }
+
+  #checkout-view {
+    gap: 1.2rem;
+  }
+
+  .checkout-summary {
+    border: 1px solid rgba(34, 216, 97, 0.16);
+    border-radius: 14px;
+    background: linear-gradient(160deg, rgba(20, 30, 24, 0.55), rgba(8, 14, 10, 0.35));
+    padding: 1rem;
+  }
+
+  .checkout-items {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 0.8rem;
+  }
+
+  .checkout-items .line {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.88rem;
+  }
+
+  .checkout-items .line .qty-note {
+    color: var(--faint);
+  }
+
+  #checkout-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+  }
+
+  .field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.9rem;
+  }
+
+  .payment-block {
+    border: 1px solid rgba(34, 216, 97, 0.16);
+    border-radius: 14px;
+    background: linear-gradient(160deg, rgba(20, 30, 24, 0.55), rgba(8, 14, 10, 0.35));
+    padding: 1.1rem;
+  }
+
+  .payment-head {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 0.9rem;
+    color: var(--accent);
+  }
+
+  .payment-head h3 {
+    font-family: var(--font-display);
+    font-stretch: 118%;
+    font-weight: 800;
+    font-size: 1rem;
+    text-transform: uppercase;
+    color: var(--text);
+  }
+
+  .payment-note {
+    margin-top: 0.9rem;
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--faint);
+    letter-spacing: 0.04em;
+  }
+
+  /* thin accent scrollbar inside the drawer */
+  .drawer-body::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .drawer-body::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .drawer-body::-webkit-scrollbar-thumb {
+    background: rgba(34, 216, 97, 0.25);
+    border-radius: 999px;
+  }
+
+  .drawer-body::-webkit-scrollbar-thumb:hover {
+    background: rgba(34, 216, 97, 0.45);
+  }
+
+  .drawer-body {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(34, 216, 97, 0.25) transparent;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cart-drawer,
+    .cart-backdrop,
+    .qty button,
+    .item-remove {
+      transition: none;
+    }
+  }
+</style>

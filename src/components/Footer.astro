@@ -1,0 +1,133 @@
+---
+import { Image } from 'astro:assets';
+import webzadSignature from '../assets/webzad-signature.webp';
+import { ARTIST } from '../data/site.js';
+---
+
+<footer class="site-footer">
+  <div class="container footer-inner">
+    <div class="footer-brand">
+      <span class="display footer-name">iZad Casanova</span>
+      <span class="serif-accent footer-tag">{ARTIST.tagline}</span>
+    </div>
+
+    <nav class="footer-nav" aria-label="Footer">
+      <a href="#music">Music</a>
+      <a href="#story">Story</a>
+      <a href="#store">Store</a>
+      <a href="#contact">Contact</a>
+    </nav>
+
+    <div class="footer-meta">
+      <p>© 2026 iZad Casanova. All rights reserved.</p>
+      <a
+        href="https://webzad.dev"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="footer-signature"
+        aria-label="Website created by WebZad — webzad.dev"
+      >
+        <Image
+          src={webzadSignature}
+          alt="Created by WebZad"
+          widths={[180, 240]}
+          height={34}
+          loading="lazy"
+          decoding="async"
+        />
+      </a>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    border-top: 1px solid var(--line);
+    padding-top: 1.4rem;
+    padding-bottom: 1rem;
+    position: relative;
+    z-index: 1;
+    background: var(--bg);
+  }
+
+  .footer-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 1.4rem;
+  }
+
+  .footer-brand {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+
+  .footer-name {
+    font-size: 1.35rem;
+  }
+
+  .footer-tag {
+    color: var(--accent);
+    font-size: 1.05rem;
+  }
+
+  .footer-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.6rem;
+  }
+
+  .footer-nav a {
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    transition: color 0.2s ease;
+  }
+
+  .footer-nav a:hover {
+    color: var(--text);
+  }
+
+  .footer-meta {
+    border-top: 1px solid var(--line);
+    padding-top: 1.6rem;
+  }
+
+  .footer-meta p {
+    font-size: 0.8rem;
+    color: var(--faint);
+  }
+
+  .footer-signature {
+    display: inline-block;
+    margin-top: 0.55rem;
+    opacity: 0.75;
+    transition: opacity 0.25s ease, transform 0.25s var(--ease-out);
+  }
+
+  .footer-signature:hover {
+    opacity: 1;
+    transform: translateY(-1px);
+  }
+
+  .footer-signature img {
+    height: 34px;
+    width: auto;
+  }
+
+  @media (min-width: 720px) {
+    .footer-inner {
+      flex-direction: row;
+      align-items: flex-start;
+      justify-content: space-between;
+    }
+
+    .footer-meta {
+      border-top: none;
+      padding-top: 0;
+      text-align: right;
+    }
+  }
+</style>

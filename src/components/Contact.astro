@@ -1,0 +1,140 @@
+---
+import Platforms from './Platforms.astro';
+import { ARTIST } from '../data/site.js';
+---
+
+<section id="contact" class="section" aria-labelledby="contact-heading">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="section-index">04 — Contact</span>
+      <h2 id="contact-heading">Get In<br />Touch</h2>
+      <p>For bookings, collaborations, and inquiries.</p>
+    </div>
+
+    <div class="contact-grid">
+      <div class="contact-card reveal" style="--card-i:0">
+        <span class="card-scan" aria-hidden="true"></span>
+        <span class="card-frame" aria-hidden="true"></span>
+        <h3>Bookings &amp; Management</h3>
+        <p>For professional inquiries and booking requests — email is the fastest way to reach the team.</p>
+        <a class="contact-email" href={`mailto:${ARTIST.email}`}>
+          <span class="contact-email-addr">{ARTIST.email}</span>
+          <svg class="contact-email-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M7 17L17 7M9 7h8v8" />
+          </svg>
+        </a>
+      </div>
+
+      <div class="contact-card reveal" data-delay="1" style="--card-i:1">
+        <span class="card-scan" aria-hidden="true"></span>
+        <span class="card-frame" aria-hidden="true"></span>
+        <h3>All Platforms</h3>
+        <p>Stream, follow, and connect on every platform.</p>
+        <Platforms />
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .section {
+    padding-block: var(--section-pad);
+    position: relative;
+    z-index: 1;
+  }
+
+  .contact-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+
+  /* layout only — the curved holo surface lives in the global card system */
+  .contact-card {
+    padding: clamp(1.4rem, 3.5vw, 2rem);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .contact-card h3 {
+    font-family: var(--font-display);
+    font-stretch: 118%;
+    font-weight: 800;
+    font-size: 1.22rem;
+    text-transform: uppercase;
+  }
+
+  .contact-card p {
+    color: var(--muted);
+    max-width: 44ch;
+  }
+
+  .contact-email {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7rem;
+    margin-top: auto;
+    padding-top: 0.6rem;
+    font-family: var(--font-display);
+    font-stretch: 112%;
+    font-weight: 700;
+    font-size: clamp(0.95rem, 2vw, 1.3rem);
+    letter-spacing: -0.01em;
+    color: var(--text);
+    overflow-wrap: anywhere;
+    border-bottom: 1px solid var(--line-strong);
+    padding-bottom: 0.5rem;
+    transition: border-color 0.25s ease, color 0.25s ease;
+  }
+
+  .contact-email-arrow {
+    flex-shrink: 0;
+    color: var(--accent);
+    transition: transform 0.25s var(--ease-out);
+  }
+
+  .contact-email:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .contact-email:hover .contact-email-arrow {
+    transform: translate(3px, -3px);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .contact-email,
+    .contact-email-arrow {
+      transition: none;
+      transform: none;
+    }
+  }
+
+  @media (min-width: 860px) {
+    .contact-grid {
+      grid-template-columns: 5fr 7fr;
+    }
+  }
+</style>
+
+<script>
+  // Subtle 3D tilt — matches the holographic plate feel of the other cards
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const finePointer = window.matchMedia('(pointer: fine)').matches;
+
+  if (!reduceMotion && finePointer) {
+    document.querySelectorAll('.contact-card').forEach((card) => {
+      card.addEventListener('pointermove', (e) => {
+        const r = card.getBoundingClientRect();
+        const rx = ((e.clientY - r.top) / r.height - 0.5) * -4;
+        const ry = ((e.clientX - r.left) / r.width - 0.5) * 4;
+        card.style.transform = `perspective(900px) rotateX(${rx}deg) rotateY(${ry}deg) translateY(-3px)`;
+      });
+      card.addEventListener('pointerleave', () => {
+        card.style.transform = '';
+      });
+    });
+  }
+</script>

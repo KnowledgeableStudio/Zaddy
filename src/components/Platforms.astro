@@ -1,0 +1,87 @@
+---
+import * as icons from 'simple-icons';
+import { PLATFORMS } from '../data/site.js';
+
+interface Props {
+  limit?: number;
+}
+
+const { limit } = Astro.props;
+const platforms = limit ? PLATFORMS.slice(0, limit) : PLATFORMS;
+---
+
+<ul class="platforms" role="list">
+  {
+    platforms.map((p) => {
+      const icon = p.icon ? (icons as any)[p.icon] : null;
+      return (
+        <li>
+          <a href={p.url} target="_blank" rel="noopener noreferrer" class="platform-chip">
+            {icon ? (
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true" set:html={`<path d="${icon.path}"/>`} />
+            ) : p.name === 'Amazon Music' ? (
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true">
+                <path d="M4 18V9.5h2V18H4zm4.7 0V6h2v12h-2zm4.6 0V10.5h2V18h-2zm4.7 0V4.5h2V18h-2z" />
+              </svg>
+            ) : (
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 2c4.41 0 8 3.59 8 8s-3.59 8-8 8-8-3.59-8-8 3.59-8 8-8zm-2.5 4.5v7l6-3.5-6-3.5z" />
+              </svg>
+            )}
+            <span>{p.name}</span>
+          </a>
+        </li>
+      );
+    })
+  }
+</ul>
+
+<style>
+  .platforms {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+    list-style: none;
+    padding: 0;
+  }
+
+  .platform-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.55rem 1.05rem;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: rgba(255, 255, 255, 0.04);
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--muted);
+    transition:
+      color 0.2s ease,
+      border-color 0.2s ease,
+      background-color 0.2s ease,
+      transform 0.2s var(--ease-out);
+  }
+
+  .platform-chip:hover {
+    color: var(--text);
+    border-color: rgba(255, 255, 255, 0.28);
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateY(-2px);
+  }
+
+  .platform-chip:hover svg {
+    color: var(--accent);
+  }
+
+  .platform-chip svg {
+    transition: color 0.2s ease;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .platform-chip {
+      transition: none;
+    }
+  }
+</style>

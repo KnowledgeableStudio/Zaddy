@@ -1,0 +1,724 @@
+/* ============================================================
+   iZad Casanova — Design System
+   Cinematic editorial · NYC/Latin urban · dark
+   ============================================================ */
+
+:root {
+  --bg: #0a0a0c;
+  --surface: #111114;
+  --surface-2: #17171b;
+  --line: rgba(255, 255, 255, 0.08);
+  --line-strong: rgba(255, 255, 255, 0.14);
+  --text: #ece9e2;
+  --muted: #9b968d;
+  --faint: #6d6a63;
+  --accent: #22d861;
+  --accent-soft: rgba(34, 216, 97, 0.14);
+  --danger: #f2545b;
+
+  --font-display: 'Archivo Variable', 'Archivo', system-ui, sans-serif;
+  --font-body: 'Inter Variable', 'Inter', system-ui, sans-serif;
+  --font-serif: 'Instrument Serif', Georgia, serif;
+
+  --gutter: clamp(1.25rem, 4vw, 3rem);
+  --section-pad: clamp(4.25rem, 8.5vw, 7.5rem);
+  --radius: 20px;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  color-scheme: dark;
+}
+
+/* ---------- Reset / base ---------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-weight: 400;
+  line-height: 1.6;
+  font-size: 1rem;
+  overflow-x: hidden;
+  min-height: 100svh;
+}
+
+img,
+svg,
+canvas {
+  display: block;
+  max-width: 100%;
+}
+
+button,
+a {
+  font-family: inherit;
+  touch-action: manipulation;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+::selection {
+  background: var(--accent);
+  color: #04160b;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+/* ---------- Utilities ---------- */
+.container {
+  width: 100%;
+  max-width: 80rem;
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.skip-link {
+  position: fixed;
+  top: -100%;
+  left: 1rem;
+  z-index: 200;
+  background: var(--accent);
+  color: #04160b;
+  font-weight: 700;
+  padding: 0.6rem 1.1rem;
+  border-radius: 999px;
+  transition: top 0.2s ease;
+}
+
+.skip-link:focus {
+  top: 1rem;
+}
+
+section[id] {
+  scroll-margin-top: 4.5rem;
+}
+
+/* ---------- Typography ---------- */
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.eyebrow::before {
+  content: '';
+  width: 2rem;
+  height: 1px;
+  background: var(--accent);
+}
+
+.display {
+  font-family: var(--font-display);
+  font-stretch: 125%;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  line-height: 0.95;
+  text-wrap: balance;
+}
+
+.serif-accent {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+}
+
+.section-head {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  margin-bottom: clamp(2rem, 5vw, 3.4rem);
+}
+
+.section-head h2 {
+  font-family: var(--font-display);
+  font-stretch: 120%;
+  font-weight: 800;
+  font-size: clamp(2.1rem, 5vw, 3.7rem);
+  text-transform: uppercase;
+  letter-spacing: -0.015em;
+  line-height: 0.95;
+  text-wrap: balance;
+}
+
+.section-head p {
+  color: var(--muted);
+  max-width: 46ch;
+}
+
+.section-head > .btn {
+  align-self: flex-start;
+}
+
+.section-index {
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  color: var(--accent);
+}
+
+/* ---------- Buttons ---------- */
+.btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  border-radius: 999px;
+  padding: 0.66rem 1.25rem;
+  font-weight: 600;
+  font-size: 0.84rem;
+  letter-spacing: 0.04em;
+  border: 1px solid var(--line-strong);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  transition:
+    transform 0.25s var(--ease-out),
+    background-color 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.32);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 8px 26px rgba(0, 0, 0, 0.4);
+}
+
+.btn:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.btn-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #04160b;
+  font-weight: 700;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+.btn-primary:hover {
+  background: #4ee888;
+  border-color: #4ee888;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    0 10px 32px rgba(34, 216, 97, 0.3);
+}
+
+/* HUD variant — corner ticks, reads as instrument-grade UI */
+.btn-hud {
+  border-radius: 10px;
+}
+
+.btn-hud::before,
+.btn-hud::after {
+  content: '';
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  border-color: var(--accent);
+  border-style: solid;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.btn-hud::before {
+  top: -1px;
+  left: -1px;
+  border-width: 1.5px 0 0 1.5px;
+}
+
+.btn-hud::after {
+  bottom: -1px;
+  right: -1px;
+  border-width: 0 1.5px 1.5px 0;
+}
+
+.btn-hud:hover::before,
+.btn-hud:hover::after,
+.btn-hud:focus-visible::before,
+.btn-hud:focus-visible::after {
+  opacity: 1;
+}
+
+.btn-sm {
+  padding: 0.48rem 0.95rem;
+  font-size: 0.78rem;
+}
+
+.btn-icon {
+  padding: 0.55rem;
+  border-radius: 50%;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* ---------- Scrollbar ---------- */
+html {
+  scrollbar-color: rgba(34, 216, 97, 0.35) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 9px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  border: 2px solid var(--bg);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(34, 216, 97, 0.45);
+}
+
+/* ---------- Film grain & atmosphere ---------- */
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  opacity: 0.32;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.7' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");
+}
+
+#particles {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* ---------- Reveal animation ---------- */
+.reveal {
+  opacity: 0;
+  transform: translateY(32px);
+  transition:
+    opacity 0.8s var(--ease-out),
+    transform 0.8s var(--ease-out);
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.reveal[data-delay='1'] { transition-delay: 0.1s; }
+.reveal[data-delay='2'] { transition-delay: 0.2s; }
+.reveal[data-delay='3'] { transition-delay: 0.3s; }
+
+/* Without JS, content must never stay hidden */
+html.no-js .reveal {
+  opacity: 1;
+  transform: none;
+}
+
+/* ============================================================
+   Holographic card system — shared by release / product / contact
+   cards. Curved concave display panel: chamfered corners, rim-lit
+   edges, glass overlay ABOVE the content so everything reads as
+   projected inside the screen.
+   ============================================================ */
+.release-card,
+.product-card,
+.contact-card {
+  position: relative;
+  clip-path: polygon(
+    16px 0, 100% 0,
+    100% calc(100% - 16px), calc(100% - 16px) 100%,
+    0 100%, 0 16px
+  );
+  border: 1px solid rgba(34, 216, 97, 0.16);
+  background:
+    radial-gradient(140% 70% at 50% -14%, rgba(255, 255, 255, 0.06), transparent 55%),
+    radial-gradient(110% 80% at 50% 112%, rgba(34, 216, 97, 0.15), transparent 55%),
+    linear-gradient(180deg, rgba(23, 27, 32, 0.55), rgba(13, 14, 17, 0.78));
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  overflow: hidden;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 10px 34px rgba(0, 0, 0, 0.35);
+  transition:
+    border-color 0.35s ease,
+    box-shadow 0.35s ease,
+    transform 0.35s var(--ease-out);
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.release-card:hover,
+.product-card:hover,
+.contact-card:hover {
+  border-color: rgba(34, 216, 97, 0.42);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 18px 50px rgba(0, 0, 0, 0.5),
+    0 0 36px rgba(34, 216, 97, 0.1);
+}
+
+/* thin edge-light across the top edge */
+.release-card::before,
+.product-card::before,
+.contact-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 10%;
+  right: 10%;
+  height: 1px;
+  z-index: 4;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.22), transparent);
+  pointer-events: none;
+}
+
+/* The curved glass face — sits ABOVE the content (pointer-events off):
+   concave edge shading, rim light, elliptical sheen, scanlines. */
+.release-card::after,
+.product-card::after,
+.contact-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(0, 0, 0, 0.55), transparent 15%),
+    linear-gradient(-90deg, rgba(0, 0, 0, 0.55), transparent 15%),
+    linear-gradient(90deg, rgba(190, 255, 215, 0.16), transparent 3%),
+    linear-gradient(-90deg, rgba(190, 255, 215, 0.16), transparent 3%),
+    radial-gradient(
+      95% 135% at 50% 42%,
+      transparent 58%,
+      rgba(255, 255, 255, 0.05) 80%,
+      transparent 97%
+    ),
+    repeating-linear-gradient(
+      0deg,
+      rgba(34, 216, 97, 0.05) 0 1px,
+      transparent 1px 5px
+    );
+}
+
+/* card content lives beneath the glass */
+.release-card > *,
+.product-card > *,
+.contact-card > * {
+  position: relative;
+  z-index: 2;
+}
+
+/* content emits light on hover — powered projection */
+.release-card > h3,
+.product-card h3,
+.contact-card > h3,
+.release-card > .release-info,
+.product-card > .product-info,
+.contact-card > p,
+.contact-card > a {
+  transition: text-shadow 0.45s ease;
+}
+
+.release-card:hover h3,
+.product-card:hover h3,
+.contact-card:hover h3 {
+  text-shadow: 0 0 24px rgba(34, 216, 97, 0.45);
+}
+
+.release-card:hover .release-meta,
+.product-card:hover .product-info p,
+.contact-card:hover > p {
+  text-shadow: 0 0 14px rgba(34, 216, 97, 0.14);
+}
+
+/* luminous band sweeping down — display refresh over the projection */
+.card-scan {
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  height: 34%;
+  z-index: 3;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    transparent,
+    rgba(34, 216, 97, 0.07) 45%,
+    rgba(160, 255, 200, 0.13) 55%,
+    transparent
+  );
+  opacity: 0;
+  animation: card-scan 7s var(--ease-out) infinite;
+  animation-delay: calc(var(--card-i, 0) * 2.2s);
+}
+
+@keyframes card-scan {
+  0%,
+  12% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  55% {
+    opacity: 1;
+  }
+  62%,
+  100% {
+    transform: translateY(320%);
+    opacity: 0;
+  }
+}
+
+/* HUD corner brackets — reveal on hover/focus */
+.card-frame {
+  position: absolute;
+  inset: 12px; /* clears the chamfered corners */
+  z-index: 4;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  background:
+    linear-gradient(to right, var(--accent), var(--accent)) top left / 14px 1.5px,
+    linear-gradient(to bottom, var(--accent), var(--accent)) top left / 1.5px 14px,
+    linear-gradient(to left, var(--accent), var(--accent)) top right / 14px 1.5px,
+    linear-gradient(to bottom, var(--accent), var(--accent)) top right / 1.5px 14px,
+    linear-gradient(to right, var(--accent), var(--accent)) bottom left / 14px 1.5px,
+    linear-gradient(to bottom, var(--accent), var(--accent)) bottom left / 1.5px 14px,
+    linear-gradient(to left, var(--accent), var(--accent)) bottom right / 14px 1.5px,
+    linear-gradient(to bottom, var(--accent), var(--accent)) bottom right / 1.5px 14px;
+  background-repeat: no-repeat;
+}
+
+.release-card:hover .card-frame,
+.release-card:focus-within .card-frame,
+.product-card:hover .card-frame,
+.product-card:focus-within .card-frame,
+.contact-card:hover .card-frame,
+.contact-card:focus-within .card-frame {
+  opacity: 0.9;
+}
+
+/* ---------- Marquee ---------- */
+.marquee {
+  overflow: hidden;
+  border-block: 1px solid var(--line);
+  padding: 0.85rem 0;
+  background: var(--surface);
+}
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 28s linear infinite;
+}
+
+.marquee-track span {
+  padding-right: 3rem;
+  font-family: var(--font-display);
+  font-stretch: 120%;
+  font-weight: 700;
+  font-size: 0.92rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--muted);
+}
+
+.marquee-track .serif-accent {
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 1.1rem;
+  color: var(--accent);
+}
+
+@keyframes marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* ---------- Forms ---------- */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.field label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+
+.field input,
+.field select {
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--line-strong);
+  border-radius: 12px;
+  padding: 0.8rem 1rem;
+  color: var(--text);
+  font: inherit;
+  width: 100%;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.field select {
+  background-color: var(--surface-2);
+  color: var(--text);
+}
+
+.field input::placeholder {
+  color: var(--faint);
+}
+
+.field input:focus,
+.field select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(34, 216, 97, 0.18);
+}
+
+.field input[aria-invalid='true'] {
+  border-color: var(--danger);
+}
+
+.field .error {
+  font-size: 0.8rem;
+  color: var(--danger);
+  display: none;
+}
+
+.field input[aria-invalid='true'] ~ .error {
+  display: block;
+}
+
+/* ---------- Toast ---------- */
+#toast-region {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 120;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: center;
+  pointer-events: none;
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  background: rgba(18, 18, 22, 0.92);
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  padding: 0.7rem 1.3rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(14px);
+  opacity: 0;
+  transform: translateY(14px);
+  transition:
+    opacity 0.3s var(--ease-out),
+    transform 0.3s var(--ease-out);
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.toast .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex-shrink: 0;
+}
+
+/* ---------- Reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .marquee-track {
+    animation: none;
+  }
+
+  .btn,
+  .toast,
+  .release-card,
+  .product-card,
+  .contact-card,
+  .card-frame {
+    transition: none;
+  }
+
+  .card-scan {
+    animation: none;
+    display: none;
+  }
+
+  .grain,
+  #particles {
+    display: none;
+  }
+}

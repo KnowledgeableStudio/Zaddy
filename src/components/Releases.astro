@@ -1,0 +1,339 @@
+---
+import { Image } from 'astro:assets';
+import llenoArt from '../assets/lleno-de-balas.webp';
+import todaviaArt from '../assets/todavia-artwork.jpeg';
+import { RELEASES } from '../data/site.js';
+import { siApplemusic, siSpotify } from 'simple-icons';
+
+const linkIcons = {
+  'Apple Music': siApplemusic,
+  Spotify: siSpotify,
+} as const;
+
+const artwork = {
+  'lleno-de-balas': llenoArt,
+  todavia: todaviaArt,
+} as const;
+---
+
+<section id="music" class="section" aria-labelledby="music-heading">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="section-index">01 — Releases</span>
+      <h2 id="music-heading">Latest<br />Songs</h2>
+      <p>New releases &amp; official videos — updated regularly.</p>
+    </div>
+
+    <div class="releases-grid">
+      {
+        RELEASES.map((release, i) => (
+          <article class="release-card reveal" data-delay={String(i)} style={`--card-i:${i}`}>
+            <span class="card-scan" aria-hidden="true"></span>
+            <span class="card-frame" aria-hidden="true"></span>
+            <div class="release-art">
+              <Image
+                src={artwork[release.artwork]}
+                alt={`${release.title} cover art`}
+                widths={[400, 640]}
+                sizes="(max-width: 480px) calc(100vw - 4.5rem), 108px"
+                loading="lazy"
+              />
+            </div>
+            <div class="release-info">
+              <h3>{release.title}</h3>
+              <p class="release-meta">{release.meta}</p>
+              <div class="release-links">
+                {release.links.map((link) =>
+                  link.primary && release.videoId ? (
+                    <button
+                      type="button"
+                      class="btn btn-primary btn-sm"
+                      data-video={release.videoId}
+                      data-video-title={release.title}
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                        <path d="M8 5.5v13l11-6.5-11-6.5z" />
+                      </svg>
+                      Play Video
+                    </button>
+                  ) : (
+                    <a
+                      href={link.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class:list={['btn btn-sm', { 'btn-primary': link.primary }]}
+                    >
+                      {linkIcons[link.label] && (
+                        <svg
+                          width="14"
+                          height="14"
+                          viewBox="0 0 24 24"
+                          fill="currentColor"
+                          aria-hidden="true"
+                          set:html={`<path d="${linkIcons[link.label].path}"/>`}
+                        />
+                      )}
+                      {link.label}
+                    </a>
+                  )
+                )}
+              </div>
+            </div>
+          </article>
+        ))
+      }
+    </div>
+  </div>
+
+  <!-- Video lightbox — iframe injected on demand -->
+  <div id="video-modal" class="video-modal" role="dialog" aria-modal="true" aria-label="Music video player" hidden>
+    <div class="video-backdrop" data-video-close></div>
+    <div class="video-shell">
+      <div class="video-shell-head">
+        <span id="video-title"></span>
+        <button class="btn btn-icon" type="button" data-video-close aria-label="Close video">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <path d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <div class="video-frame" id="video-frame"></div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .section {
+    padding-block: var(--section-pad);
+    position: relative;
+    z-index: 1;
+  }
+
+  .releases-grid {
+    display: grid;
+    /* auto-fit: two columns when there's room for art + buttons,
+       one centered column when there isn't — no fixed breakpoint */
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 27rem), 1fr));
+    justify-content: center;
+    gap: 0.85rem;
+    max-width: 56rem;
+    margin-inline: auto;
+  }
+
+  /* layout only — the holo surface lives in the global card system.
+     Release rows are compact: lighter curve shading + smaller chamfer
+     so the concave falloff doesn't swallow the artwork and buttons. */
+  .release-card {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    padding: 0.8rem 0.9rem;
+    clip-path: polygon(
+      12px 0, 100% 0,
+      100% calc(100% - 12px), calc(100% - 12px) 100%,
+      0 100%, 0 12px
+    );
+  }
+
+  .release-card::after {
+    background:
+      linear-gradient(90deg, rgba(0, 0, 0, 0.38), transparent 9%),
+      linear-gradient(-90deg, rgba(0, 0, 0, 0.38), transparent 9%),
+      linear-gradient(90deg, rgba(190, 255, 215, 0.12), transparent 2.5%),
+      linear-gradient(-90deg, rgba(190, 255, 215, 0.12), transparent 2.5%),
+      radial-gradient(
+        95% 135% at 50% 42%,
+        transparent 62%,
+        rgba(255, 255, 255, 0.04) 82%,
+        transparent 97%
+      ),
+      repeating-linear-gradient(
+        0deg,
+        rgba(34, 216, 97, 0.05) 0 1px,
+        transparent 1px 5px
+      );
+  }
+
+  .release-card .card-frame {
+    inset: 10px;
+  }
+
+  .release-art {
+    flex-shrink: 0;
+    width: clamp(72px, 15vw, 108px);
+    aspect-ratio: 1;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid rgba(34, 216, 97, 0.22);
+    box-shadow: 0 0 0 rgba(34, 216, 97, 0);
+    transition: border-color 0.3s ease, box-shadow 0.35s ease;
+  }
+
+  .release-card:hover .release-art {
+    border-color: rgba(34, 216, 97, 0.45);
+    box-shadow: 0 0 22px rgba(34, 216, 97, 0.18);
+  }
+
+  .release-art img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s var(--ease-out);
+  }
+
+  .release-card:hover .release-art img {
+    transform: scale(1.06);
+  }
+
+  .release-info {
+    min-width: 0;
+    flex: 1;
+    align-self: stretch;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .release-info h3 {
+    font-family: var(--font-display);
+    font-stretch: 118%;
+    font-weight: 800;
+    font-size: clamp(1.02rem, 1.8vw, 1.25rem);
+    text-transform: uppercase;
+    letter-spacing: -0.01em;
+    line-height: 1.05;
+    text-wrap: balance;
+  }
+
+  .release-meta {
+    color: var(--muted);
+    font-size: 0.82rem;
+    margin-top: 0.3rem;
+  }
+
+  .release-links {
+    display: flex;
+    /* wrap allowed — on narrow cards the buttons stack gracefully
+       instead of clipping against overflow:hidden */
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    /* pinned to the bottom — aligns buttons across cards regardless
+       of title length */
+    margin-top: auto;
+    padding-top: 0.85rem;
+  }
+
+  .release-links > * {
+    /* grow to equal halves when there's room; shrink or wrap when
+       there isn't — buttons never overflow the card */
+    flex: 1 1 8.5rem;
+    min-width: 0;
+    justify-content: center;
+  }
+
+  @media (max-width: 480px) {
+    .release-card {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .release-art {
+      width: 100%;
+    }
+  }
+
+  /* ---------- Video lightbox ---------- */
+  .video-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 130;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+  }
+
+  .video-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.82);
+    backdrop-filter: blur(8px);
+  }
+
+  .video-shell {
+    position: relative;
+    width: min(62rem, 100%);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius);
+    background: var(--surface);
+    overflow: hidden;
+    box-shadow: 0 40px 120px rgba(0, 0, 0, 0.7);
+    animation: video-in 0.35s var(--ease-out);
+  }
+
+  @keyframes video-in {
+    from {
+      opacity: 0;
+      transform: translateY(24px) scale(0.97);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .video-shell-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.9rem 1.2rem;
+    border-bottom: 1px solid var(--line);
+    font-family: var(--font-display);
+    font-stretch: 118%;
+    font-weight: 800;
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .video-frame {
+    aspect-ratio: 16 / 9;
+    background: #000;
+  }
+
+  .video-frame iframe {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    display: block;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .release-card,
+    .release-art,
+    .release-art img,
+    .video-shell {
+      transition: none;
+      animation: none;
+    }
+  }
+</style>
+
+<script>
+  // Subtle 3D tilt — matches the product cards' holographic-plate feel
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const finePointer = window.matchMedia('(pointer: fine)').matches;
+
+  if (!reduceMotion && finePointer) {
+    document.querySelectorAll('.release-card').forEach((card) => {
+      card.addEventListener('pointermove', (e) => {
+        const r = card.getBoundingClientRect();
+        const rx = ((e.clientY - r.top) / r.height - 0.5) * -4;
+        const ry = ((e.clientX - r.left) / r.width - 0.5) * 4;
+        card.style.transform = `perspective(900px) rotateX(${rx}deg) rotateY(${ry}deg) translateY(-3px)`;
+      });
+      card.addEventListener('pointerleave', () => {
+        card.style.transform = '';
+      });
+    });
+  }
+</script>

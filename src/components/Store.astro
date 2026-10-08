@@ -1,0 +1,222 @@
+---
+import { Image } from 'astro:assets';
+import zaddyWordmark from '../assets/zaddy-wordmark.png';
+import maskSignature from '../assets/mask-signature.png';
+import maskUrban from '../assets/mask-urban.png';
+import maskElite from '../assets/mask-elite.png';
+import { PRODUCTS } from '../data/site.js';
+
+const productArt = {
+  'mask-signature': maskSignature,
+  'mask-urban': maskUrban,
+  'mask-elite': maskElite,
+} as const;
+---
+
+<section id="store" class="section" aria-labelledby="store-heading">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="section-index">03 — Official Merch</span>
+      <div class="store-title-row">
+        <Image
+          src={zaddyWordmark}
+          alt="Zaddy Collection logo"
+          class="store-logo"
+          widths={[360, 640]}
+          sizes="(max-width: 720px) 70vw, 320px"
+          loading="lazy"
+        />
+      </div>
+      <p>Limited edition merchandise. Every piece is a statement.</p>
+      <button class="btn btn-sm" type="button" data-notify>Notify Me About New Drops</button>
+    </div>
+
+    <div class="product-grid">
+      {
+        PRODUCTS.map((product, i) => (
+          <article class="product-card reveal" data-delay={String(i)} style={`--card-i:${i}`}>
+            <span class="card-scan" aria-hidden="true"></span>
+            <span class="card-frame" aria-hidden="true"></span>
+            {product.badge && <span class="product-badge">{product.badge}</span>}
+            <div class="product-stage">
+              <Image
+                src={productArt[product.image]}
+                alt={product.name}
+                widths={[320, 560]}
+                sizes="(max-width: 720px) 80vw, 300px"
+                loading="lazy"
+              />
+            </div>
+            <div class="product-info">
+              <h3>{product.name}</h3>
+              <p>{product.description}</p>
+              <div class="product-buy">
+                <span class="product-price">${product.price.toFixed(2)}</span>
+                <button class="btn btn-primary btn-sm" type="button" data-add-to-cart={product.id}>
+                  Add to Cart
+                </button>
+              </div>
+            </div>
+          </article>
+        ))
+      }
+    </div>
+
+    <p class="store-note reveal">Secure checkout via PayPal · Ships worldwide</p>
+  </div>
+</section>
+
+<style>
+  .section {
+    padding-block: var(--section-pad);
+    position: relative;
+    z-index: 1;
+  }
+
+  .store-title-row {
+    display: flex;
+    align-items: center;
+    gap: 1.4rem;
+  }
+
+  .store-logo {
+    width: clamp(170px, 24vw, 270px);
+    height: auto;
+    filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.5));
+  }
+
+  .product-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.1rem;
+    max-width: 66rem;
+  }
+
+  /* layout only — the holo surface lives in the global card system */
+  .product-badge {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    z-index: 3;
+    font-size: 0.66rem;
+    font-weight: 800;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    background: rgba(34, 216, 97, 0.12);
+    color: var(--accent);
+    border: 1px solid rgba(34, 216, 97, 0.45);
+    padding: 0.35rem 0.85rem;
+    border-radius: 999px;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    box-shadow: 0 0 18px rgba(34, 216, 97, 0.15);
+  }
+
+  .product-stage {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 14rem;
+    background:
+      radial-gradient(60% 55% at 50% 62%, rgba(34, 216, 97, 0.11), transparent 70%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 30%),
+      linear-gradient(180deg, var(--surface-2), transparent);
+    border-bottom: 1px solid rgba(34, 216, 97, 0.1);
+  }
+
+  .product-stage img {
+    height: 11.5rem;
+    width: auto;
+    max-width: 80%;
+    object-fit: contain;
+    filter:
+      drop-shadow(0 24px 34px rgba(0, 0, 0, 0.55))
+      drop-shadow(0 0 26px rgba(34, 216, 97, 0.14));
+    transform: rotate(3deg);
+    transition: transform 0.5s var(--ease-spring), filter 0.4s ease;
+  }
+
+  .product-card:hover .product-stage img {
+    transform: rotate(0deg) scale(1.04);
+    filter:
+      drop-shadow(0 24px 34px rgba(0, 0, 0, 0.55))
+      drop-shadow(0 0 40px rgba(34, 216, 97, 0.28));
+  }
+
+  .product-info {
+    padding: 1.15rem;
+  }
+
+  .product-info h3 {
+    font-family: var(--font-display);
+    font-stretch: 118%;
+    font-weight: 800;
+    font-size: 1.18rem;
+    text-transform: uppercase;
+    letter-spacing: -0.01em;
+  }
+
+  .product-info p {
+    color: var(--muted);
+    font-size: 0.86rem;
+    margin-top: 0.4rem;
+  }
+
+  .product-buy {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 1.1rem;
+  }
+
+  .product-price {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.3rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .store-note {
+    margin-top: 1.6rem;
+    text-align: center;
+    font-size: 0.85rem;
+    color: var(--faint);
+    letter-spacing: 0.06em;
+  }
+
+  /* auto-fit: three columns on desktop, two on tablets, one on phones —
+     reflows by available width instead of a hard breakpoint */
+  .product-grid {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 15.5rem), 1fr));
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .product-card,
+    .product-stage img {
+      transition: none;
+      transform: none;
+    }
+  }
+</style>
+
+<script>
+  // Subtle 3D tilt — the card leans toward the pointer like a projected plane.
+  // Pointer-fine devices only; disabled under prefers-reduced-motion.
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const finePointer = window.matchMedia('(pointer: fine)').matches;
+
+  if (!reduceMotion && finePointer) {
+    document.querySelectorAll('.product-card').forEach((card) => {
+      card.addEventListener('pointermove', (e) => {
+        const r = card.getBoundingClientRect();
+        const rx = ((e.clientY - r.top) / r.height - 0.5) * -5;
+        const ry = ((e.clientX - r.left) / r.width - 0.5) * 5;
+        card.style.transform = `perspective(900px) rotateX(${rx}deg) rotateY(${ry}deg) translateY(-4px)`;
+      });
+      card.addEventListener('pointerleave', () => {
+        card.style.transform = '';
+      });
+    });
+  }
+</script>

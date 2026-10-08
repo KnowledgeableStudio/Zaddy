@@ -1,0 +1,106 @@
+---
+---
+
+<div class="holo-wrap reveal">
+  <div id="holo-anchor" class="holo-anchor" role="img" aria-label="3D hologram of iZad Casanova in a masked hoodie — drag or use arrow keys to rotate">
+    <div class="holo-loading" id="holo-loading">Loading hologram…</div>
+  </div>
+  <p class="holo-caption">
+    <span class="holo-dot" aria-hidden="true"></span>
+    Live projection · drag to rotate
+  </p>
+</div>
+
+<style>
+  .holo-wrap {
+    margin-top: 2rem;
+    width: 100%;
+  }
+
+  /* Space reserved for the projection — the WebGL canvas itself
+     covers the whole Story section, so nothing is bounded */
+  .holo-anchor {
+    position: relative;
+    height: min(52vh, 28rem);
+    cursor: grab;
+  }
+
+  .holo-anchor:active {
+    cursor: grabbing;
+  }
+
+  .holo-anchor:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 6px;
+    border-radius: 8px;
+  }
+
+  .holo-loading {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--faint);
+    transition: opacity 0.5s ease;
+    pointer-events: none;
+  }
+
+  .holo-loading.done {
+    opacity: 0;
+  }
+
+  .holo-caption {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.6rem;
+    /* 5% of the anchor block's height — nudges the caption down
+       without affecting the hologram position */
+    transform: translateY(min(2.6vh, 1.4rem));
+    font-size: 0.72rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--faint);
+  }
+
+  .holo-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 10px rgba(34, 216, 97, 0.8);
+    animation: pulse 2.4s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.4;
+    }
+  }
+
+  /* Canvas overlays the whole section — section content floats above it */
+  :global(#story .story-grid) {
+    position: relative;
+    z-index: 1;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .holo-loading,
+    .holo-dot {
+      transition: none;
+      animation: none;
+    }
+  }
+</style>
+
+<script>
+  import '../scripts/hologram.js';
+</script>

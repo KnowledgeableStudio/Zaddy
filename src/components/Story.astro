@@ -1,0 +1,149 @@
+---
+import Hologram from './Hologram.astro';
+---
+
+<section id="story" class="story" aria-labelledby="story-heading">
+  <div class="container story-grid">
+    <div class="story-side">
+      <span class="section-index">02 — The Story</span>
+      <h2 id="story-heading" class="display">From the<br />Bronx to<br />the World</h2>
+      <p class="story-sub">The story behind the music.</p>
+      <Hologram />
+      <blockquote class="story-quote serif-accent">
+        “I'm not chasing fame for money — I'm chasing fame to go to war with the system.”
+      </blockquote>
+    </div>
+
+    <div class="story-body">
+      <p class="lede">
+        My name is iZad Casanova, and I was born in New York City on November 11, 1989. I'm a
+        first-generation American, still living in the Bronx, and still chasing a dream. I graduated
+        from Monroe College with a degree in Computer Analysis, but life hasn't made things easy.
+        Despite the obstacles, I've kept pushing forward.
+      </p>
+      <p>
+        Between 1996 and 2006, I lived in the Dominican Republic after my parents and family were
+        indicted for drug trafficking. Their decisions shaped my path and brought a lot of struggle
+        into my life. Ever since then, I've been fighting to rise above it — to create a future
+        beyond the shadows of my past. I've been offered many opportunities tied to criminal
+        activity, but I've never let my soul fall. I remain strong, choosing to do what's right.
+      </p>
+      <p>
+        Music is my therapy. It's how I deal with emotions, depression, pain, and survival. It's the
+        voice I use when words fail me. I've faced betrayal and heartbreak, especially from my own
+        siblings who have turned their backs on our mother and our sister — who's battling leukemia.
+        I've carried the weight alone: paying rent, medicine, food, and everything else, often at
+        the cost of my own dreams.
+      </p>
+      <p>
+        But I'm not chasing fame for money. I'm chasing fame to mentally go to war with the system —
+        to challenge injustice, to speak up for the unheard, and to help humanity live a better
+        life. My mission is bigger than me.
+      </p>
+      <p>
+        I believe in something greater. I believe in Allah, in Judgment Day, and in karma. I live by
+        values rooted in faith, resilience, and love. Helping others is what brings me peace — and I
+        want to take that mission even further through my music.
+      </p>
+      <p>
+        Outside of music, I'm passionate about technology — from coding (SQL, CSS, HTML) to content
+        creation and even sustainable agriculture. I've developed a unique method to grow fruits and
+        vegetables sustainably, using techniques that could benefit under-resourced communities. But
+        like many of my ideas, it's stuck on the shelf — not because of lack of vision, but because
+        of lack of funding. I believe this project could change lives, but without the resources to
+        get it off the ground, it remains a dream waiting to be realized.
+      </p>
+      <p>
+        Most importantly, I'm a proud father of two — a daughter and a son. Their existence gives my
+        life meaning. They are my reason to keep dreaming, to keep fighting, to never give up.
+      </p>
+      <p>
+        Through my music, I don't just want to be heard — I want to be felt. I want people to hear
+        my story and know that they're not alone. That no matter how broken life gets, there's still
+        hope.
+      </p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .story {
+    padding-block: var(--section-pad);
+    position: relative;
+    z-index: 1;
+    border-block: 1px solid var(--line);
+    background: linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.015) 40%, transparent);
+  }
+
+  .story-grid {
+    display: grid;
+    gap: 3rem;
+  }
+
+  .story-side {
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+  }
+
+  .story-side h2 {
+    font-size: clamp(2.1rem, 4.6vw, 3.6rem);
+  }
+
+  .story-sub {
+    color: var(--muted);
+  }
+
+  .story-quote {
+    margin-top: 1.6rem;
+    padding-left: 1.2rem;
+    border-left: 2px solid var(--accent);
+    font-size: clamp(1.15rem, 2vw, 1.45rem);
+    line-height: 1.4;
+    color: var(--text);
+    text-wrap: balance;
+  }
+
+  .story-body {
+    display: flex;
+    flex-direction: column;
+    gap: 1.4rem;
+    max-width: 62ch;
+  }
+
+  .story-body p {
+    color: var(--muted);
+    line-height: 1.75;
+  }
+
+  .story-body .lede {
+    font-size: 1.1rem;
+    color: var(--text);
+    line-height: 1.7;
+  }
+
+  .story-body .lede::first-letter {
+    font-family: var(--font-display);
+    font-stretch: 125%;
+    font-weight: 800;
+    font-size: 3em;
+    float: left;
+    line-height: 0.85;
+    padding-right: 0.6rem;
+    padding-top: 0.15rem;
+    color: var(--accent);
+  }
+
+  @media (min-width: 960px) {
+    .story-grid {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+      gap: 5rem;
+    }
+
+    .story-side {
+      position: sticky;
+      top: 7rem;
+      align-self: start;
+    }
+  }
+</style>
