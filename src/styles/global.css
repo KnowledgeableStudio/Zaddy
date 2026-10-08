@@ -157,6 +157,20 @@ section[id] {
   font-weight: 400;
 }
 
+/* body copy quality — no rag orphans, no layout-breaking long strings */
+p {
+  text-wrap: pretty;
+  overflow-wrap: break-word;
+}
+
+/* form feel — accent caret + accent-colored controls */
+input,
+textarea,
+select {
+  caret-color: var(--accent);
+  accent-color: var(--accent);
+}
+
 .section-head {
   display: flex;
   flex-direction: column;

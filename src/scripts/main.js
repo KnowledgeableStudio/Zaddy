@@ -137,7 +137,9 @@ function renderCart() {
   coItemsEl.innerHTML = '';
 
   const count = cartCount();
-  document.getElementById('cart-count').textContent = count;
+  const badge = document.getElementById('cart-count');
+  badge.textContent = count;
+  badge.hidden = count === 0;
   emptyEl.hidden = cart.length > 0;
   document.getElementById('to-checkout').disabled = cart.length === 0;
   cartFoot.style.display = cart.length === 0 ? 'none' : '';
