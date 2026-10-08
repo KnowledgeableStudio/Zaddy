@@ -465,8 +465,10 @@ async function initHologram() {
     renderer.setSize(cw, ch, false);
     camera.aspect = cw / ch;
 
-    // camera distance so the rig's world height matches anchor height in px
-    const anchorH = anchor.clientHeight || ch * 0.5;
+    // camera distance so the rig's world height matches anchor height in px.
+    // Rig renders ~12% smaller than the anchor block — its head drops
+    // below the subtitle instead of overlapping it.
+    const anchorH = (anchor.clientHeight || ch * 0.5) * 1.12;
     const dist = (RIG_H * ch) / (2 * TAN_HALF_FOV * anchorH);
     camera.position.set(0, 0, Math.min(Math.max(dist, 2.4), 9));
     camera.lookAt(0, 0, 0);
