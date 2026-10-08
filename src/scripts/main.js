@@ -572,6 +572,77 @@ function initParticles() {
 }
 
 /* ============================================================
+   Background music — single <audio> element, loops forever.
+   Autoplay-with-sound is tried first; if the browser blocks it,
+   playback starts muted and the first user gesture unmutes.
+   ============================================================ */
+const bgMusic = document.getElementById('bg-music');
+const musicBtn = document.getElementById('music-toggle');
+
+if (bgMusic && musicBtn) {
+  bgMusic.volume = 0.55;
+  const MUTE_KEY = 'bg-music-muted';
+  let userMuted = localStorage.getItem(MUTE_KEY) === '1';
+  let soundBlocked = false;
+
+  const syncMusicBtn = () => {
+    const audible = !bgMusic.paused && !bgMusic.muted;
+    musicBtn.classList.toggle('is-on', audible);
+    musicBtn.setAttribute('aria-pressed', String(audible));
+    musicBtn.setAttribute(
+      'aria-label',
+      audible ? 'Mute background music' : 'Unmute background music'
+    );
+  };
+
+  const tryPlay = () => {
+    // muted autoplay is almost always permitted; sound needs a gesture
+    bgMusic.muted = userMuted;
+    bgMusic
+      .play()
+      .then(() => {
+        soundBlocked = false;
+        syncMusicBtn();
+      })
+      .catch(() => {
+        if (!bgMusic.muted) {
+          // sound autoplay blocked — play muted, wait for a gesture
+          bgMusic.muted = true;
+          soundBlocked = true;
+          bgMusic.play().then(syncMusicBtn).catch(syncMusicBtn);
+        } else {
+          syncMusicBtn();
+        }
+      });
+  };
+
+  const unlock = () => {
+    if (soundBlocked && !userMuted && !bgMusic.paused) {
+      bgMusic.muted = false;
+      soundBlocked = false;
+      syncMusicBtn();
+    }
+  };
+  // one gesture anywhere unmutes — covers browsers that blocked sound
+  window.addEventListener('pointerdown', unlock, { once: false });
+  window.addEventListener('keydown', unlock, { once: false });
+
+  musicBtn.addEventListener('click', () => {
+    userMuted = !userMuted;
+    localStorage.setItem(MUTE_KEY, userMuted ? '1' : '0');
+    bgMusic.muted = userMuted;
+    if (bgMusic.paused) bgMusic.play().catch(() => {});
+    syncMusicBtn();
+  });
+
+  bgMusic.addEventListener('play', syncMusicBtn);
+  bgMusic.addEventListener('pause', syncMusicBtn);
+  bgMusic.addEventListener('volumechange', syncMusicBtn);
+
+  tryPlay();
+}
+
+/* ============================================================
    Init
    ============================================================ */
 initParticles();
