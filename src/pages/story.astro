@@ -23,9 +23,10 @@ const CHAPTERS = [
     slate: 'CH.01 — ORIGINS · BRONX, NY · 1989',
     img: ch01Img,
     alt: 'Elevated train tracks running past a bridge toward distant city buildings',
-    paras: [
-      "My name is iZad Casanova, and I was born in New York City on November 11, 1989. I'm a first-generation American, still living in the Bronx, and still chasing a dream. I graduated from Monroe College with a degree in Computer Analysis, but life hasn't made things easy. Despite the obstacles, I've kept pushing forward.",
-    ],
+    narration:
+      'New York City, 1989. A first-generation American is born in the Bronx — where he still lives, still chasing a dream.',
+    quote:
+      "I graduated from Monroe College with a degree in Computer Analysis, but life hasn't made things easy. I've kept pushing forward.",
   },
   {
     num: '02',
@@ -33,9 +34,10 @@ const CHAPTERS = [
     slate: 'CH.02 — THE STRUGGLE · DOMINICAN REPUBLIC · 1996–2006',
     img: ch02Img,
     alt: 'Motorbikes riding down a busy street',
-    paras: [
-      "Between 1996 and 2006, I lived in the Dominican Republic after my parents and family were indicted for drug trafficking. Their decisions shaped my path and brought a lot of struggle into my life. Ever since then, I've been fighting to rise above it — to create a future beyond the shadows of my past. I've been offered many opportunities tied to criminal activity, but I've never let my soul fall. I remain strong, choosing to do what's right.",
-    ],
+    narration:
+      'From 1996 to 2006, he lives in the Dominican Republic — after his parents and family are indicted for drug trafficking. Their choices cast a long shadow.',
+    quote:
+      "I was offered many opportunities tied to criminal activity. I never let my soul fall. I chose to do what's right.",
   },
   {
     num: '03',
@@ -43,9 +45,9 @@ const CHAPTERS = [
     slate: 'CH.03 — MUSIC AS THERAPY',
     img: ch03Img,
     alt: 'Condenser microphone on a stand against a black background',
-    paras: [
-      "Music is my therapy. It's how I deal with emotions, depression, pain, and survival. It's the voice I use when words fail me. I've faced betrayal and heartbreak, especially from my own siblings who have turned their backs on our mother and our sister — who's battling leukemia. I've carried the weight alone: paying rent, medicine, food, and everything else, often at the cost of my own dreams.",
-    ],
+    narration:
+      'Back home, the weight doesn’t lift. His own siblings turn their backs on their mother — and on a sister battling leukemia. He pays the rent, the medicine, the food. Alone.',
+    quote: "Music is my therapy. It's the voice I use when words fail me.",
   },
   {
     num: '04',
@@ -53,9 +55,9 @@ const CHAPTERS = [
     slate: 'CH.04 — THE MISSION',
     img: ch04Img,
     alt: 'City buildings viewed from above at night',
-    paras: [
-      "But I'm not chasing fame for money. I'm chasing fame to mentally go to war with the system — to challenge injustice, to speak up for the unheard, and to help humanity live a better life. My mission is bigger than me.",
-    ],
+    narration: 'What he’s chasing was never money.',
+    quote:
+      "I'm chasing fame to go to war with the system — to challenge injustice, to speak for the unheard. My mission is bigger than me.",
   },
   {
     num: '05',
@@ -63,9 +65,9 @@ const CHAPTERS = [
     slate: 'CH.05 — FAITH',
     img: ch05Img,
     alt: 'Sunlight streaming through windows into a dark room',
-    paras: [
-      'I believe in something greater. I believe in Allah, in Judgment Day, and in karma. I live by values rooted in faith, resilience, and love. Helping others is what brings me peace — and I want to take that mission even further through my music.',
-    ],
+    narration: 'The engine underneath it all isn’t ambition.',
+    quote:
+      'I believe in Allah, in Judgment Day, in karma. Faith, resilience, love — helping others is what brings me peace.',
   },
   {
     num: '06',
@@ -73,9 +75,10 @@ const CHAPTERS = [
     slate: 'CH.06 — BEYOND THE MUSIC',
     img: ch06Img,
     alt: 'Rows of green plants inside a greenhouse',
-    paras: [
-      "Outside of music, I'm passionate about technology — from coding (SQL, CSS, HTML) to content creation and even sustainable agriculture. I've developed a unique method to grow fruits and vegetables sustainably, using techniques that could benefit under-resourced communities. But like many of my ideas, it's stuck on the shelf — not because of lack of vision, but because of lack of funding. I believe this project could change lives, but without the resources to get it off the ground, it remains a dream waiting to be realized.",
-    ],
+    narration:
+      'There’s more on the shelf than songs. Code — SQL, CSS, HTML. Content. And a self-built method for growing food sustainably, designed for under-resourced communities.',
+    quote:
+      "It's stuck there — not for lack of vision, but lack of funding. It could change lives. It's still waiting.",
   },
   {
     num: '07',
@@ -83,9 +86,8 @@ const CHAPTERS = [
     slate: 'CH.07 — FAMILY',
     img: ch07Img,
     alt: 'Silhouette of a parent carrying a child against warm light',
-    paras: [
-      "Most importantly, I'm a proud father of two — a daughter and a son. Their existence gives my life meaning. They are my reason to keep dreaming, to keep fighting, to never give up.",
-    ],
+    narration: 'Above everything: a daughter and a son.',
+    quote: "They're my reason to keep dreaming, to keep fighting, to never give up.",
   },
 ];
 ---
@@ -149,9 +151,8 @@ const CHAPTERS = [
             <span class="chapter-num display" aria-hidden="true">{ch.num}</span>
             <div class="chapter-body">
               <h2 id={`ch-${ch.num}`} class="chapter-title display">{ch.title}</h2>
-              {ch.paras.map((p) => (
-                <p>{p}</p>
-              ))}
+              <p class="narration">{ch.narration}</p>
+              <blockquote class="chapter-quote serif-accent">{ch.quote}</blockquote>
             </div>
             <figure class="chapter-visual" data-parallax>
               <Image
@@ -531,6 +532,18 @@ const CHAPTERS = [
 
   .chapter-body p + p {
     margin-top: 1.2rem;
+  }
+
+  /* iZad's own voice — the pull-line under the narration,
+     styled like a documentary transcript quote */
+  .chapter-quote {
+    margin-top: 1.4rem;
+    padding-left: 1.1rem;
+    border-left: 2px solid var(--accent);
+    font-size: clamp(1.02rem, 1.9vw, 1.22rem);
+    line-height: 1.5;
+    color: var(--text);
+    text-wrap: pretty;
   }
 
   .chapter-body p:first-of-type::first-letter {
