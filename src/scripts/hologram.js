@@ -447,6 +447,7 @@ async function initHologram() {
      Layout — canvas covers the section; rig lands on the anchor
      ============================================================ */
   const RIG_H = 2.35; // model + projector + glow margin
+  const RIG_W = 1.7; // widest element — beam cylinders
   const RIG_FLOOR = -1.14; // bottom of projector+glow, local space
   const TAN_HALF_FOV = Math.tan((camera.fov * Math.PI) / 360);
   let userYaw = 0; // drag / auto-rotate rotation
@@ -464,8 +465,13 @@ async function initHologram() {
     // Rig renders ~12% smaller than the anchor block — its head drops
     // below the subtitle instead of overlapping it.
     const anchorH = (anchor.clientHeight || ch * 0.5) * 1.12;
-    const dist = (RIG_H * ch) / (2 * TAN_HALF_FOV * anchorH);
-    camera.position.set(0, 0, Math.min(Math.max(dist, 2.4), 9));
+    const anchorW = anchor.clientWidth || cw * 0.6;
+    const distH = (RIG_H * ch) / (2 * TAN_HALF_FOV * anchorH);
+    // on mobile the section canvas is extremely tall+narrow — the
+    // horizontal FOV is tiny, so fit the rig's width to the anchor too
+    const distW = (RIG_W * cw) / (2 * TAN_HALF_FOV * camera.aspect * anchorW);
+    const dist = Math.max(distH, distW, 2.4);
+    camera.position.set(0, 0, Math.min(dist, 40));
     camera.lookAt(0, 0, 0);
     camera.updateProjectionMatrix();
     camera.updateMatrixWorld();
