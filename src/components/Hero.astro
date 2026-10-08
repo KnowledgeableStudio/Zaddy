@@ -1,21 +1,23 @@
 ---
-import { Image } from 'astro:assets';
-import heroBg from '../assets/hero-bg.png';
 import Platforms from './Platforms.astro';
 import { ARTIST } from '../data/site.js';
 ---
 
 <section id="top" class="hero" aria-label="Introduction">
   <div class="hero-media" aria-hidden="true">
-    <Image
-      src={heroBg}
-      alt=""
-      class="hero-img"
-      widths={[768, 1200, 1600, 2400]}
-      sizes="100vw"
-      loading="eager"
-      fetchpriority="high"
-    />
+    <video
+      class="hero-video"
+      autoplay
+      muted
+      loop
+      playsinline
+      preload="metadata"
+      aria-hidden="true"
+      src="/hero-loop.mp4"
+    ></video>
+    <div class="hero-letterbox"></div>
+    <div class="hero-aurora"></div>
+    <div class="hero-grain"></div>
     <div class="hero-shade"></div>
     <div class="hero-vignette"></div>
   </div>
@@ -51,7 +53,11 @@ import { ARTIST } from '../data/site.js';
 <style>
   .hero {
     position: relative;
-    min-height: 100svh;
+    /* height follows the video's real aspect ratio (set by JS below):
+       wide screens -> full-viewport band, narrow screens -> cinematic
+       strip. The frame is always fully visible, never letterboxed. */
+    height: clamp(48svh, calc(100vw / var(--video-ar, 2.2)), 100svh);
+    min-height: 48svh;
     display: flex;
     align-items: flex-end;
     overflow: hidden;
@@ -63,23 +69,61 @@ import { ARTIST } from '../data/site.js';
     z-index: -1;
   }
 
-  .hero-img {
+  /* cinematic loop is THE background — cover fills the whole hero,
+     no letterbox gaps on any screen */
+  .hero-video {
     position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: center 30%;
-    animation: hero-drift 30s ease-in-out infinite alternate;
+    object-position: center;
   }
 
-  @keyframes hero-drift {
+  /* cinema letterbox — hard black bars top & bottom, movie framing */
+  .hero-letterbox {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to bottom,
+      #000 0 7%,
+      transparent 7% 93%,
+      #000 93% 100%
+    );
+  }
+
+  /* drifting aurora light pools — slow green glows wandering the
+     letterbox zones so the frame never feels empty */
+  .hero-aurora {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(38% 30% at 22% 12%, rgba(34, 216, 97, 0.16), transparent 70%),
+      radial-gradient(34% 26% at 80% 88%, rgba(34, 216, 97, 0.12), transparent 70%),
+      radial-gradient(46% 34% at 68% 6%, rgba(120, 200, 255, 0.07), transparent 70%);
+    animation: aurora-drift 26s ease-in-out infinite alternate;
+  }
+
+  @keyframes aurora-drift {
     from {
-      transform: scale(1);
+      transform: translate3d(-2.5%, 1.5%, 0) scale(1);
     }
     to {
-      transform: scale(1.07) translateY(-1.5%);
+      transform: translate3d(2.5%, -1.5%, 0) scale(1.08);
     }
+  }
+
+  /* faint scanlines + grain unify the video with the hologram look */
+  .hero-grain {
+    position: absolute;
+    inset: 0;
+    background:
+      repeating-linear-gradient(
+        0deg,
+        rgba(34, 216, 97, 0.025) 0 1px,
+        transparent 1px 5px
+      );
+    mix-blend-mode: screen;
   }
 
   .hero-shade {
@@ -102,21 +146,25 @@ import { ARTIST } from '../data/site.js';
 
   .hero-content {
     position: relative;
-    padding-top: 7rem;
-    padding-bottom: clamp(3.5rem, 8vh, 6rem);
+    padding-top: 3.4rem;
+    padding-bottom: clamp(1.7rem, 3.8vh, 2.9rem);
     width: 100%;
   }
 
+  .hero-content .eyebrow {
+    font-size: 0.55rem;
+  }
+
   .hero-title {
-    font-size: clamp(3rem, 10.5vw, 8.5rem);
-    margin-top: 1.2rem;
+    font-size: clamp(1.5rem, 5vw, 4.1rem);
+    margin-top: 0.55rem;
     color: var(--text);
     text-shadow: 0 8px 60px rgba(0, 0, 0, 0.6);
   }
 
   .hero-tagline {
-    margin-top: 0.9rem;
-    font-size: clamp(1.2rem, 2.4vw, 1.75rem);
+    margin-top: 0.45rem;
+    font-size: clamp(0.68rem, 1.2vw, 0.85rem);
     color: var(--accent);
     text-shadow: 0 4px 30px rgba(0, 0, 0, 0.6);
   }
@@ -124,13 +172,34 @@ import { ARTIST } from '../data/site.js';
   .hero-ctas {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.7rem;
-    margin-top: 1.9rem;
+    gap: 0.36rem;
+    margin-top: 0.9rem;
+  }
+
+  .hero-ctas .btn {
+    padding: 0.34rem 0.68rem;
+    font-size: 0.56rem;
+    gap: 0.3rem;
   }
 
   .hero-platforms {
-    margin-top: 2.1rem;
-    max-width: 38rem;
+    margin-top: 1.05rem;
+    max-width: 19rem;
+  }
+
+  .hero-platforms :global(.platforms) {
+    gap: 0.28rem;
+  }
+
+  .hero-platforms :global(.platform-chip) {
+    padding: 0.28rem 0.52rem;
+    font-size: 0.56rem;
+    gap: 0.25rem;
+  }
+
+  .hero-platforms :global(.platform-chip svg) {
+    width: 9px;
+    height: 9px;
   }
 
   .scroll-cue {
@@ -171,9 +240,37 @@ import { ARTIST } from '../data/site.js';
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .hero-img,
     .scroll-cue {
+      animation: none;
+    }
+
+    .hero-video {
+      display: none;
+    }
+
+    .hero-aurora {
       animation: none;
     }
   }
 </style>
+
+<script>
+  // reduced-motion users get a still frame instead of the video loop
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    document.querySelectorAll('.hero-video').forEach((v) => v.pause());
+  }
+
+  // size the hero to the video's true aspect ratio — the whole frame
+  // displays edge-to-edge on every device, no letterbox, no gaps
+  const hero = document.querySelector('.hero');
+  const vid = document.querySelector('.hero-video');
+  function syncHeroRatio() {
+    if (vid && vid.videoWidth) {
+      hero.style.setProperty('--video-ar', (vid.videoWidth / vid.videoHeight).toFixed(4));
+    }
+  }
+  if (vid) {
+    if (vid.readyState >= 1) syncHeroRatio();
+    vid.addEventListener('loadedmetadata', syncHeroRatio);
+  }
+</script>

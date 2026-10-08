@@ -1,6 +1,5 @@
 ---
 import { getImage, Image } from 'astro:assets';
-import { PAYPAL_CLIENT_ID } from '../data/site.js';
 import zaddyWordmark from '../assets/zaddy-wordmark.png';
 import maskSignature from '../assets/mask-signature.png';
 import maskUrban from '../assets/mask-urban.png';
@@ -69,35 +68,35 @@ const thumbs = {
     <form id="checkout-form" novalidate>
       <div class="field">
         <label for="co-name">Full name</label>
-        <input id="co-name" name="name" type="text" autocomplete="name" placeholder="Jane Doe…" required />
+        <input id="co-name" name="name" type="text" autocomplete="name" maxlength="128" placeholder="Jane Doe…" required />
         <span class="error" id="err-name">Enter your full name.</span>
       </div>
       <div class="field">
         <label for="co-email">Email</label>
-        <input id="co-email" name="email" type="email" autocomplete="email" spellcheck="false" placeholder="jane@example.com…" required />
+        <input id="co-email" name="email" type="email" autocomplete="email" spellcheck="false" maxlength="254" placeholder="jane@example.com…" required />
         <span class="error" id="err-email">Enter a valid email address.</span>
       </div>
       <div class="field">
         <label for="co-address">Street address</label>
-        <input id="co-address" name="address" type="text" autocomplete="street-address" placeholder="123 Main St…" required />
+        <input id="co-address" name="address" type="text" autocomplete="street-address" maxlength="200" placeholder="123 Main St…" required />
         <span class="error" id="err-address">Enter your street address.</span>
       </div>
       <div class="field-row">
         <div class="field">
           <label for="co-city">City</label>
-          <input id="co-city" name="city" type="text" autocomplete="address-level2" placeholder="New York…" required />
+          <input id="co-city" name="city" type="text" autocomplete="address-level2" maxlength="100" placeholder="New York…" required />
           <span class="error" id="err-city">Enter your city.</span>
         </div>
         <div class="field">
           <label for="co-state">State</label>
-          <input id="co-state" name="state" type="text" autocomplete="address-level1" placeholder="NY…" required />
+          <input id="co-state" name="state" type="text" autocomplete="address-level1" maxlength="100" placeholder="NY…" required />
           <span class="error" id="err-state">Enter your state.</span>
         </div>
       </div>
       <div class="field-row">
         <div class="field">
           <label for="co-zip">ZIP code</label>
-          <input id="co-zip" name="zip" type="text" inputmode="numeric" autocomplete="postal-code" placeholder="10001…" required />
+          <input id="co-zip" name="zip" type="text" inputmode="numeric" autocomplete="postal-code" maxlength="20" placeholder="10001…" required />
           <span class="error" id="err-zip">Enter your ZIP code.</span>
         </div>
         <div class="field">
@@ -146,8 +145,6 @@ const thumbs = {
 <div id="toast-region" aria-live="polite" aria-atomic="false"></div>
 
 <script is:inline id="product-thumbs" type="application/json" set:html={JSON.stringify(thumbs)} />
-
-<script src={`https://www.paypal.com/sdk/js?client-id=${PAYPAL_CLIENT_ID}&currency=USD&enable-funding=venmo,card&disable-funding=credit`} defer></script>
 
 <style>
   .cart-backdrop {
@@ -263,7 +260,7 @@ const thumbs = {
     font-family: var(--font-display);
     font-stretch: 118%;
     font-weight: 800;
-    font-size: 0.72rem;
+    font-size: 0.6rem;
     letter-spacing: 0.28em;
     text-transform: uppercase;
     color: var(--accent);
@@ -317,7 +314,7 @@ const thumbs = {
 
   .cart-item .item-name {
     font-weight: 700;
-    font-size: 0.92rem;
+    font-size: 0.78rem;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -325,7 +322,7 @@ const thumbs = {
 
   .cart-item .item-price {
     color: var(--muted);
-    font-size: 0.82rem;
+    font-size: 0.7rem;
     font-variant-numeric: tabular-nums;
   }
 
@@ -341,7 +338,7 @@ const thumbs = {
     width: 1.9rem;
     height: 1.9rem;
     font-weight: 700;
-    font-size: 1rem;
+    font-size: 0.85rem;
     color: var(--muted);
     transition: color 0.15s ease;
   }
@@ -353,7 +350,7 @@ const thumbs = {
   .qty span {
     min-width: 1.6rem;
     text-align: center;
-    font-size: 0.85rem;
+    font-size: 0.72rem;
     font-weight: 700;
     font-variant-numeric: tabular-nums;
   }
@@ -395,12 +392,12 @@ const thumbs = {
   .totals > div {
     display: flex;
     justify-content: space-between;
-    font-size: 0.88rem;
+    font-size: 0.74rem;
     color: var(--muted);
   }
 
   .totals .total-row {
-    font-size: 1.05rem;
+    font-size: 0.9rem;
     font-weight: 800;
     color: var(--text);
     padding-top: 0.4rem;
@@ -444,7 +441,7 @@ const thumbs = {
   .checkout-items .line {
     display: flex;
     justify-content: space-between;
-    font-size: 0.88rem;
+    font-size: 0.74rem;
   }
 
   .checkout-items .line .qty-note {
@@ -482,7 +479,7 @@ const thumbs = {
     font-family: var(--font-display);
     font-stretch: 118%;
     font-weight: 800;
-    font-size: 1rem;
+    font-size: 0.85rem;
     text-transform: uppercase;
     color: var(--text);
   }
@@ -490,7 +487,7 @@ const thumbs = {
   .payment-note {
     margin-top: 0.9rem;
     text-align: center;
-    font-size: 0.75rem;
+    font-size: 0.64rem;
     color: var(--faint);
     letter-spacing: 0.04em;
   }

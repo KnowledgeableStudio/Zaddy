@@ -1,0 +1,36 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base
+  title="Page Not Found — iZad Casanova"
+  description="The page you're looking for doesn't exist."
+>
+  <main class="not-found">
+    <p class="eyebrow">404</p>
+    <h1 class="display">Lost in<br />the Void</h1>
+    <p class="serif-accent tag">This page doesn't exist — but the music does.</p>
+    <a href="/" class="btn btn-primary btn-hud">Back to iZadCasanova</a>
+  </main>
+</Base>
+
+<style>
+  .not-found {
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.4rem;
+    text-align: center;
+    padding: 2rem;
+  }
+
+  .not-found h1 {
+    font-size: clamp(2.4rem, 8vw, 5rem);
+  }
+
+  .not-found .tag {
+    color: var(--accent);
+  }
+</style>

@@ -1,10 +1,8 @@
 {
   "name": "zaddy-collection-site",
   "version": "1.0.0",
-  "description": "--- title: izac-casanova emoji: 🐳 colorFrom: purple colorTo: gray sdk: static pinned: false tags:   - deepsite ---",
-  "main": "index.js",
+  "description": "Official site for iZad Casanova — music and Zaddy Collection merch",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview"

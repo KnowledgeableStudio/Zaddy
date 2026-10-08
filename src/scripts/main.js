@@ -1,4 +1,4 @@
-import { PRODUCTS, SHIPPING } from '../data/site.js';
+import { PRODUCTS, SHIPPING, PAYPAL_CLIENT_ID } from '../data/site.js';
 
 /* ============================================================
    Catalog — prices resolved here, never from storage
@@ -119,7 +119,12 @@ drawer.addEventListener('keydown', (e) => {
 });
 
 window.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape' && !drawer.hidden) closeDrawer();
+  if (e.key !== 'Escape') return;
+  if (!drawer.hidden) closeDrawer();
+  else if (!mobileMenu.hidden) {
+    mobileMenu.hidden = true;
+    menuToggle.setAttribute('aria-expanded', 'false');
+  }
 });
 backdrop.addEventListener('click', closeDrawer);
 document.getElementById('cart-close').addEventListener('click', closeDrawer);
@@ -140,6 +145,9 @@ function renderCart() {
   const badge = document.getElementById('cart-count');
   badge.textContent = count;
   badge.hidden = count === 0;
+  document
+    .getElementById('cart-open')
+    .setAttribute('aria-label', `Open cart${count ? `, ${count} item${count === 1 ? '' : 's'}` : ''}`);
   emptyEl.hidden = cart.length > 0;
   document.getElementById('to-checkout').disabled = cart.length === 0;
   cartFoot.style.display = cart.length === 0 ? 'none' : '';
@@ -216,10 +224,12 @@ function renderCart() {
   document.getElementById('checkout-total').textContent = money(total);
 }
 
+const MAX_QTY = 20;
+
 function changeQty(index, delta) {
   const line = cart[index];
   if (!line) return;
-  line.qty += delta;
+  line.qty = Math.min(line.qty + delta, MAX_QTY);
   if (line.qty <= 0) cart.splice(index, 1);
   persist();
   renderCart();
@@ -235,8 +245,9 @@ function removeLine(index) {
 }
 
 function addToCart(id) {
+  if (!catalog.has(id)) return;
   const existing = cart.find((l) => l.id === id);
-  if (existing) existing.qty += 1;
+  if (existing) existing.qty = Math.min(existing.qty + 1, MAX_QTY);
   else cart.push({ id, qty: 1 });
   persist();
   renderCart();
@@ -245,8 +256,9 @@ function addToCart(id) {
 
 document.querySelectorAll('[data-add-to-cart]').forEach((btn) => {
   btn.addEventListener('click', () => {
-    addToCart(btn.getAttribute('data-add-to-cart'));
-    showToast(`${catalog.get(btn.getAttribute('data-add-to-cart')).name} added to cart`);
+    const id = btn.getAttribute('data-add-to-cart');
+    addToCart(id);
+    showToast(`${catalog.get(id)?.name || 'Item'} added to cart`);
   });
 });
 
@@ -307,10 +319,39 @@ fieldIds.forEach((id) => {
 /* ============================================================
    PayPal
    ============================================================ */
-function renderPayPal() {
+/* SDK is deferred until the first checkout — saves ~200KB on
+   every page load for visitors who never open the cart */
+let paypalPromise = null;
+function loadPayPal() {
+  if (!paypalPromise) {
+    paypalPromise = new Promise((resolve, reject) => {
+      if (window.paypal) return resolve();
+      const s = document.createElement('script');
+      s.src = `https://www.paypal.com/sdk/js?client-id=${PAYPAL_CLIENT_ID}&currency=USD&enable-funding=venmo,card&disable-funding=credit`;
+      s.onload = resolve;
+      s.onerror = reject;
+      document.head.appendChild(s);
+    });
+  }
+  return paypalPromise;
+}
+
+let paypalRenderToken = 0;
+
+async function renderPayPal() {
   const container = document.getElementById('paypal-button-container');
   container.innerHTML = '';
-  if (cart.length === 0 || typeof paypal === 'undefined') return;
+  if (cart.length === 0) return;
+  const token = ++paypalRenderToken;
+
+  try {
+    await loadPayPal();
+  } catch {
+    showToast('Payment system failed to load. Check your connection.');
+    return;
+  }
+  // a newer render or cart change superseded this call
+  if (token !== paypalRenderToken || cart.length === 0 || typeof paypal === 'undefined') return;
 
   paypal
     .Buttons({
@@ -354,7 +395,8 @@ function renderPayPal() {
       },
       onApprove: (data, actions) =>
         actions.order.capture().then((details) => {
-          showToast(`Payment completed! Thank you, ${details.payer.name.given_name}.`);
+          const name = details?.payer?.name?.given_name;
+          showToast(`Payment completed${name ? ` — thank you, ${name}` : ''}! Order ${details?.id || ''}`.trim());
           clearCart();
           closeDrawer();
         }),
@@ -363,7 +405,8 @@ function renderPayPal() {
         showToast('Payment failed. Please try again.');
       },
     })
-    .render('#paypal-button-container');
+    .render('#paypal-button-container')
+    .catch(() => showToast('Payment buttons failed to render. Please retry.'));
 }
 
 /* ============================================================
