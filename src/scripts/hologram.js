@@ -77,16 +77,11 @@ async function initHologram() {
     depthWrite: false,
     side: THREE.DoubleSide,
     vertexShader: /* glsl */ `
-      uniform float uTime;
       varying vec3 vNormal;
       varying vec3 vWorldPos;
       varying vec3 vViewDir;
       void main() {
-        // subtle holographic wobble — the projection surface shimmers
-        vec3 p = position;
-        p.x += sin(p.y * 4.0 + uTime * 1.6) * 0.008;
-        p.z += cos(p.y * 3.0 + uTime * 1.2) * 0.006;
-        vec4 worldPos = modelMatrix * vec4(p, 1.0);
+        vec4 worldPos = modelMatrix * vec4(position, 1.0);
         vWorldPos = worldPos.xyz;
         vNormal = normalize(mat3(modelMatrix) * normal);
         vec4 mv = viewMatrix * worldPos;
