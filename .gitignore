@@ -2,3 +2,8 @@ node_modules/
 dist/
 .astro/
 .DS_Store
+
+# root-level source assets — not part of the site bundle
+/*.mp4
+/*.glb
+/*.png

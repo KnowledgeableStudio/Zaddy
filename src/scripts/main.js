@@ -218,7 +218,9 @@ function renderCart() {
 
   const sub = subtotal();
   const total = sub + SHIPPING;
+  const ship = money(SHIPPING);
   document.getElementById('cart-subtotal').textContent = money(sub);
+  document.querySelectorAll('.js-shipping').forEach((el) => (el.textContent = ship));
   document.getElementById('cart-total').textContent = money(total);
   document.getElementById('checkout-subtotal').textContent = money(sub);
   document.getElementById('checkout-total').textContent = money(total);

@@ -60,7 +60,7 @@ const thumbs = {
       <div id="checkout-items" class="checkout-items"></div>
       <div class="totals">
         <div><span>Subtotal</span><span id="checkout-subtotal">$0.00</span></div>
-        <div><span>Shipping</span><span id="checkout-shipping">$5.00</span></div>
+        <div><span>Shipping</span><span id="checkout-shipping" class="js-shipping">$5.00</span></div>
         <div class="total-row"><span>Total</span><span id="checkout-total">$5.00</span></div>
       </div>
     </div>
@@ -127,7 +127,7 @@ const thumbs = {
     <div id="cart-foot" class="drawer-foot-inner">
       <div class="totals">
         <div><span>Subtotal</span><span id="cart-subtotal">$0.00</span></div>
-        <div><span>Shipping</span><span>$5.00</span></div>
+        <div><span>Shipping</span><span class="js-shipping">$5.00</span></div>
         <div class="total-row"><span>Total</span><span id="cart-total">$5.00</span></div>
       </div>
       <div class="drawer-actions">
@@ -458,6 +458,13 @@ const thumbs = {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 0.9rem;
+  }
+
+  /* stack the paired fields on very narrow drawers/phones */
+  @media (max-width: 380px) {
+    .field-row {
+      grid-template-columns: 1fr;
+    }
   }
 
   .payment-block {
