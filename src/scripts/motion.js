@@ -18,7 +18,9 @@ export function initMotion() {
   let pointer = null;
   let frame = 0;
   const properties = ['--depth-rx', '--depth-ry', '--depth-x', '--depth-y', '--depth-lift', '--light-x', '--light-y', '--glare-opacity'];
-  const isPaused = () => reduced.matches || document.hidden || root.dataset.motionUserPaused === 'true';
+  // motionAutoPaused is written by matrix-world's adaptive quality path — both
+  // modules must agree on the effective pause or they'd fight over the dataset.
+  const isPaused = () => reduced.matches || document.hidden || root.dataset.motionUserPaused === 'true' || root.dataset.motionAutoPaused === 'true';
   const canMove = () => !isPaused() && finePointer.matches;
   const resetDepth = () => {
     cancelAnimationFrame(frame);

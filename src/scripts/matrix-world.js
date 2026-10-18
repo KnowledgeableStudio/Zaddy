@@ -1,5 +1,5 @@
-import * as THREE from 'three';
-import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+// Three.js (~730KB) is imported lazily below — the rain canvas, toggle, and
+// page interactivity don't wait on it; the WebGL relics fade in when ready.
 
 // A single decorative world per document. It never writes layout transforms:
 // the original hologram keeps its own renderer and projection coordinates.
@@ -35,6 +35,11 @@ function initMatrixWorld() {
   let rainLast = 0;
   let elapsed = 0;
   let disposed = false;
+  let THREE = null;
+  let RoomEnvironment = null;
+  let degraded = false;
+  let autoPaused = false;
+  let slowMs = 0;
   let pageAway = false;
   let contextLost = false;
   let scrollTarget = window.scrollY;
@@ -45,7 +50,7 @@ function initMatrixWorld() {
   const resources = new Set();
   const remember = (resource) => { resources.add(resource); return resource; };
   const glyphs = '01IZADカサノバネモラヌリムシトメヒソヤ光夢音愛ZADDY';
-  const canRun = () => !disposed && !pageAway && !document.hidden && !userPaused && !reduced.matches;
+  const canRun = () => !disposed && !pageAway && !document.hidden && !userPaused && !autoPaused && !reduced.matches;
 
   function createEnvironment() {
     const room = new RoomEnvironment();
@@ -109,7 +114,7 @@ function initMatrixWorld() {
       renderer.outputColorSpace = THREE.SRGBColorSpace;
       renderer.toneMapping = THREE.ACESFilmicToneMapping;
       renderer.toneMappingExposure = .94;
-      renderer.transmissionResolutionScale = narrow.matches ? .35 : .5;
+      renderer.transmissionResolutionScale = narrow.matches ? .25 : .3;
       scene = new THREE.Scene();
       scene.fog = new THREE.FogExp2(0x070a0e, .033);
       camera = new THREE.PerspectiveCamera(46, width / Math.max(1, height), .1, 75);
@@ -144,12 +149,15 @@ function initMatrixWorld() {
 
   function resize() {
     width = window.innerWidth; height = window.innerHeight;
-    const dpr = Math.min(window.devicePixelRatio || 1, narrow.matches ? 1.2 : 1.5);
+    // The rain canvas is soft ambient texture — DPR 1 is enough, and every
+    // pixel saved is per-frame cost. WebGL stays capped at 1.25 and drops
+    // further when the adaptive check below degrades quality.
+    const dpr = Math.min(window.devicePixelRatio || 1, narrow.matches ? 1 : 1.25) / (degraded ? 1.25 : 1);
     if (context) {
-      codeCanvas.width = Math.round(width * dpr);
-      codeCanvas.height = Math.round(height * dpr);
-      context.setTransform(dpr, 0, 0, dpr, 0, 0);
-      const spacing = narrow.matches ? 76 : 92;
+      codeCanvas.width = Math.round(width);
+      codeCanvas.height = Math.round(height);
+      context.setTransform(1, 0, 0, 1, 0, 0);
+      const spacing = (narrow.matches ? 76 : 92) * (degraded ? 1.5 : 1);
       const count = Math.ceil(width / spacing);
       columns = Array.from({ length: count }, (_, i) => ({ x: i * spacing + 14, y: Math.random() * (height + 440) - 440, speed: 15 + Math.random() * 12, length: 5 + Math.floor(Math.random() * 8), seed: Math.floor(Math.random() * glyphs.length), opacity: .26 + Math.random() * .35 }));
     }
@@ -211,24 +219,64 @@ function initMatrixWorld() {
     const interval = narrow.matches ? 1000 / 30 : 1000 / 60;
     if (last && time - last < interval - 1) { frame = requestAnimationFrame(tick); return; }
     const delta = last ? Math.min((time - last) / 1000, .055) : 0;
+    // Wall-clock gap between rendered frames — catches GPU-bound jank that a
+    // JS-side draw timer can't see (the throttled branch above skips render).
+    const gapMs = last ? time - last : 0;
     last = time; elapsed += delta;
-    if (!rainLast || time - rainLast >= 65) {
+    const drawStart = performance.now();
+    if (!rainLast || time - rainLast >= 90) {
       drawRain(rainLast ? Math.min((time - rainLast) / 1000, .12) : 0); rainLast = time;
     }
     drawGeometry(delta);
+    // Adaptive quality, time-budgeted: sustained frames slower than ~30fps
+    // accumulate; ~1.2s of jank drops pixel/rain density, ~1.5s more freezes
+    // the world into a still so weak GPUs stay interactive.
+    if (!autoPaused) {
+      const frameMs = Math.max(gapMs, performance.now() - drawStart);
+      slowMs = frameMs > 30 ? slowMs + frameMs : Math.max(0, slowMs - 40);
+      if (!degraded && slowMs > 1200) { slowMs = 0; degrade(); }
+      else if (degraded && slowMs > 1500) { autoPaused = true; slowMs = 0; sync(); return; }
+    }
     frame = requestAnimationFrame(tick);
   }
 
+  async function loadThree() {
+    try {
+      const [three, env] = await Promise.all([
+        import('three'),
+        import('three/addons/environments/RoomEnvironment.js'),
+      ]);
+      if (disposed) return;
+      THREE = three;
+      RoomEnvironment = env.RoomEnvironment;
+      buildScene();
+      resize();
+    } catch {
+      world.dataset.webgl = 'false';
+    }
+  }
+
+  function degrade() {
+    degraded = true;
+    if (renderer) {
+      renderer.setPixelRatio(1);
+      renderer.transmissionResolutionScale = .2;
+    }
+    resize();
+  }
+
   function sync() {
-    const paused = userPaused || reduced.matches || document.hidden || pageAway;
+    const paused = userPaused || autoPaused || reduced.matches || document.hidden || pageAway;
     root.dataset.motionUserPaused = String(userPaused);
+    root.dataset.motionAutoPaused = String(autoPaused);
     root.dataset.motionPaused = String(paused);
     toggle.hidden = false;
     toggle.disabled = reduced.matches;
-    toggle.setAttribute('aria-pressed', String(!userPaused && !reduced.matches));
-    toggle.setAttribute('aria-label', reduced.matches ? 'Ambient motion follows your reduced motion setting' : userPaused ? 'Resume ambient motion' : 'Pause ambient motion');
+    const held = userPaused || autoPaused;
+    toggle.setAttribute('aria-pressed', String(!held && !reduced.matches));
+    toggle.setAttribute('aria-label', reduced.matches ? 'Ambient motion follows your reduced motion setting' : held ? 'Resume ambient motion' : 'Pause ambient motion');
     const label = toggle.querySelector('.motion-label');
-    if (label) label.textContent = reduced.matches ? 'Motion reduced' : userPaused ? 'Motion off' : 'Motion on';
+    if (label) label.textContent = reduced.matches ? 'Motion reduced' : held ? 'Motion off' : 'Motion on';
     document.dispatchEvent(new CustomEvent('zaddy:motionchange', { detail: { paused, userPaused, reduced: reduced.matches } }));
     cancelAnimationFrame(frame); frame = 0; last = 0; rainLast = 0;
     if (canRun()) frame = requestAnimationFrame(tick);
@@ -243,9 +291,13 @@ function initMatrixWorld() {
     scene?.clear();
   }
 
-  buildScene(); resize(); sync();
+  resize(); sync(); loadThree();
   toggle.addEventListener('click', () => {
-    userPaused = !userPaused;
+    // A click while auto-paused means "resume anyway" — clears the adaptive
+    // freeze but keeps the lower quality level, which re-arms if still slow.
+    const pausedNow = userPaused || autoPaused;
+    userPaused = !pausedNow;
+    autoPaused = false;
     try { sessionStorage.setItem('zaddy-ambient-motion', userPaused ? 'paused' : 'playing'); } catch { /* Preference remains valid for this document. */ }
     sync();
   }, { signal });

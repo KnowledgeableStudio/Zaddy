@@ -78,7 +78,9 @@ async function initHologram(anchor, story, signal) {
     if (el) el.textContent = 'Hologram unavailable';
     return;
   }
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));
+  // Full-section additive shader canvas — 1.25 DPR is the sweet spot, higher
+  // multiplies per-frame fragment cost for no visible gain.
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.25));
   renderer.setClearColor(0x000000, 0);
 
   // Canvas becomes the section's background layer — invisible bounds
@@ -525,6 +527,8 @@ async function initHologram(anchor, story, signal) {
   // faces the viewer straight-on and the floor discs never skew. Horizontal
   // placement is done by shifting the projection (setViewOffset), not by
   // moving the rig off-axis.
+  const rigTemp = new THREE.Vector3();
+
   function positionRig() {
     const secRect = story.getBoundingClientRect();
     const aRect = anchor.getBoundingClientRect();
@@ -538,7 +542,7 @@ async function initHologram(anchor, story, signal) {
 
     // world y where the anchor's bottom edge sits on the z=0 plane
     const ndcY = -(((aRect.bottom - secRect.top) / ch) * 2 - 1);
-    const v = new THREE.Vector3(0, ndcY, 0.5).unproject(camera);
+    const v = rigTemp.set(0, ndcY, 0.5).unproject(camera);
     const dir = v.sub(camera.position).normalize();
     const t = -camera.position.z / dir.z;
     const wy = camera.position.y + dir.y * t;
