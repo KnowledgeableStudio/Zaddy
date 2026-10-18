@@ -1,13 +1,13 @@
-// One original soundtrack per document; remember the listener's choice and position.
+// One original soundtrack per document; remember the listener's mute choice.
+// A full reload restarts the track from the beginning — position continuity
+// only matters across client-side navigation, where the element persists.
 const audio = document.getElementById('bg-music');
 const button = document.getElementById('music-toggle');
 let userMuted = false;
 let suspended = false;
-let restoreTime = 0;
 try {
   const saved = JSON.parse(sessionStorage.getItem('zaddy-soundtrack') || 'null');
   userMuted = saved?.muted === true;
-  restoreTime = Number.isFinite(saved?.time) ? Math.max(0, saved.time) : 0;
 } catch { /* Storage is optional; music controls still work. */ }
 
 function update() {
@@ -21,7 +21,7 @@ function update() {
 
 function remember() {
   if (!audio) return;
-  try { sessionStorage.setItem('zaddy-soundtrack', JSON.stringify({ muted: userMuted, time: audio.currentTime })); }
+  try { sessionStorage.setItem('zaddy-soundtrack', JSON.stringify({ muted: userMuted })); }
   catch { /* A blocked storage API must not disable playback. */ }
 }
 
@@ -51,10 +51,6 @@ export function resumeSoundtrack() {
 if (audio && button) {
   audio.volume = .55;
   audio.muted = userMuted;
-  audio.addEventListener('loadedmetadata', () => {
-    if (restoreTime && Number.isFinite(audio.duration)) audio.currentTime = restoreTime % audio.duration;
-    restoreTime = 0;
-  }, { once: true });
   for (const event of ['play', 'pause', 'volumechange']) audio.addEventListener(event, update);
   button.addEventListener('click', async () => {
     const wasAudible = !audio.paused && !audio.muted;
