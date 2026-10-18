@@ -4,7 +4,9 @@ import '@fontsource-variable/inter';
 import '@fontsource/instrument-serif/400.css';
 import '@fontsource/instrument-serif/400-italic.css';
 import '../styles/global.css';
-import { ARTIST } from '../data/site.js';
+import { ClientRouter } from 'astro:transitions';
+import Soundtrack from '../components/Soundtrack.astro';
+import MatrixWorld from '../components/MatrixWorld.astro';
 
 interface Props {
   title?: string;
@@ -26,7 +28,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site).href;
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{title}</title>
     <meta name="description" content={description} />
-    <meta name="theme-color" content="#0a0a0c" />
+    <meta name="theme-color" content="#070a0e" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
     <link rel="canonical" href={canonical} />
     <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32" />
@@ -43,6 +45,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site).href;
     <meta property="og:image" content="https://zaddy.art/og-image.jpg" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:image" content="https://zaddy.art/og-image.jpg" />
+    <ClientRouter />
 
     <script>
       document.documentElement.classList.remove('no-js');
@@ -50,8 +53,12 @@ const canonical = new URL(Astro.url.pathname, Astro.site).href;
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
-    <canvas id="particles" aria-hidden="true"></canvas>
+    <MatrixWorld />
     <div class="grain" aria-hidden="true"></div>
     <slot />
+    <Soundtrack />
+    <script>
+      import '../scripts/motion.js';
+    </script>
   </body>
 </html>

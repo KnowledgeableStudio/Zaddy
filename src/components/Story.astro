@@ -2,11 +2,12 @@
 import Hologram from './Hologram.astro';
 ---
 
-<section id="story" class="story" aria-labelledby="story-heading">
+<section id="story" class="story" aria-labelledby="story-heading" data-motion-scene>
+  <div class="story-axis" aria-hidden="true"><i></i><i></i></div>
   <div class="container story-grid">
     <div class="story-side">
       <span class="section-index">02 — The Story</span>
-      <h2 id="story-heading" class="display">From the<br />Bronx to<br />the World</h2>
+      <h2 id="story-heading" class="display">From the<br /><span>Bronx to</span><br />the World</h2>
       <p class="story-sub">The story behind the music.</p>
 
       <div class="story-body">
@@ -30,7 +31,14 @@ import Hologram from './Hologram.astro';
     </div>
 
     <div class="story-visual">
-      <Hologram />
+      <div class="projection-stage">
+        <div class="projection-portal" aria-hidden="true">
+          <div class="portal-ring ring-outer" data-ambient></div>
+          <div class="portal-ring ring-middle" data-ambient></div>
+          <div class="portal-ring ring-inner"></div>
+        </div>
+        <Hologram />
+      </div>
       <blockquote class="story-quote serif-accent">
         “I'm not chasing fame for money — I'm chasing fame to go to war with the system.”
       </blockquote>
@@ -40,130 +48,52 @@ import Hologram from './Hologram.astro';
 
 <style>
   .story {
-    padding-block: var(--section-pad);
     position: relative;
     z-index: 1;
-    border-block: 1px solid var(--line);
-    background: linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.015) 40%, transparent);
+    padding-block: calc(var(--section-pad) + 2rem);
+    border-block: 1px solid #dce7ee20;
+    background: radial-gradient(ellipse at 77% 42%, #b7d4e518, transparent 52%), linear-gradient(115deg, #070a0efa, #0a1018bd 58%, #1117207a);
+    overflow: clip;
   }
+  .story-axis { position: absolute; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+  .story-axis::before { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, transparent 49.95%, #d0e5f014 50%, transparent 50.1%); }
+  .story-axis i { position: absolute; top: -20%; bottom: -20%; width: 1px; background: linear-gradient(transparent, #d7e8f22e, transparent); rotate: 24deg; }
+  .story-axis i:nth-child(1) { left: 77%; }
+  .story-axis i:nth-child(2) { left: 94%; }
 
-  .story-grid {
-    display: grid;
-    gap: 3rem;
-  }
-
-  .story-side {
-    display: flex;
-    flex-direction: column;
-    gap: 1.1rem;
-  }
-
-  .story-side h2 {
-    font-size: clamp(1.7rem, 3.7vw, 2.9rem);
-  }
-
-  .story-sub {
-    color: var(--muted);
-  }
-
-  .story-quote {
-    margin-top: 1.6rem;
-    padding-left: 1.2rem;
-    border-left: 2px solid var(--accent);
-    font-size: clamp(0.95rem, 1.6vw, 1.18rem);
-    line-height: 1.4;
-    color: var(--text);
-    text-wrap: balance;
-  }
-
-  /* right column is the projection alone — centered against the
-     text column so the figure reads as the section's portrait */
-  .story-visual {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-  }
-
-  /* holo-wrap's top margin exists to clear the heading on the
-     story page — inside this dedicated column it's dead space */
-  .story-visual :global(.holo-wrap) {
-    margin-top: 0;
-  }
-
-  /* figure projects at the anchor's center-x — center the caption
-     and quote so they align under it */
-  .story-visual :global(.holo-caption) {
-    justify-content: center;
-  }
-
-  .story-visual .story-quote {
-    width: fit-content;
-    max-width: 36ch;
-    margin-inline: auto;
-    margin-top: 2rem;
-    padding-left: 0;
-    border-left: none;
-    text-align: center;
-  }
-
-  /* centered accent tick — replaces the left border so the quote
-     stays visually centered under the figure */
-  .story-visual .story-quote::before {
-    content: '';
-    display: block;
-    width: 2.4rem;
-    height: 2px;
-    background: var(--accent);
-    margin: 0 auto 0.9rem;
-  }
-
-  .story-side .story-body {
-    margin-top: 1.2rem;
-  }
-
-  .story-body {
-    display: flex;
-    flex-direction: column;
-    gap: 1.4rem;
-    max-width: 62ch;
-  }
-
-  .story-body p {
-    color: var(--muted);
-    line-height: 1.75;
-  }
-
-  .story-body .lede {
-    font-size: 0.92rem;
-    color: var(--text);
-    line-height: 1.7;
-  }
-
-  .story-body .lede::first-letter {
-    font-family: var(--font-display);
-    font-stretch: 125%;
-    font-weight: 800;
-    font-size: 2.6em;
-    float: left;
-    line-height: 0.85;
-    padding-right: 0.6rem;
-    padding-top: 0.15rem;
-    color: var(--accent);
-  }
-
-  .story-cta {
-    align-self: flex-start;
-    margin-top: 0.4rem;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
+  /* No stacking context between the portal at 0 and the section canvas at 1.
+     Only copy and interaction targets sit at 2, above the original figure. */
+  .story-grid { position: relative; z-index: auto; display: grid; gap: 4rem; background: transparent; }
+  .story-side { position: relative; z-index: 2; min-width: 0; }
+  .story-side h2 { margin-top: 1.5rem; font-size: clamp(2.9rem, 6.8vw, 6.3rem); font-stretch: 115%; letter-spacing: -.062em; line-height: .94; color: #f1f4f7; }
+  .story-side h2 span { color: #c9d6df; background: linear-gradient(170deg, #fbfdff 8%, #a6b5c0 48%, #e5edf2 75%); background-clip: text; -webkit-text-fill-color: transparent; }
+  .story-sub { margin-top: 1.25rem; color: #abb8c4; font: italic clamp(1.2rem, 1.7vw, 1.65rem)/1.3 var(--font-serif); }
+  .story-body { display: flex; flex-direction: column; gap: 1.3rem; max-width: 49ch; margin-top: 2.5rem; padding-left: 1.45rem; border-left: 1px solid #cedbe647; background: linear-gradient(90deg, #c4dcec05, transparent 75%); }
+  .story-body p { color: #adb7c2; font-size: .98rem; line-height: 1.85; }
+  .story-body .lede { color: #e2e7ec; }
+  .story-cta { align-self: flex-start; margin-top: .8rem; min-height: 48px; }
+  .story-visual { position: relative; z-index: auto; display: flex; flex-direction: column; justify-content: center; min-width: 0; padding-top: 2rem; }
+  .projection-stage { position: relative; z-index: auto; width: 100%; padding: 1rem .3rem 0; }
+  .projection-portal { position: absolute; inset: 0 0 5.1rem; z-index: 0; pointer-events: none; }
+  .projection-portal::after { content: ''; position: absolute; width: 128%; height: 19%; left: -14%; bottom: -5%; border-radius: 50%; border: 1px solid #c5d5e224; background: radial-gradient(ellipse, #afcde013, #10172080 58%, transparent 72%); box-shadow: 0 20px 35px #0008; }
+  .portal-ring { position: absolute; top: 48%; left: 50%; aspect-ratio: 1; border-radius: 50%; translate: -50% -50%; }
+  .ring-outer { width: 140%; background: conic-gradient(from 25deg, #0f172133, #c1d0dc65 12%, #f5f8fc80 16%, #31404c26 28%, #0d111a19 40%, #c6d5df65 60%, #f0f5fa90 65%, #151e2826 78%, #0f172133); mask: radial-gradient(transparent 68.3%, #000 68.6% 70%, transparent 70.3%); animation: portal-orbit 90s linear infinite; }
+  .ring-middle { width: 132%; border: 1px solid #d6e5ee45; box-shadow: 0 0 45px #c6ddec09, inset 0 0 30px #d4e8f608; }
+  .ring-middle::before { content: ''; position: absolute; inset: -1.2%; border-radius: 50%; border: 1px solid #17212e; box-shadow: 0 1px 1px #f3f6fb38; }
+  .ring-inner { width: 125%; border: 1px solid #b7d4e51f; }
+  .ring-inner::before { content: ''; position: absolute; inset: -3%; border: 2px solid transparent; border-top-color: #dfebf373; border-bottom-color: #8c9fac3d; border-radius: 50%; rotate: -35deg; }
+  @keyframes portal-orbit { to { rotate: 360deg; } }
+  .story-visual :global(.holo-wrap) { position: relative; z-index: auto; margin-top: 0; }
+  .story-visual :global(.holo-anchor) { position: relative; z-index: 2; min-height: 20rem; }
+  .story-visual :global(.holo-caption) { position: relative; z-index: 2; justify-content: center; color: #abbcc9; }
+  .story-quote { position: relative; z-index: 2; max-width: 24ch; margin: 2.2rem auto 0; text-align: center; color: #e1e8ed; font-size: clamp(1.5rem, 2.7vw, 2.35rem); line-height: 1.25; text-wrap: balance; }
+  .story-quote::before { content: ''; display: block; width: 4rem; height: 1px; margin: 0 auto 1.5rem; background: linear-gradient(90deg, transparent, #c5d8e5, transparent); }
   @media (min-width: 960px) {
-    .story-grid {
-      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
-      gap: 5rem;
-      align-items: stretch;
-    }
+    .story-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1.08fr); gap: clamp(3rem, 6vw, 7rem); align-items: center; }
+    .story-visual :global(.holo-anchor) { min-height: 24rem; }
   }
+  @media (max-width: 959px) { .story-visual { padding-top: 2.5rem; } }
+  @media (max-width: 399px) { .story-side h2 { font-size: 2.7rem; } }
+  :global(html[data-motion-paused='true']) .portal-ring { animation-play-state: paused; }
+  @media (prefers-reduced-motion: reduce) { .portal-ring { animation: none; } }
 </style>

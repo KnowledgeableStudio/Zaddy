@@ -51,32 +51,50 @@ const viewerSrc = Object.fromEntries(
 );
 ---
 
-<section id="store" class="section" aria-labelledby="store-heading">
+<section id="store" class="section" aria-labelledby="store-heading" data-motion-scene>
   <div class="container">
-    <div class="section-head reveal">
+    <div class="section-head store-intro reveal">
+      <div class="store-brand">
       <span class="section-index">03 — Official Merch</span>
-      <div class="store-title-row">
+      <h2 id="store-heading" class="store-title-row">
         <Image
           src={zaddyWordmark}
           alt="Zaddy Collection logo"
           class="store-logo"
           widths={[360, 640]}
-          sizes="(max-width: 720px) 70vw, 320px"
+          sizes="(max-width: 600px) 58vw, 310px"
           loading="lazy"
         />
+      </h2>
       </div>
+      <div class="store-intro-copy">
       <p>Limited edition merchandise. Every piece is a statement.</p>
       <button class="btn btn-sm" type="button" data-notify>Notify Me About New Drops</button>
+      </div>
     </div>
 
-    <div class="product-grid" tabindex="0" role="group" aria-label="Masks — scroll horizontally on small screens">
+    <nav class="collection-tabs reveal" aria-label="Browse collections">
+      <a href="#collection-masks">Masks <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor"/></svg></a>
+      <a href="#collection-tees">Tees <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor"/></svg></a>
+      <a href="#collection-hoodies">Hoodies <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor"/></svg></a>
+      <a href="#collection-denim">Denim <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor"/></svg></a>
+    </nav>
+
+    <div id="collection-masks" class="collection-lead reveal">
+      <h3>Masks</h3>
+    </div>
+
+    <div class="product-grid" role="group" aria-label="Masks">
       {
         PRODUCTS.map((product, i) => (
-          <article class="product-card reveal" data-delay={String(i)} style={`--card-i:${i}`}>
-            <span class="card-scan" aria-hidden="true"></span>
-            <span class="card-frame" aria-hidden="true"></span>
+          <article class="product-card product-card--mask reveal" data-depth data-motion-scene data-delay={String(i)} style={`--card-i:${i}`}>
             {product.badge && <span class="product-badge">{product.badge}</span>}
-            <div class="product-stage">
+            <div class="product-stage" data-depth-surface>
+              <div class="chamber-world" aria-hidden="true">
+                <span class="chamber-orbit chamber-orbit--back" data-ambient></span>
+                <span class="chamber-plinth"></span>
+              </div>
+              <span class="zoom-cue" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M7 3H3v4m10-4h4v4M3 13v4h4m10-4v4h-4"/></svg></span>
               <button
                 class="stage-view"
                 type="button"
@@ -87,9 +105,10 @@ const viewerSrc = Object.fromEntries(
               >
                 <Image
                   src={productArt[product.image]}
+                  data-float
                   alt=""
                   widths={[320, 560]}
-                  sizes="(max-width: 720px) 80vw, 300px"
+                  sizes="(max-width: 359px) 90vw, (max-width: 760px) 44vw, 330px"
                   loading="lazy"
                 />
               </button>
@@ -109,20 +128,19 @@ const viewerSrc = Object.fromEntries(
       }
     </div>
 
-    <div class="upcoming-head reveal">
+    <div id="collection-tees" class="upcoming-head reveal">
       <span class="section-index">Next Drop</span>
       <h3 class="upcoming-title">Coming <span class="serif-accent">Soon</span></h3>
       <p class="upcoming-sub">Three heavyweight tees in the works. Lock in early — these won't sit.</p>
     </div>
 
-    <div class="product-grid" tabindex="0" role="group" aria-label="Upcoming tees — scroll horizontally on small screens">
+    <div class="product-grid" role="group" aria-label="Upcoming tees">
       {
         UPCOMING.map((product, i) => (
-          <article class="product-card reveal" data-delay={String(i)} style={`--card-i:${i + 3}`}>
-            <span class="card-scan" aria-hidden="true"></span>
-            <span class="card-frame" aria-hidden="true"></span>
+          <article class="product-card product-card--upcoming reveal" data-depth data-motion-scene data-delay={String(i)} style={`--card-i:${i + 3}`}>
             <span class="product-badge">Coming Soon</span>
-            <div class="product-stage product-stage--photo">
+            <div class="product-stage product-stage--photo" data-depth-surface>
+              <span class="zoom-cue" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M7 3H3v4m10-4h4v4M3 13v4h4m10-4v4h-4"/></svg></span>
               <button
                 class="stage-view"
                 type="button"
@@ -135,7 +153,7 @@ const viewerSrc = Object.fromEntries(
                   src={upcomingArt[product.image]}
                   alt=""
                   widths={[480, 800]}
-                  sizes="(max-width: 720px) 90vw, 340px"
+                  sizes="(max-width: 359px) 90vw, (max-width: 760px) 44vw, 330px"
                   loading="lazy"
                 />
               </button>
@@ -144,7 +162,6 @@ const viewerSrc = Object.fromEntries(
               <h3>{product.name}</h3>
               <p>{product.description}</p>
               <div class="product-buy">
-                <span class="product-price">${product.price.toFixed(2)}</span>
                 <button class="btn btn-sm" type="button" data-notify>
                   Notify Me
                 </button>
@@ -155,20 +172,19 @@ const viewerSrc = Object.fromEntries(
       }
     </div>
 
-    <div class="upcoming-head reveal">
+    <div id="collection-hoodies" class="upcoming-head reveal">
       <span class="section-index">Next Drop — 02</span>
       <h3 class="upcoming-title">Heavyweight <span class="serif-accent">Hoodies</span></h3>
       <p class="upcoming-sub">Acid-washed fleece, oversized fit. Numbered pieces — no restocks.</p>
     </div>
 
-    <div class="product-grid" tabindex="0" role="group" aria-label="Upcoming hoodies — scroll horizontally on small screens">
+    <div class="product-grid" role="group" aria-label="Upcoming hoodies">
       {
         UPCOMING_HOODIES.map((product, i) => (
-          <article class="product-card reveal" data-delay={String(i)} style={`--card-i:${i + 6}`}>
-            <span class="card-scan" aria-hidden="true"></span>
-            <span class="card-frame" aria-hidden="true"></span>
+          <article class="product-card product-card--upcoming reveal" data-depth data-motion-scene data-delay={String(i)} style={`--card-i:${i + 6}`}>
             <span class="product-badge">Coming Soon</span>
-            <div class="product-stage product-stage--photo">
+            <div class="product-stage product-stage--photo" data-depth-surface>
+              <span class="zoom-cue" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M7 3H3v4m10-4h4v4M3 13v4h4m10-4v4h-4"/></svg></span>
               <button
                 class="stage-view"
                 type="button"
@@ -181,7 +197,7 @@ const viewerSrc = Object.fromEntries(
                   src={hoodieArt[product.image]}
                   alt=""
                   widths={[480, 800]}
-                  sizes="(max-width: 720px) 90vw, 340px"
+                  sizes="(max-width: 359px) 90vw, (max-width: 760px) 44vw, 330px"
                   loading="lazy"
                 />
               </button>
@@ -190,7 +206,6 @@ const viewerSrc = Object.fromEntries(
               <h3>{product.name}</h3>
               <p>{product.description}</p>
               <div class="product-buy">
-                <span class="product-price">${product.price.toFixed(2)}</span>
                 <button class="btn btn-sm" type="button" data-notify>
                   Notify Me
                 </button>
@@ -201,20 +216,19 @@ const viewerSrc = Object.fromEntries(
       }
     </div>
 
-    <div class="upcoming-head reveal">
+    <div id="collection-denim" class="upcoming-head reveal">
       <span class="section-index">Next Drop — 03</span>
       <h3 class="upcoming-title">Statement <span class="serif-accent">Denim</span></h3>
       <p class="upcoming-sub">Distressed, patched, engineered — three cuts built for the city.</p>
     </div>
 
-    <div class="product-grid" tabindex="0" role="group" aria-label="Upcoming jeans — scroll horizontally on small screens">
+    <div class="product-grid" role="group" aria-label="Upcoming jeans">
       {
         UPCOMING_JEANS.map((product, i) => (
-          <article class="product-card reveal" data-delay={String(i)} style={`--card-i:${i + 9}`}>
-            <span class="card-scan" aria-hidden="true"></span>
-            <span class="card-frame" aria-hidden="true"></span>
+          <article class="product-card product-card--upcoming reveal" data-depth data-motion-scene data-delay={String(i)} style={`--card-i:${i + 9}`}>
             <span class="product-badge">Coming Soon</span>
-            <div class="product-stage product-stage--photo product-stage--tall">
+            <div class="product-stage product-stage--photo product-stage--tall" data-depth-surface>
+              <span class="zoom-cue" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M7 3H3v4m10-4h4v4M3 13v4h4m10-4v4h-4"/></svg></span>
               <button
                 class="stage-view"
                 type="button"
@@ -227,7 +241,7 @@ const viewerSrc = Object.fromEntries(
                   src={jeansArt[product.image]}
                   alt=""
                   widths={[480, 800]}
-                  sizes="(max-width: 720px) 90vw, 340px"
+                  sizes="(max-width: 359px) 90vw, (max-width: 760px) 44vw, 330px"
                   loading="lazy"
                 />
               </button>
@@ -236,7 +250,6 @@ const viewerSrc = Object.fromEntries(
               <h3>{product.name}</h3>
               <p>{product.description}</p>
               <div class="product-buy">
-                <span class="product-price">${product.price.toFixed(2)}</span>
                 <button class="btn btn-sm" type="button" data-notify>
                   Notify Me
                 </button>
@@ -251,247 +264,102 @@ const viewerSrc = Object.fromEntries(
 </section>
 
 <style>
-  .section {
-    padding-block: var(--section-pad);
-    position: relative;
-    z-index: 1;
+  .section { padding-block: clamp(3.5rem, 6vw, 6rem); position: relative; z-index: 1; }
+  .container { max-width: calc(65rem + var(--gutter) + var(--gutter)); }
+  .store-intro { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: end; gap: 1.5rem 3rem; margin-bottom: 1.8rem; }
+  .store-title-row { margin-top: .7rem; line-height: 1; }
+  .store-logo { width: min(100%, 19.5rem); height: auto; }
+  .store-intro-copy { padding-bottom: .1rem; }
+  .store-intro-copy > p { color: #b6c0cb; font-size: .93rem; max-width: 37ch; }
+  .store-intro-copy > button { margin-top: .95rem; border-radius: 6px; background: #141b24; border-color: #ffffff29; color: #e3e9ee; box-shadow: none; }
+  .collection-tabs { display: flex; gap: .35rem; margin-bottom: 1.65rem; padding-bottom: .8rem; border-bottom: 1px solid #ffffff18; }
+  .collection-tabs a { display: inline-flex; align-items: center; justify-content: center; gap: .7rem; min-height: 44px; padding: .65rem 1.1rem; border: 1px solid #ffffff1c; border-radius: 6px; background: #111720c9; color: #d7e0e8; font: 600 .75rem/1.3 var(--font-body); transition: background .2s, border-color .2s; }
+  .collection-tabs a svg { color: #9caebc; }
+  .collection-tabs a:hover, .collection-tabs a:focus-visible { background: #222d3b; border-color: #ffffff4d; color: #fff; }
+  .collection-lead { margin: 0 0 1rem; scroll-margin-top: 7rem; }
+  .collection-lead h3 { font: 650 1.05rem/1.2 var(--font-display); letter-spacing: .005em; color: #dce4ec; }
+  .product-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.15rem; align-items: stretch; }
+  .product-card { position: relative; display: flex; flex-direction: column; min-width: 0; isolation: isolate; overflow: hidden; border: 1px solid #cedcec28; border-radius: 10px; background: #10161f; box-shadow: inset 0 1px #ffffff0d, 0 18px 32px -20px #000c, 0 3px 0 #02070bb3; transition: border-color .3s, box-shadow .3s; }
+  .product-card::before { content: ''; position: absolute; z-index: 5; inset: 0; pointer-events: none; border-radius: inherit; background: radial-gradient(circle at var(--light-x, 50%) var(--light-y, 20%), #deedff12, transparent 47%); opacity: .35; transition: opacity .3s; }
+  .product-card::after { content: ''; position: absolute; z-index: 5; top: 0; left: 10%; right: 10%; height: 1px; pointer-events: none; background: linear-gradient(90deg, transparent, #d4e3f25c, transparent); }
+  .product-card:hover, .product-card:focus-within { border-color: #d8e9fc61; box-shadow: inset 0 1px #ffffff14, 0 22px 40px -21px #000e, 0 4px 0 #02070bb3; }
+  .product-card:hover::before, .product-card:focus-within::before { opacity: 1; }
+  .product-badge { position: absolute; top: .75rem; right: .75rem; z-index: 7; padding: .34rem .55rem; border: 1px solid #ffffff2b; border-radius: 4px; background: #101620ed; color: #e1eaf1; font: 600 .58rem/1.2 var(--font-body); letter-spacing: .01em; pointer-events: none; }
+  .product-stage { position: relative; display: grid; place-items: center; aspect-ratio: 1.16; overflow: hidden; border-bottom: 1px solid #ffffff14; background: radial-gradient(ellipse at 50% 30%, #3947565e, transparent 61%), linear-gradient(145deg, #1a232f, #101720 57%, #090f16); transform-origin: center 64%; }
+  .product-stage::after { content: ''; position: absolute; z-index: 4; inset: 0; pointer-events: none; background: linear-gradient(130deg, #fff6 0%, transparent 1.1%, transparent 82%, #cbd9f006 100%); opacity: .19; }
+  .chamber-world { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+  .chamber-world::before { content: ''; position: absolute; left: 12%; right: 12%; bottom: 9%; height: 32%; border: 1px solid #d7e4f529; border-radius: 8px; transform: perspective(370px) rotateX(61deg); transform-origin: center bottom; background: linear-gradient(120deg, #465160, #202a37 25%, #18212c 70%, #7c899433); box-shadow: 0 12px 0 -2px #0a1018, 0 13px 0 -2px #b7cce632, 0 18px 20px #0007, inset 0 1px #e1eaff40; }
+  .chamber-orbit { position: absolute; left: 20%; top: 10%; width: 60%; aspect-ratio: 1; border: 1px solid #bfd6ec23; border-radius: 50%; transform: perspective(500px) rotateY(-24deg) rotateX(9deg); animation: object-orbit 20s ease-in-out infinite; }
+  .chamber-orbit::before { content: ''; position: absolute; inset: -1px; border: 1px solid transparent; border-left-color: #daeafa83; border-right-color: #daeafa33; border-radius: inherit; }
+  .chamber-plinth { position: absolute; left: 24%; right: 24%; bottom: 15%; height: 5%; border-radius: 50%; background: #03090fd9; filter: blur(7px); }
+  .zoom-cue { position: absolute; z-index: 6; right: .8rem; bottom: .8rem; pointer-events: none; color: #b5c5d1; }
+  /* Fixed tracks let artwork shrink inside the padded stage instead of sizing the row intrinsically. */
+  .stage-view { position: absolute; z-index: 3; inset: 0; display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); place-items: center; width: 100%; height: 100%; min-width: 0; min-height: 44px; padding: 1.8rem 1.55rem 2rem; background: transparent; cursor: zoom-in; }
+  .stage-view:focus-visible { outline-offset: -5px; }
+  .product-stage img { width: 100%; height: 100%; min-width: 0; min-height: 0; max-width: 100%; max-height: 100%; object-fit: contain; filter: drop-shadow(0 17px 12px #000a); --float-duration: 7s; --float-delay: calc(var(--card-i) * -.8s); }
+  .product-stage--photo { aspect-ratio: 1.15; background: #141c26; }
+  .product-stage--photo .stage-view { padding: 2rem .7rem .7rem; }
+  .product-stage--photo img { object-fit: contain; filter: none; }
+  .product-stage--photo .zoom-cue { right: .45rem; bottom: .45rem; padding: .2rem; border-radius: 3px; background: #080e17bd; }
+  .product-stage--tall { aspect-ratio: .94; }
+  .product-info { position: relative; display: flex; flex-direction: column; flex: 1; padding: 1.1rem; z-index: 2; background: #101720; }
+  .product-info h3 { font: 650 1.04rem/1.25 var(--font-display); letter-spacing: -.015em; color: #f1f4f7; }
+  .product-info p { margin-top: .5rem; margin-bottom: 1rem; color: #b2bdc9; font-size: .8rem; line-height: 1.55; }
+  .product-buy { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: .65rem; margin-top: auto; }
+  .product-buy .btn { min-height: 44px; padding: .65rem .95rem; border: 1px solid #ffffff2b; border-radius: 6px; clip-path: none; background: #1b2531; color: #edf2f6; font-size: .73rem; font-weight: 600; letter-spacing: 0; box-shadow: none; }
+  .product-buy .btn-primary { background: #edf2f6; color: #101720; border-color: #edf2f6; }
+  .product-buy .btn:hover { background: #2b3949; border-color: #b7d4e570; color: #fff; box-shadow: none; }
+  .product-buy .btn-primary:hover { background: #fff; border-color: #fff; color: #101720; }
+  .product-buy .btn:not(.btn-primary) { min-width: 100%; }
+  .product-price { color: #f1f4f7; font: 650 1.07rem/1.3 var(--font-body); font-variant-numeric: tabular-nums; letter-spacing: -.025em; }
+  .upcoming-head { margin-top: clamp(2.6rem, 4.5vw, 4rem); padding-top: 1.4rem; border-top: 1px solid #ffffff20; display: flex; flex-direction: column; gap: .55rem; margin-bottom: 1.2rem; scroll-margin-top: 7rem; }
+  .upcoming-head .section-index { color: #93a6b7; font-size: .6rem; letter-spacing: .13em; }
+  .upcoming-title { font: 650 clamp(1.6rem, 3vw, 2.5rem)/1.07 var(--font-display); letter-spacing: -.035em; color: #edf2f6; }
+  .upcoming-title .serif-accent { font-family: var(--font-display); font-style: normal; font-weight: 450; letter-spacing: -.025em; color: #aabaca; }
+  .upcoming-sub { color: #b2bdc9; font-size: .85rem; max-width: 60ch; line-height: 1.6; }
+  @keyframes object-orbit { 0%, 100% { transform: perspective(500px) rotateY(-24deg) rotateX(9deg) rotateZ(-10deg); } 50% { transform: perspective(500px) rotateY(24deg) rotateX(-6deg) rotateZ(10deg); } }
+  @media (max-width: 760px) {
+    .product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .8rem; }
+    .store-intro { gap: 1.2rem; }
+    .product-info { padding: .95rem; }
+    .product-buy { align-items: stretch; }
+    .product-buy .btn { width: 100%; }
   }
-
-  .store-title-row {
-    display: flex;
-    align-items: center;
-    gap: 1.4rem;
+  @media (max-width: 600px) {
+    .store-intro { grid-template-columns: 1fr; gap: .9rem; margin-bottom: 1.15rem; }
+    .store-logo { width: min(68%, 17rem); }
+    .store-intro-copy > p { max-width: 38ch; font-size: .85rem; }
+    .store-intro-copy > button { margin-top: .75rem; min-height: 44px; font-size: .71rem; }
+    .collection-tabs { gap: .35rem; margin-bottom: 1.2rem; padding-bottom: .6rem; }
+    .collection-tabs a { flex: 1; min-width: 0; gap: 0; padding-inline: .35rem; font-size: .72rem; }
+    .collection-tabs a svg { display: none; }
+    .collection-lead { margin-bottom: .8rem; }
+    .product-grid { gap: .65rem; }
+    .product-card { border-radius: 8px; }
+    .product-stage { aspect-ratio: 1.06; }
+    .stage-view { padding: 1.5rem .7rem 1.3rem; }
+    .product-badge { top: .5rem; right: .5rem; padding: .27rem .4rem; font-size: .54rem; }
+    .product-stage--photo { aspect-ratio: 1.02; }
+    .product-stage--photo .stage-view { padding: 1.75rem .4rem .45rem; }
+    .product-stage--tall { aspect-ratio: .82; }
+    .product-info { padding: .75rem; }
+    .product-info h3 { font-size: .91rem; line-height: 1.3; }
+    .product-info p { margin: .45rem 0 .8rem; font-size: .76rem; line-height: 1.5; }
+    .product-price { font-size: .91rem; }
+    .product-buy { gap: .55rem; }
+    .product-buy .btn { min-height: 44px; padding-inline: .4rem; font-size: .71rem; }
+    .upcoming-head { margin-top: 2.6rem; padding-top: 1.1rem; gap: .5rem; }
+    .upcoming-sub { font-size: .82rem; }
+    .zoom-cue { right: .5rem; bottom: .5rem; }
   }
-
-  .store-logo {
-    width: clamp(170px, 24vw, 270px);
-    height: auto;
-    filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.5));
+  @media (max-width: 359px) {
+    .product-grid { grid-template-columns: minmax(0, 1fr); }
+    .product-stage { aspect-ratio: 1.2; }
+    .product-stage--photo { aspect-ratio: 1.18; }
+    .product-stage--tall { aspect-ratio: .95; }
+    .product-info { padding: 1rem; }
+    .product-info h3 { font-size: 1.05rem; }
+    .product-info p { font-size: .82rem; }
   }
-
-  .product-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 1.1rem;
-    max-width: 66rem;
-  }
-
-  /* layout only — the holo surface lives in the global card system */
-  .product-badge {
-    position: absolute;
-    top: 1rem;
-    right: 1rem;
-    z-index: 3;
-    font-size: 0.56rem;
-    font-weight: 800;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    background: rgba(34, 216, 97, 0.12);
-    color: var(--accent);
-    border: 1px solid rgba(34, 216, 97, 0.45);
-    padding: 0.35rem 0.85rem;
-    border-radius: 999px;
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
-    box-shadow: 0 0 18px rgba(34, 216, 97, 0.15);
-  }
-
-  .product-stage {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 14rem;
-    background:
-      radial-gradient(60% 55% at 50% 62%, rgba(34, 216, 97, 0.11), transparent 70%),
-      linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 30%),
-      linear-gradient(180deg, var(--surface-2), transparent);
-    border-bottom: 1px solid rgba(34, 216, 97, 0.1);
-  }
-
-  .product-stage img {
-    height: 11.5rem;
-    width: auto;
-    max-width: 80%;
-    object-fit: contain;
-    filter:
-      drop-shadow(0 24px 34px rgba(0, 0, 0, 0.55))
-      drop-shadow(0 0 26px rgba(34, 216, 97, 0.14));
-    transform: rotate(3deg);
-    transition: transform 0.5s var(--ease-spring), filter 0.4s ease;
-  }
-
-  .product-card:hover .product-stage img {
-    transform: rotate(0deg) scale(1.04);
-    filter:
-      drop-shadow(0 24px 34px rgba(0, 0, 0, 0.55))
-      drop-shadow(0 0 40px rgba(34, 216, 97, 0.28));
-  }
-
-  .upcoming-head {
-    margin-top: clamp(2.4rem, 5vw, 3.6rem);
-    padding-top: clamp(1.8rem, 4vw, 2.8rem);
-    border-top: 1px solid var(--line);
-    display: flex;
-    flex-direction: column;
-    gap: 0.45rem;
-    margin-bottom: clamp(1.6rem, 4vw, 2.4rem);
-  }
-
-  .upcoming-title {
-    font-family: var(--font-display);
-    font-stretch: 120%;
-    font-weight: 800;
-    font-size: clamp(1.3rem, 3vw, 2rem);
-    text-transform: uppercase;
-    letter-spacing: -0.015em;
-    line-height: 0.95;
-  }
-
-  .upcoming-title .serif-accent {
-    text-transform: none;
-    letter-spacing: 0;
-    color: var(--accent);
-  }
-
-  .upcoming-sub {
-    color: var(--muted);
-    font-size: 0.78rem;
-    max-width: 46ch;
-  }
-
-  /* photo mockups fill the stage edge-to-edge like a lookbook frame */
-  .product-stage--photo {
-    position: relative;
-    height: auto;
-    aspect-ratio: 4 / 3;
-    padding: 0;
-  }
-
-  .product-stage--photo::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    background: linear-gradient(
-      180deg,
-      rgba(10, 10, 12, 0.22),
-      transparent 24%,
-      transparent 76%,
-      rgba(10, 10, 12, 0.38)
-    );
-  }
-
-  .product-stage--photo img {
-    width: 100%;
-    height: 100%;
-    max-width: none;
-    object-fit: cover;
-    transform: none;
-    filter: saturate(0.96) contrast(1.02);
-  }
-
-  .product-card:hover .product-stage--photo img {
-    transform: scale(1.045);
-    filter: saturate(1) contrast(1.03);
-  }
-
-  /* portrait spec-sheet mockups (jeans) — taller frame, no crop */
-  .product-stage--tall {
-    aspect-ratio: 4 / 5;
-  }
-
-  .product-info {
-    padding: 1.15rem;
-  }
-
-  .product-info h3 {
-    font-family: var(--font-display);
-    font-stretch: 118%;
-    font-weight: 800;
-    font-size: 0.98rem;
-    text-transform: uppercase;
-    letter-spacing: -0.01em;
-  }
-
-  .product-info p {
-    color: var(--muted);
-    font-size: 0.72rem;
-    margin-top: 0.4rem;
-  }
-
-  .product-buy {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    margin-top: 1.1rem;
-  }
-
-  .product-price {
-    font-family: var(--font-display);
-    font-weight: 800;
-    font-size: 1.1rem;
-    font-variant-numeric: tabular-nums;
-  }
-
-  /* auto-fit: three columns on desktop, two on tablets, one on phones —
-     reflows by available width instead of a hard breakpoint */
-  .product-grid {
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 15.5rem), 1fr));
-  }
-
-  /* mobile/tablet: each grid becomes a single swipeable row — scroll-snap
-     does the gesture natively, next card peeks as the affordance */
-  @media (max-width: 1023px) {
-    .product-grid {
-      display: flex;
-      overflow-x: auto;
-      scroll-snap-type: x mandatory;
-      scrollbar-width: none;
-      margin-inline: calc(var(--gutter) * -1);
-      padding-inline: var(--gutter);
-      scroll-padding-inline: var(--gutter);
-      padding-bottom: 0.5rem;
-      overscroll-behavior-inline: contain;
-      -webkit-overflow-scrolling: touch;
-    }
-
-    .product-grid::-webkit-scrollbar {
-      display: none;
-    }
-
-    .product-card {
-      flex: 0 0 min(80vw, 20rem);
-      scroll-snap-align: start;
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .product-card,
-    .product-stage img {
-      transition: none;
-      transform: none;
-    }
-  }
+  @media (prefers-reduced-motion: reduce) { .product-card, .collection-tabs a { transition: none; } .chamber-orbit { animation: none; } }
 </style>
-
-<script>
-  // Subtle 3D tilt — the card leans toward the pointer like a projected plane.
-  // Pointer-fine devices only; disabled under prefers-reduced-motion.
-  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const finePointer = window.matchMedia('(pointer: fine)').matches;
-
-  if (!reduceMotion && finePointer) {
-    document.querySelectorAll('.product-card').forEach((card) => {
-      card.addEventListener('pointermove', (e) => {
-        const r = card.getBoundingClientRect();
-        const rx = ((e.clientY - r.top) / r.height - 0.5) * -5;
-        const ry = ((e.clientX - r.left) / r.width - 0.5) * 5;
-        card.style.transform = `perspective(900px) rotateX(${rx}deg) rotateY(${ry}deg) translateY(-4px)`;
-      });
-      card.addEventListener('pointerleave', () => {
-        card.style.transform = '';
-      });
-    });
-  }
-</script>

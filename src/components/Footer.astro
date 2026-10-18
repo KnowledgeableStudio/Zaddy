@@ -4,7 +4,9 @@ import webzadSignature from '../assets/webzad-signature.webp';
 import { ARTIST } from '../data/site.js';
 ---
 
-<footer class="site-footer">
+<footer class="site-footer" data-motion-scene>
+  <div class="footer-horizon" aria-hidden="true"><span data-ambient></span><span data-ambient></span><span data-ambient></span></div>
+  <span class="footer-echo display" aria-hidden="true">CASANOVA</span>
   <div class="container footer-inner">
     <div class="footer-brand">
       <span class="display footer-name">iZad Casanova</span>
@@ -42,92 +44,85 @@ import { ARTIST } from '../data/site.js';
 
 <style>
   .site-footer {
-    border-top: 1px solid var(--line);
-    padding-top: 1.4rem;
-    padding-bottom: 1rem;
     position: relative;
     z-index: 1;
-    background: var(--bg);
+    padding-block: clamp(4rem, 8vw, 7rem) 1.75rem;
+    border-top: 1px solid #d1dae649;
+    background: radial-gradient(ellipse at 50% 0, #b7d4e512, transparent 58%), #070a0efa;
+    overflow: hidden;
   }
-
-  .footer-inner {
-    display: flex;
-    flex-direction: column;
-    gap: 1.4rem;
-  }
-
-  .footer-brand {
-    display: flex;
-    flex-direction: column;
-    gap: 0.3rem;
-  }
-
+  .footer-horizon { position: absolute; inset: 0; pointer-events: none; }
+  .footer-horizon::before { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(90deg, transparent 0 119px, #c5ced909 120px), repeating-linear-gradient(0deg, transparent 0 59px, #c5ced909 60px); mask-image: linear-gradient(#0008, transparent); }
+  .footer-horizon span { position: absolute; top: 0; left: -25%; width: 25%; height: 1px; background: linear-gradient(90deg, transparent, #dee7f4, #b8c0cb, transparent); box-shadow: 0 0 22px #c4ccd7; animation: footer-transmit 11s linear infinite; }
+  .footer-horizon span:nth-child(2) { top: 45%; animation-duration: 17s; animation-delay: -8s; opacity: .2; }
+  .footer-horizon span:nth-child(3) { top: 78%; animation-duration: 22s; animation-delay: -14s; opacity: .18; }
+  .footer-echo { position: absolute; left: 50%; bottom: 3rem; translate: -50% 0; color: transparent; -webkit-text-stroke: 1px #cdd6e20c; font-size: clamp(8rem, 20vw, 24rem); white-space: nowrap; pointer-events: none; }
+  .footer-inner { position: relative; display: grid; gap: 3rem; }
+  .footer-brand { display: flex; flex-direction: column; gap: 1rem; }
   .footer-name {
-    font-size: 1.1rem;
+    font-size: clamp(2.2rem, 5.6vw, 5.6rem);
+    font-stretch: 115%;
+    letter-spacing: -0.055em;
+    line-height: 1;
+    color: #f1f4f7;
+    background: linear-gradient(170deg, #fff 5%, #aab8c4 48%, #e8eff4 72%);
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
   }
-
-  .footer-tag {
-    color: var(--accent);
-    font-size: 0.88rem;
-  }
-
+  .footer-tag { color: #d1dae6; font-size: clamp(1.2rem, 2vw, 1.7rem); }
   .footer-nav {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .5rem;
+    align-content: start;
+  }
+  .footer-nav a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 48px;
+    min-width: 7rem;
+    width: 100%;
+    padding: .65rem .9rem;
+    border: 1px solid #d5deeb20;
+    border-radius: 9px;
+    background: linear-gradient(150deg, #e3edf309, #0002);
+    box-shadow: inset 0 1px #f1f5fa07;
+    color: #b6bec9;
+    font-size: .72rem;
+    letter-spacing: .04em;
+    transition: color 0.2s ease, border-color .2s ease, background .2s ease;
+  }
+  .footer-nav a::after { content: '↗'; color: #d2dbe7; font-size: 1rem; margin-left: 1.5rem; }
+  .footer-nav a:hover { color: #e4eefc; border-color: #d4dce966; background: #c6cfda13; }
+  .footer-meta {
     display: flex;
     flex-wrap: wrap;
-    gap: 1.6rem;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding-top: 1.75rem;
+    border-top: 1px solid #d1dae627;
   }
-
-  .footer-nav a {
-    font-size: 0.68rem;
-    font-weight: 600;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--muted);
-    transition: color 0.2s ease;
-  }
-
-  .footer-nav a:hover {
-    color: var(--text);
-  }
-
-  .footer-meta {
-    border-top: 1px solid var(--line);
-    padding-top: 1.6rem;
-  }
-
-  .footer-meta p {
-    font-size: 0.66rem;
-    color: var(--faint);
-  }
-
+  .footer-meta p { color: var(--muted); font-size: 0.75rem; }
   .footer-signature {
-    display: inline-block;
-    margin-top: 0.55rem;
-    opacity: 0.75;
-    transition: opacity 0.25s ease, transform 0.25s var(--ease-out);
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    opacity: 0.85;
+    transition: opacity 0.2s ease;
   }
-
-  .footer-signature:hover {
-    opacity: 1;
-    transform: translateY(-1px);
+  .footer-signature:hover { opacity: 1; }
+  .footer-signature img { height: 34px; width: auto; }
+  @media (min-width: 860px) {
+    .footer-inner { grid-template-columns: minmax(0, 1fr) auto; gap: 3.5rem 5rem; }
+    .footer-nav { padding-top: 0.3rem; gap: .6rem; }
+    .footer-meta { grid-column: 1 / -1; }
   }
-
-  .footer-signature img {
-    height: 34px;
-    width: auto;
-  }
-
-  @media (min-width: 720px) {
-    .footer-inner {
-      flex-direction: row;
-      align-items: flex-start;
-      justify-content: space-between;
-    }
-
-    .footer-meta {
-      border-top: none;
-      padding-top: 0;
-      text-align: right;
-    }
+  @keyframes footer-transmit { to { left: 125%; } }
+  :global(html[data-motion-paused='true']) .footer-horizon span { animation-play-state: paused; }
+  @media (prefers-reduced-motion: reduce) {
+    .footer-nav a, .footer-signature { transition: none; }
+    .footer-horizon span { animation: none; }
   }
 </style>

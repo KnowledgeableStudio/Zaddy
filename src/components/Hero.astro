@@ -1,424 +1,202 @@
 ---
 import Platforms from './Platforms.astro';
+import Orbital from './Orbital.astro';
 import { ARTIST } from '../data/site.js';
 ---
-
-<section id="top" class="hero" aria-label="Introduction">
-  <div class="hero-media" aria-hidden="true">
-    <video
-      class="hero-video"
-      autoplay
-      muted
-      loop
-      playsinline
-      preload="metadata"
-      aria-hidden="true"
-      src="/hero-loop.mp4"
-    ></video>
-    <div class="hero-letterbox"></div>
-    <div class="hero-aurora"></div>
-    <div class="hero-grain"></div>
-    <div class="hero-shade"></div>
-    <div class="hero-vignette"></div>
+<section id="top" class="hero" aria-label="Introduction" data-motion-scene>
+  <div class="hero-topline container" aria-hidden="true">
+    <span><i class="signal-dot" data-ambient></i> iZC / THE UNIVERSE</span>
+    <span>ART · SOUND · IDENTITY</span>
+    <span class="hero-code">NYC → ∞</span>
   </div>
-
-  <div class="hero-content container">
-    <p class="eyebrow reveal">Official Artist · {ARTIST.location}</p>
-
-    <h1 class="display hero-title reveal" data-delay="1">
-      iZad<br />Casanova
-    </h1>
-
-    <p class="hero-tagline reveal" data-delay="2">
-      <span class="serif-accent">{ARTIST.tagline}</span>
-    </p>
-
-    <div class="hero-ctas reveal" data-delay="3">
-      <a href="/#music" class="btn btn-primary btn-hud">Listen Now</a>
-      <a href="/#store" class="btn btn-hud">Shop Zaddy Collection</a>
+  <div class="hero-layout container">
+    <div class="hero-copy">
+      <p class="eyebrow reveal">Official Artist · {ARTIST.location}</p>
+      <h1 class="hero-title display reveal" data-delay="1">
+        <span class="hero-name" data-ambient>iZad</span>
+        <span class="hero-surname">Casanova</span>
+      </h1>
+      <div class="hero-identity reveal" data-delay="2" aria-hidden="true"><span>BRONX BORN.</span><i></i><span>UNIVERSE BOUND.</span></div>
+      <p class="hero-tagline reveal" data-delay="2"><span class="serif-accent">{ARTIST.tagline}</span></p>
+      <div class="hero-ctas reveal" data-delay="3">
+        <a href="/#music" class="btn btn-primary">Listen Now <span aria-hidden="true">↗</span></a>
+        <a href="/#store" class="btn">Shop Zaddy Collection <span aria-hidden="true">↗</span></a>
+      </div>
+      <div class="hero-transmission reveal" data-delay="3" aria-hidden="true">
+        <div class="waveform">{Array.from({length: 24}, (_, i) => <i data-ambient style={`--bar:${i};--bar-size:${[14,23,9,32,18,40,25,12][i % 8]}px`}></i>)}</div>
+        <span>MUSIC / FASHION / THE WORLD OF iZAD</span>
+      </div>
     </div>
-
-    <div class="hero-platforms reveal" data-delay="3">
-      <Platforms limit={6} />
+    <div class="hero-stage reveal" data-depth data-delay="2">
+      <div class="hero-orbit" aria-hidden="true"><Orbital size="100%" variant="silver" /></div>
+      <div class="hero-film-assembly" data-depth-surface data-ambient>
+        <div class="film-status" aria-hidden="true"><span>Zaddy Collection</span><span>New York</span></div>
+        <div class="hero-media">
+          <video id="hero-video" class="hero-video" autoplay muted loop playsinline preload="metadata" poster="/hero-poster.jpg" src="/hero-loop.mp4"></video>
+          <button class="film-toggle" id="hero-video-toggle" type="button" aria-label="Pause cinematic video" aria-pressed="false"><span class="film-toggle-icon" aria-hidden="true">Ⅱ</span><span class="film-toggle-label">Pause film</span></button>
+        </div>
+        <div class="film-caption" aria-hidden="true"><span>IDENTITY IS AN ART FORM.</span><span>Art. Sound. Identity.</span></div>
+      </div>
+      <div class="hero-film-shadow" data-ambient aria-hidden="true"></div>
     </div>
   </div>
-
-  <audio id="bg-music" src="/audio/si-muero.mp3" loop preload="none"></audio>
-
-  <button
-    type="button"
-    id="music-toggle"
-    class="music-toggle"
-    aria-label="Unmute background music"
-    aria-pressed="false"
-  >
-    <svg class="mt-icon mt-off" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <path d="M11 5L6 9H2v6h4l5 4V5z" />
-      <path d="M22 9l-6 6M16 9l6 6" />
-    </svg>
-    <svg class="mt-icon mt-on" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <path d="M11 5L6 9H2v6h4l5 4V5z" />
-      <path d="M15.5 8.5a5 5 0 010 7" />
-      <path d="M19 5a9 9 0 010 14" />
-    </svg>
-    <span class="mt-eq" aria-hidden="true"><i></i><i></i><i></i></span>
-  </button>
-
-  <a href="/#music" class="scroll-cue" aria-label="Scroll to latest releases">
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <path d="M12 4v14m0 0l-6-6m6 6l6-6" />
-    </svg>
-  </a>
+  <div class="hero-bottom container">
+    <div class="hero-platforms reveal"><span class="platforms-label">TUNE INTO THE FREQUENCY</span><Platforms limit={6} /></div>
+    <a href="/#music" class="scroll-cue" aria-label="Scroll to latest releases"><span>Explore the world<small>SCROLL TO ENTER</small></span><span class="scroll-arrow" data-ambient aria-hidden="true">↓</span></a>
+  </div>
 </section>
-
 <style>
-  .hero {
-    position: relative;
-    /* height follows the video's real aspect ratio (set by JS below):
-       wide screens -> full-viewport band, narrow screens -> cinematic
-       strip. The frame is always fully visible, never letterboxed. */
-    height: clamp(48svh, calc(100vw / var(--video-ar, 1.5652)), 100svh);
-    min-height: 48svh;
-    display: flex;
-    align-items: flex-end;
-    overflow: hidden;
+  .hero { position: relative; z-index: 1; padding-top: 9rem; overflow: clip; background: radial-gradient(ellipse at 30% 47%, #070b11d4, #070b1155 44%, transparent 73%), linear-gradient(0deg, #080e1766, transparent 25%); }
+  .hero-topline { display: flex; justify-content: space-between; gap: 2rem; color: #7f90a4; font: 400 .57rem/1 var(--font-mono); letter-spacing: .17em; }
+  .hero-topline > span { display: flex; align-items: center; gap: .6rem; }
+  .hero-code { color: #a7b9ce; }
+  .signal-dot { display: block; width: 4px; height: 4px; border-radius: 50%; background: #d5555b; }
+  .hero-layout { display: grid; grid-template-columns: 1.02fr 1fr; align-items: center; gap: clamp(2rem, 4vw, 4rem); padding-top: clamp(3.5rem, 5vw, 5.3rem); padding-bottom: 4.1rem; min-height: min(43rem, 73svh); }
+  .hero-copy { position: relative; z-index: 3; min-width: 0; padding-block: 1rem; }
+  .hero .eyebrow { font-size: .64rem; letter-spacing: .065em; }
+  .hero-title { margin-top: 2.1rem; display: flex; flex-direction: column; align-items: flex-start; text-wrap: nowrap; }
+  .hero-name { display: block; font-size: clamp(6rem, 12.5vw, 11.7rem); font-weight: 900; font-stretch: 125%; line-height: .78; letter-spacing: -.075em; color: #ecf3f8; background: linear-gradient(175deg, #fff 8%, #eef3fa 30%, #8e9bad 43%, #e2eaf1 49%, #fcfdff 62%, #a0b1c6 83%, #6c7889); background-size: 100% 140%; background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 3px 0 #161e2b) drop-shadow(0 10px 20px #0004); animation: title-reflection 13s ease-in-out infinite alternate; }
+  .hero-surname { position: relative; display: block; margin-top: .35em; color: #e7edf5; font-size: clamp(2.55rem, 5vw, 4.5rem); letter-spacing: -.052em; font-weight: 700; line-height: .94; text-shadow: 0 3px 15px #0004; }
+  .hero-identity { display: flex; align-items: center; gap: .8rem; margin-top: 2.1rem; color: #8296ae; font: .58rem/1.4 var(--font-mono); letter-spacing: .13em; }
+  .hero-identity i { height: 1px; width: 2.7rem; background: #9cb1c43d; }
+  .hero-tagline { margin-top: 1.1rem; max-width: 31ch; font-size: clamp(1.5rem, 2.5vw, 2.05rem); line-height: 1.22; color: #c8d4e1; }
+  .hero-ctas { display: flex; flex-wrap: wrap; gap: .8rem; margin-top: 2rem; }
+  .hero-ctas .btn { min-height: 52px; padding-inline: 1.5rem; }
+  .hero-ctas .btn span { font-size: 1.25rem; font-weight: 400; }
+  .hero-transmission { display: flex; align-items: center; gap: 1rem; margin-top: 2.1rem; color: #6e829b; }
+  .hero-transmission > span { max-width: 17ch; font: .48rem/1.65 var(--font-mono); letter-spacing: .1em; }
+  .waveform { display: flex; height: 24px; align-items: center; gap: 3px; overflow: hidden; }
+  .waveform i { width: 1px; height: var(--bar-size); background: #9db2ca; opacity: .7; animation: wave-pulse 1.8s ease-in-out infinite alternate; animation-delay: calc(var(--bar) * -110ms); }
+  .hero-stage { position: relative; min-width: 0; aspect-ratio: 1.07; display: grid; place-items: center; }
+  .hero-orbit { position: absolute; inset: -16%; z-index: 0; opacity: .6; pointer-events: none; }
+  .hero-film-assembly { position: relative; z-index: 2; width: 102%; border: 1px solid #c7d7e440; border-radius: 14px; background: linear-gradient(125deg, #29323edf, #0e151ded 40%, #0c111aee 82%, #53607080); padding: 4px; box-shadow: 0 1px 0 #ffffff2b, 1px 2px 0 #48546366, 0 30px 65px #0009, 0 0 0 5px #02050944; animation: film-suspend 11s ease-in-out infinite; }
+  .hero-film-assembly::before { content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; background: radial-gradient(ellipse at var(--light-x, 35%) var(--light-y, 0%), #d5e9ff0f, transparent 65%); }
+  .film-status, .film-caption { display: flex; align-items: center; justify-content: space-between; gap: .75rem; min-height: 38px; padding: .65rem 1rem; color: #8c9bad; font: .52rem/1 var(--font-mono); letter-spacing: .075em; }
+  .film-status > span:first-child { color: #d3dce7; }
+  .hero-media { position: relative; aspect-ratio: var(--video-ar, 1.5652); background: #050709; border: 1px solid #cfdae21a; border-radius: 6px; overflow: hidden; }
+  .hero-video { display: block; width: 100%; height: 100%; object-fit: contain; }
+  .film-toggle { position: absolute; right: .75rem; bottom: .75rem; display: inline-flex; align-items: center; justify-content: center; gap: .55rem; min-height: 44px; padding: .5rem .85rem; border: 1px solid #e8f0fa3a; border-radius: 5px; background: #101620cd; color: #e1e8f0; font: .57rem var(--font-body); letter-spacing: .03em; backdrop-filter: blur(12px); }
+  .film-toggle:hover { border-color: #edf5ff70; background: #1e2936e6; }
+  .film-toggle-icon { font-size: .9rem; }
+  .film-caption { min-height: 33px; font-size: .45rem; color: #708399; }
+  .hero-film-shadow { position: absolute; bottom: -5%; left: 2%; right: 2%; height: 20%; border-radius: 50%; background: radial-gradient(ellipse, #000b, #050b1666 38%, transparent 69%); filter: blur(16px); animation: film-shadow 11s ease-in-out infinite; }
+  .hero-bottom { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 2rem; padding-block: 1.5rem 2rem; }
+  .hero-bottom::before { content: ''; position: absolute; top: 0; left: var(--gutter); right: var(--gutter); height: 1px; background: linear-gradient(90deg, #e2ecff2c, #e2ecff0d 40%, #e2ecff0d 70%, #e2ecff20); }
+  .platforms-label { display: block; margin-bottom: .65rem; font: .48rem var(--font-mono); letter-spacing: .17em; color: #71829a; }
+  .hero-platforms :global(.platforms) { gap: .35rem; }
+  .hero-platforms :global(.platform-chip) { min-height: 44px; padding: .4rem .7rem; font-size: .64rem; border-color: #b6d3ee1c; background: #0b141e80; }
+  .hero-platforms :global(svg) { width: 14px; height: 14px; }
+  .scroll-cue { display: inline-flex; align-items: center; gap: 1.3rem; flex-shrink: 0; min-height: 48px; font: .64rem var(--font-body); color: #b8c9dc; }
+  .scroll-cue small { display: block; margin-top: .45rem; font: .48rem var(--font-mono); letter-spacing: .12em; color: #7286a1; }
+  .scroll-arrow { width: 44px; height: 44px; display: grid; place-items: center; border: 1px solid #c6dbf238; border-radius: 50%; color: #c9d9e9; font-size: 1.1rem; animation: arrow-drift 3.5s ease-in-out infinite; }
+  @keyframes title-reflection { to { background-position: 0 100%; } }
+  @keyframes wave-pulse { to { transform: scaleY(.4); opacity: .3; } }
+  @keyframes film-suspend { 50% { translate: 0 -9px; } }
+  @keyframes film-shadow { 50% { scale: .93; opacity: .7; } }
+  @keyframes arrow-drift { 50% { translate: 0 4px; } }
+  @media (max-width: 1100px) and (min-width: 761px) {
+    .hero { padding-top: 8.5rem; }
+    .hero-layout { gap: 2rem; min-height: 39rem; padding-block: 3rem; }
+    .hero-name { font-size: 12vw; }
+    .hero-surname { font-size: 4.8vw; }
+    .hero-ctas { gap: .6rem; }
+    .hero-ctas .btn { padding-inline: 1rem; font-size: .7rem; }
+    .hero-stage { margin-right: .5rem; }
+    .hero-platforms :global(.platform-chip) { font-size: .6rem; padding-inline: .55rem; }
+    .scroll-cue > span:first-child { display: none; }
   }
-
-  .hero-media {
-    position: absolute;
-    inset: 0;
-    z-index: -1;
+  @media (max-width: 760px) {
+    .hero { padding-top: 7rem; }
+    .hero-topline { font-size: .46rem; letter-spacing: .08em; }
+    .hero-topline > span:nth-child(2) { display: none; }
+    .hero-layout { display: flex; flex-direction: column; align-items: stretch; gap: 1.8rem; padding-top: 2.5rem; padding-bottom: 2.8rem; min-height: auto; }
+    .hero-copy { padding: 0; }
+    .hero .eyebrow { font-size: .55rem; letter-spacing: .02em; }
+    .hero-title { margin-top: 1.6rem; }
+    .hero-name { font-size: clamp(6rem, 26.5vw, 10rem); }
+    .hero-surname { margin-top: .35em; font-size: clamp(2.55rem, 10.5vw, 4.3rem); }
+    .hero-identity { margin-top: 1.5rem; font-size: .46rem; gap: .5rem; letter-spacing: .08em; }
+    .hero-identity i { width: 2rem; }
+    .hero-tagline { margin-top: .9rem; font-size: 1.6rem; max-width: none; }
+    .hero-ctas { gap: .6rem; margin-top: 1.5rem; }
+    .hero-ctas .btn { min-height: 50px; padding-inline: 1.1rem; font-size: .72rem; }
+    .hero-transmission { display: none; }
+    .hero-stage { width: min(100%, 31rem); align-self: center; margin-block: .4rem .8rem; }
+    .hero-film-assembly { width: 100%; border-radius: 10px; padding: 3px; }
+    .hero-orbit { inset: -8%; opacity: .52; }
+    .film-status { min-height: 31px; padding: .55rem .7rem; font-size: .46rem; }
+    .film-caption { padding: .6rem .7rem; min-height: 28px; font-size: .36rem; letter-spacing: .02em; }
+    .film-toggle { right: .6rem; bottom: .6rem; min-height: 44px; font-size: .55rem; }
+    .hero-bottom { padding-block: 1.2rem 1.7rem; gap: 1rem; }
+    .hero-platforms :global(.platforms) { gap: .35rem; }
+    .hero-platforms :global(.platform-chip) { min-height: 44px; font-size: .58rem; padding-inline: .6rem; }
+    .platforms-label { font-size: .46rem; letter-spacing: .11em; }
+    .scroll-cue { display: none; }
   }
-
-  /* cinematic loop is THE background — cover fills the whole hero,
-     no letterbox gaps on any screen */
-  .hero-video {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center;
-  }
-
-  /* cinema letterbox — hard black bars top & bottom, movie framing */
-  .hero-letterbox {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      to bottom,
-      #000 0 7%,
-      transparent 7% 93%,
-      #000 93% 100%
-    );
-  }
-
-  /* drifting aurora light pools — slow green glows wandering the
-     letterbox zones so the frame never feels empty */
-  .hero-aurora {
-    position: absolute;
-    inset: 0;
-    background:
-      radial-gradient(38% 30% at 22% 12%, rgba(34, 216, 97, 0.16), transparent 70%),
-      radial-gradient(34% 26% at 80% 88%, rgba(34, 216, 97, 0.12), transparent 70%),
-      radial-gradient(46% 34% at 68% 6%, rgba(120, 200, 255, 0.07), transparent 70%);
-    animation: aurora-drift 26s ease-in-out infinite alternate;
-  }
-
-  @keyframes aurora-drift {
-    from {
-      transform: translate3d(-2.5%, 1.5%, 0) scale(1);
-    }
-    to {
-      transform: translate3d(2.5%, -1.5%, 0) scale(1.08);
-    }
-  }
-
-  /* faint scanlines + grain unify the video with the hologram look */
-  .hero-grain {
-    position: absolute;
-    inset: 0;
-    background:
-      repeating-linear-gradient(
-        0deg,
-        rgba(34, 216, 97, 0.025) 0 1px,
-        transparent 1px 5px
-      );
-    mix-blend-mode: screen;
-  }
-
-  .hero-shade {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      to top,
-      var(--bg) 4%,
-      rgba(10, 10, 12, 0.55) 34%,
-      rgba(10, 10, 12, 0.25) 60%,
-      rgba(10, 10, 12, 0.45) 100%
-    );
-  }
-
-  .hero-vignette {
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(120% 90% at 50% 40%, transparent 40%, rgba(0, 0, 0, 0.55) 100%);
-  }
-
-  .hero-content {
-    position: relative;
-    padding-top: 3.4rem;
-    padding-bottom: clamp(1.7rem, 3.8vh, 2.9rem);
-    width: 100%;
-  }
-
-  .hero-content .eyebrow {
-    font-size: 0.55rem;
-  }
-
-  .hero-title {
-    font-size: clamp(1.5rem, 5vw, 4.1rem);
-    margin-top: 0.55rem;
-    color: var(--text);
-    text-shadow: 0 8px 60px rgba(0, 0, 0, 0.6);
-  }
-
-  .hero-tagline {
-    margin-top: 0.45rem;
-    font-size: clamp(0.68rem, 1.2vw, 0.85rem);
-    color: var(--accent);
-    text-shadow: 0 4px 30px rgba(0, 0, 0, 0.6);
-  }
-
-  .hero-ctas {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.36rem;
-    margin-top: 0.9rem;
-  }
-
-  .hero-ctas .btn {
-    padding: 0.34rem 0.68rem;
-    font-size: 0.56rem;
-    gap: 0.3rem;
-  }
-
-  .hero-platforms {
-    margin-top: 1.05rem;
-    max-width: 19rem;
-  }
-
-  .hero-platforms :global(.platforms) {
-    gap: 0.28rem;
-  }
-
-  .hero-platforms :global(.platform-chip) {
-    padding: 0.28rem 0.52rem;
-    font-size: 0.56rem;
-    gap: 0.25rem;
-  }
-
-  .hero-platforms :global(.platform-chip svg) {
-    width: 9px;
-    height: 9px;
-  }
-
-  /* background-music control — bottom-right of the frame, sits over
-     the letterbox bar. Same glass-pill language as the scroll cue. */
-  .music-toggle {
-    position: absolute;
-    bottom: 1.1rem;
-    right: var(--gutter);
-    z-index: 2;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.35rem;
-    width: 3rem;
-    height: 3rem;
-    border-radius: 50%;
-    border: 1px solid var(--line-strong);
-    background: rgba(10, 10, 12, 0.55);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    color: var(--muted);
-    transition:
-      color 0.25s ease,
-      border-color 0.25s ease,
-      box-shadow 0.25s ease;
-  }
-
-  .music-toggle:hover {
-    color: var(--text);
-    border-color: rgba(255, 255, 255, 0.32);
-  }
-
-  /* playing + audible: green ring + animated EQ bars */
-  .music-toggle.is-on {
-    color: var(--accent);
-    border-color: rgba(34, 216, 97, 0.55);
-    box-shadow:
-      0 0 0 1px rgba(34, 216, 97, 0.18),
-      0 0 22px rgba(34, 216, 97, 0.22);
-  }
-
-  /* autoplay blocked / currently muted — gentle pulse inviting a tap */
-  .music-toggle.needs-tap {
-    color: var(--text);
-    border-color: rgba(34, 216, 97, 0.4);
-    animation: mt-pulse 2.2s ease-in-out infinite;
-  }
-
-  @keyframes mt-pulse {
-    0%, 100% {
-      box-shadow: 0 0 0 0 rgba(34, 216, 97, 0.35);
-    }
-    50% {
-      box-shadow: 0 0 0 7px rgba(34, 216, 97, 0);
-    }
-  }
-
-  .mt-icon {
-    flex-shrink: 0;
-  }
-
-  .music-toggle .mt-on,
-  .music-toggle.is-on .mt-off {
-    display: none;
-  }
-
-  .music-toggle.is-on .mt-on {
-    display: block;
-  }
-
-  .mt-eq {
-    display: none;
-    align-items: flex-end;
-    gap: 1.5px;
-    height: 10px;
-  }
-
-  .music-toggle.is-on .mt-eq {
-    display: inline-flex;
-  }
-
-  .mt-eq i {
-    width: 2px;
-    background: var(--accent);
-    border-radius: 1px;
-    animation: eq-bounce 0.9s ease-in-out infinite;
-  }
-
-  .mt-eq i:nth-child(1) { height: 60%; }
-  .mt-eq i:nth-child(2) { height: 100%; animation-delay: 0.18s; }
-  .mt-eq i:nth-child(3) { height: 45%; animation-delay: 0.36s; }
-
-  @keyframes eq-bounce {
-    0%, 100% { transform: scaleY(0.4); }
-    50% { transform: scaleY(1); }
-  }
-
-  .scroll-cue {
-    position: absolute;
-    bottom: 2rem;
-    right: calc(var(--gutter) + 3.75rem);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    width: 3rem;
-    height: 3rem;
-    border-radius: 50%;
-    border: 1px solid var(--line-strong);
-    color: var(--muted);
-    transition: color 0.2s ease, border-color 0.2s ease;
-    animation: cue-bob 2.4s ease-in-out infinite;
-  }
-
-  .scroll-cue:hover {
-    color: var(--text);
-    border-color: var(--text);
-  }
-
-  @keyframes cue-bob {
-    0%,
-    100% {
-      transform: translateY(0);
-    }
-    50% {
-      transform: translateY(8px);
-    }
-  }
-
-  @media (min-width: 860px) {
-    .scroll-cue {
-      display: inline-flex;
-    }
-  }
-
-  /* mobile: shrink the cinematic to the clip's true aspect ratio so the
-     entire frame renders edge-to-edge — no cover crop, no gaps. The
-     content stacks below the strip instead of overlaying it. */
-  @media (max-width: 859px) {
-    .hero {
-      display: block;
-      height: auto;
-      min-height: 0;
-    }
-
-    .hero-media {
-      position: relative;
-      height: calc(100vw / var(--video-ar, 1.5652));
-    }
-
-    .hero-content {
-      padding-top: 1.7rem;
-      padding-bottom: 2.4rem;
-    }
-
-    /* keep the music control over the strip's bottom-right corner */
-    .music-toggle {
-      top: calc(100vw / var(--video-ar, 1.5652) - 4.1rem);
-      bottom: auto;
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .scroll-cue {
-      animation: none;
-    }
-
-    .hero-video {
-      display: none;
-    }
-
-    .hero-aurora {
-      animation: none;
-    }
-
-    .mt-eq i {
-      animation: none;
-      transform: scaleY(0.8);
-    }
-  }
+  @media (prefers-reduced-motion: reduce) { [data-ambient] { animation: none !important; } }
 </style>
-
 <script>
-  // reduced-motion users get a still frame instead of the video loop
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    document.querySelectorAll('.hero-video').forEach((v) => v.pause());
-  }
-
-  // size the hero to the video's true aspect ratio — the whole frame
-  // displays edge-to-edge on every device, no letterbox, no gaps
-  const hero = document.querySelector('.hero');
-  const vid = document.querySelector('.hero-video');
-  function syncHeroRatio() {
-    if (vid && vid.videoWidth) {
-      hero.style.setProperty('--video-ar', (vid.videoWidth / vid.videoHeight).toFixed(4));
+  // Bundled scripts run once per session — with the client router the hero
+  // DOM is rebuilt per visit, so init rebinds on astro:page-load and releases
+  // listeners/observers before each swap.
+  let heroTeardown: (() => void) | null = null;
+  function initHero() {
+    const hero = document.querySelector<HTMLElement>('.hero');
+    const video = document.querySelector<HTMLVideoElement>('.hero-video');
+    const control = document.querySelector<HTMLButtonElement>('#hero-video-toggle');
+    if (!hero || !video || !control) return null;
+    const controller = new AbortController();
+    const { signal } = controller;
+    const preference = matchMedia('(prefers-reduced-motion: reduce)');
+    let userPaused = false;
+    let visible = false;
+    function updateControl() {
+      if (!video || !control) return;
+      control.setAttribute('aria-label', video.paused ? 'Play cinematic video' : 'Pause cinematic video');
+      control.setAttribute('aria-pressed', String(video.paused));
+      const label = control.querySelector('.film-toggle-label');
+      const icon = control.querySelector('.film-toggle-icon');
+      if (label) label.textContent = video.paused ? 'Play film' : 'Pause film';
+      if (icon) icon.textContent = video.paused ? '▷' : 'Ⅱ';
     }
+    function syncPlayback() {
+      if (!video) return;
+      if (userPaused || preference.matches || document.documentElement.dataset.motionPaused === 'true' || !visible || document.hidden) video.pause();
+      else video.play().catch(updateControl);
+      updateControl();
+    }
+    function syncRatio() {
+      if (video && hero && video.videoWidth) hero.style.setProperty('--video-ar', (video.videoWidth / video.videoHeight).toFixed(4));
+    }
+    control.addEventListener('click', () => {
+      userPaused = !video.paused;
+      if (userPaused) video.pause();
+      else video.play().catch(updateControl);
+      updateControl();
+    }, { signal });
+    video.addEventListener('play', updateControl, { signal });
+    video.addEventListener('pause', updateControl, { signal });
+    video.addEventListener('loadedmetadata', syncRatio, { signal });
+    preference.addEventListener('change', syncPlayback, { signal });
+    document.addEventListener('visibilitychange', syncPlayback, { signal });
+    document.addEventListener('zaddy:motionchange', syncPlayback, { signal });
+    const io = new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; syncPlayback(); }, { threshold: .05 });
+    io.observe(video);
+    syncRatio();
+    syncPlayback();
+    return () => {
+      controller.abort();
+      io.disconnect();
+    };
   }
-  if (vid) {
-    if (vid.readyState >= 1) syncHeroRatio();
-    vid.addEventListener('loadedmetadata', syncHeroRatio);
+  function bootHero() {
+    heroTeardown?.();
+    heroTeardown = initHero();
   }
+  bootHero();
+  document.addEventListener('astro:page-load', bootHero);
+  document.addEventListener('astro:before-swap', () => {
+    heroTeardown?.();
+    heroTeardown = null;
+  });
 </script>

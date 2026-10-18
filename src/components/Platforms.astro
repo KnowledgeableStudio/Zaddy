@@ -37,51 +37,10 @@ const platforms = limit ? PLATFORMS.slice(0, limit) : PLATFORMS;
 </ul>
 
 <style>
-  .platforms {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.55rem;
-    list-style: none;
-    padding: 0;
-  }
-
-  .platform-chip {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.55rem 1.05rem;
-    border-radius: 999px;
-    border: 1px solid var(--line);
-    background: rgba(255, 255, 255, 0.04);
-    font-size: 0.68rem;
-    font-weight: 600;
-    letter-spacing: 0.02em;
-    color: var(--muted);
-    transition:
-      color 0.2s ease,
-      border-color 0.2s ease,
-      background-color 0.2s ease,
-      transform 0.2s var(--ease-out);
-  }
-
-  .platform-chip:hover {
-    color: var(--text);
-    border-color: rgba(255, 255, 255, 0.28);
-    background: rgba(255, 255, 255, 0.08);
-    transform: translateY(-2px);
-  }
-
-  .platform-chip:hover svg {
-    color: var(--accent);
-  }
-
-  .platform-chip svg {
-    transition: color 0.2s ease;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .platform-chip {
-      transition: none;
-    }
-  }
+  .platforms { display: flex; flex-wrap: wrap; gap: .55rem; padding: 0; list-style: none; }
+  .platform-chip { display: inline-flex; align-items: center; gap: .65rem; min-height: 44px; padding: .65rem .9rem; border: 1px solid var(--line); border-radius: 5px; background: #b6cde506; color: #b9c5d2; box-shadow: inset 0 1px 0 #ffffff04; font-size: .73rem; font-weight: 500; transition: border-color .25s, color .25s, background .25s, box-shadow .25s; }
+  .platform-chip:hover { color: var(--text); border-color: #c5d7e35c; background: #b6cde510; box-shadow: inset 0 1px 0 #ffffff08; }
+  .platform-chip svg { flex-shrink: 0; transition: color .25s; }
+  .platform-chip:hover svg { color: var(--accent); }
+  @media (prefers-reduced-motion: reduce) { .platform-chip, .platform-chip svg { transition: none; } }
 </style>

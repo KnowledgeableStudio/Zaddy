@@ -1,0 +1,27 @@
+<audio id="bg-music" src="/audio/si-muero.mp3" loop preload="none" transition:persist="bg-music"></audio>
+<button type="button" id="music-toggle" class="music-toggle" aria-label="Unmute background music" aria-pressed="false" title="Background music" transition:persist="music-toggle">
+  <span class="mt-speaker" aria-hidden="true"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4V5Z"/><path d="m16 9 5 6m0-6-5 6"/></svg></span>
+  <span class="mt-eq" aria-hidden="true"><i data-ambient></i><i data-ambient></i><i data-ambient></i><i data-ambient></i></span>
+  <span class="mt-off">Sound off</span><span class="mt-on">Sound on</span>
+</button>
+<style>
+  .music-toggle { position: fixed; left: max(var(--gutter), env(safe-area-inset-left)); bottom: max(1.25rem, env(safe-area-inset-bottom)); z-index: 80; display: inline-flex; align-items: center; gap: .8rem; min-height: 44px; padding: .65rem 1rem; border: 1px solid #cbdceb38; border-radius: 6px; background: #111923ed; box-shadow: 0 4px 24px #0005, inset 0 1px 0 #ffffff08; backdrop-filter: blur(12px); color: var(--text); font-size: .66rem; letter-spacing: .11em; text-transform: uppercase; }
+  .music-toggle:hover { border-color: var(--accent); }
+  .mt-on, .is-on .mt-off { display: none; }
+  .is-on .mt-on { display: inline; }
+  .mt-speaker { display: block; }
+  .is-on .mt-speaker { display: none; }
+  .mt-eq { display: none; align-items: center; gap: 3px; height: 16px; }
+  .is-on .mt-eq { display: flex; }
+  .mt-eq i { width: 2px; height: 3px; background: var(--muted); transition: height .25s; }
+  .is-on .mt-eq i { height: 12px; background: var(--accent); animation: equalize .9s ease-in-out infinite alternate; }
+  .is-on .mt-eq i:nth-child(2) { animation-delay: -.6s; height: 16px; }
+  .is-on .mt-eq i:nth-child(3) { animation-delay: -.2s; height: 9px; }
+  .is-on .mt-eq i:nth-child(4) { animation-delay: -.8s; height: 14px; }
+  @keyframes equalize { to { transform: scaleY(.3); } }
+  @media (max-width: 700px) {
+    .music-toggle { left: calc(max(var(--gutter), env(safe-area-inset-left)) + 54px); width: 44px; height: 44px; padding: 0; justify-content: center; }
+    .music-toggle .mt-on, .music-toggle .mt-off { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) { .is-on .mt-eq i { animation: none; } }
+</style>

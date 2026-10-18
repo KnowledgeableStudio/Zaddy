@@ -1,36 +1,97 @@
 ---
 import Base from '../layouts/Base.astro';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+import CartDrawer from '../components/CartDrawer.astro';
+import ImageViewer from '../components/ImageViewer.astro';
+import Orbital from '../components/Orbital.astro';
 ---
 
 <Base
   title="Page Not Found — iZad Casanova"
   description="The page you're looking for doesn't exist."
 >
-  <main class="not-found">
+  <Nav />
+  <main id="main" class="not-found" data-motion-scene>
+    <div class="void-grid" aria-hidden="true" data-ambient></div>
+    <span class="void-number display" aria-hidden="true">404</span>
+    <div class="void-orbit" aria-hidden="true"><Orbital variant="silver" /></div>
+    <div class="void-gate" aria-hidden="true"><i data-ambient></i><i data-ambient></i><i data-ambient></i></div>
+    <div class="container not-found-content">
     <p class="eyebrow">404</p>
-    <h1 class="display">Lost in<br />the Void</h1>
+    <h1 class="display">Lost in<br /><span>the Void</span></h1>
     <p class="serif-accent tag">This page doesn't exist — but the music does.</p>
     <a href="/" class="btn btn-primary btn-hud">Back to iZadCasanova</a>
+    </div>
   </main>
+  <Footer />
+  <CartDrawer />
+  <ImageViewer />
+  <script>
+    import '../scripts/main.js';
+  </script>
 </Base>
 
 <style>
   .not-found {
-    min-height: 100svh;
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    min-height: 94svh;
+    display: flex;
+    align-items: center;
+    padding-block: 10rem 7rem;
+    background: radial-gradient(ellipse at 75% 45%, #b7d4e51c, transparent 58%), linear-gradient(90deg, #070a0ef5, #1117205c);
+  }
+  .not-found-content {
+    position: relative;
+    z-index: 1;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 1.4rem;
-    text-align: center;
-    padding: 2rem;
+    align-items: flex-start;
+    gap: 1.75rem;
   }
-
+  .not-found .eyebrow { color: #dce5f2; padding: .6rem .8rem; border: 1px solid #d5deeb38; border-radius: 8px; background: #b9c1cc08; font-family: var(--font-mono, monospace); }
   .not-found h1 {
-    font-size: clamp(2.4rem, 8vw, 5rem);
+    font-size: clamp(3.5rem, 10vw, 10rem);
+    font-stretch: 115%;
+    letter-spacing: -0.07em;
+    line-height: 0.92;
+    color: #f1f4f7;
   }
-
+  .not-found h1 span { color: #d1dae6; background: linear-gradient(170deg, #fbfdff 8%, #9dabb8 48%, #e5edf2 75%); background-clip: text; -webkit-text-fill-color: transparent; }
   .not-found .tag {
-    color: var(--accent);
+    max-width: 26ch;
+    color: #bfc7d2;
+    font-size: clamp(1.4rem, 2.6vw, 2.4rem);
+    line-height: 1.25;
   }
+  .not-found .btn { min-height: 48px; margin-top: 1rem; }
+  .void-orbit {
+    position: absolute;
+    z-index: -1;
+    top: 8%;
+    right: -10%;
+    width: min(68vw, 60rem);
+    opacity: 0.85;
+    pointer-events: none;
+  }
+  .void-number { position: absolute; right: -1rem; top: 50%; translate: 0 -50%; font-size: clamp(15rem, 40vw, 46rem); color: transparent; -webkit-text-stroke: 1px #d4dce930; pointer-events: none; line-height: 1; }
+  .void-grid { position: absolute; inset: 45% -40% -70%; z-index: -1; background: repeating-linear-gradient(90deg, transparent 0 79px, #c4cdd828 80px), repeating-linear-gradient(0deg, transparent 0 79px, #c4cdd828 80px); transform: perspective(500px) rotateX(58deg); transform-origin: center top; mask-image: linear-gradient(transparent, #000 22%, transparent 70%); animation: void-travel 7s linear infinite; pointer-events: none; }
+  .void-gate { position: absolute; right: -2%; top: 50%; width: 60vw; aspect-ratio: 1; translate: 0 -50%; pointer-events: none; }
+  .void-gate i { position: absolute; inset: 0; border: 1px solid #d8e1ee24; border-radius: 50%; box-shadow: inset 0 0 80px #b4bbc608; animation: void-turn 95s linear infinite; }
+  .void-gate i:nth-child(2) { inset: 8%; border: 2px solid transparent; border-top-color: #d4dce959; border-bottom-color: #d4dce927; animation-direction: reverse; }
+  .void-gate i:nth-child(3) { inset: -9%; border: none; opacity: .7; background: conic-gradient(from 25deg, #0f172133, #c1d0dc65 12%, #f5f8fc80 16%, #31404c26 28%, #0d111a19 40%, #c6d5df65 60%, #f0f5fa90 65%, #151e2826 78%, #0f172133); mask: radial-gradient(transparent 68.5%, #000 68.7% 70%, transparent 70.3%); }
+  @keyframes void-travel { to { background-position: 0 80px; } }
+  @keyframes void-turn { to { rotate: 360deg; } }
+  @media (max-width: 640px) {
+    .not-found { min-height: 85svh; }
+    .void-orbit { top: 2rem; right: -40%; width: 110vw; opacity: 0.3; }
+    .not-found h1 { font-size: clamp(3.2rem, 12vw, 4.8rem); }
+    .void-number { top: 29%; right: -2rem; font-size: 65vw; opacity: .6; }
+    .void-gate { top: 34%; right: -32%; width: 110vw; opacity: .7; }
+  }
+  :global(html[data-motion-paused='true']) .void-grid,
+  :global(html[data-motion-paused='true']) .void-gate i { animation-play-state: paused; }
+  @media (prefers-reduced-motion: reduce) { .void-grid, .void-gate i { animation: none; } }
 </style>

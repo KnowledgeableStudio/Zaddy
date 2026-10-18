@@ -99,17 +99,25 @@ const CHAPTERS = [
   <Nav />
 
   <main id="main">
-    <section id="story" class="story-hero" aria-labelledby="story-title">
+    <section id="story" class="story-hero" aria-labelledby="story-title" data-motion-scene>
+      <div class="story-architecture" aria-hidden="true"><i></i><i></i></div>
       <div class="container story-hero-inner">
-        <span class="section-index reveal">The Story</span>
-        <h1 id="story-title" class="display story-hero-title reveal" data-delay="1">
-          From the<br />Bronx to<br />the World
-        </h1>
-        <p class="story-hero-sub serif-accent reveal" data-delay="2">
-          The story behind the music.
-        </p>
-        <Hologram />
-        <p class="story-hero-hint reveal" data-delay="3" aria-hidden="true">Scroll to read</p>
+        <div class="story-hero-heading">
+          <span class="section-index reveal">The Story</span>
+          <h1 id="story-title" class="display story-hero-title reveal" data-delay="1">
+            From the<br /><span>Bronx to</span><br />the World
+          </h1>
+          <p class="story-hero-sub serif-accent reveal" data-delay="2">
+            The story behind the music.
+          </p>
+          <p class="story-hero-hint reveal" data-delay="3" aria-hidden="true">Scroll to read</p>
+        </div>
+        <div class="story-projection">
+          <div class="identity-portal" aria-hidden="true">
+            <i class="identity-orbit orbit-a" data-ambient></i><i class="identity-orbit orbit-b" data-ambient></i><i class="identity-orbit orbit-c"></i>
+          </div>
+          <Hologram />
+        </div>
       </div>
     </section>
 
@@ -119,6 +127,7 @@ const CHAPTERS = [
           id="cold-video"
           class="visual-media"
           src="/story/cold-open.mp4"
+          poster="/story/cold-open-poster.jpg"
           muted
           loop
           playsinline
@@ -147,19 +156,19 @@ const CHAPTERS = [
     <div class="chapters container">
       {
         CHAPTERS.map((ch) => (
-          <section class="chapter reveal" aria-labelledby={`ch-${ch.num}`}>
+          <section class="chapter reveal" aria-labelledby={`ch-${ch.num}`} data-motion-scene>
             <span class="chapter-num display" aria-hidden="true">{ch.num}</span>
             <div class="chapter-body">
               <h2 id={`ch-${ch.num}`} class="chapter-title display">{ch.title}</h2>
               <p class="narration">{ch.narration}</p>
               <blockquote class="chapter-quote serif-accent">{ch.quote}</blockquote>
             </div>
-            <figure class="chapter-visual" data-parallax>
+            <figure class="chapter-visual" data-parallax data-ambient>
               <Image
                 src={ch.img}
                 alt={ch.alt}
                 widths={[480, 800, 1400]}
-                sizes="(min-width: 860px) 42vw, 94vw"
+                sizes="(min-width: 860px) 70vw, 100vw"
                 loading="lazy"
                 decoding="async"
                 class="visual-media"
@@ -172,7 +181,8 @@ const CHAPTERS = [
       }
     </div>
 
-    <section class="story-finale" aria-label="Closing">
+    <section class="story-finale" aria-label="Closing" data-motion-scene>
+      <div class="finale-halo" aria-hidden="true"><i data-ambient></i><i data-ambient></i></div>
       <Image
         src={finaleImg}
         alt=""
@@ -205,437 +215,247 @@ const CHAPTERS = [
   </script>
 
   <script>
-    /* Story-page only: ambient video lifecycle + scroll parallax.
-       Kept out of main.js so the homepage pays zero cost. */
-    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-    // ambient video — plays only while in view, pauses offscreen,
-    // full stop for reduced-motion users (poster frame instead)
-    const coldVideo = document.getElementById('cold-video');
-    const coldToggle = document.getElementById('cold-toggle');
-    if (coldVideo && coldToggle) {
-      const frame = coldVideo.closest('.cold-frame');
-      coldVideo.addEventListener('error', () => frame.classList.add('no-video'));
-
-      let userPaused = reducedMotion;
-      const syncToggle = () => {
-        coldToggle.setAttribute('aria-pressed', String(userPaused));
-        coldToggle.setAttribute(
-          'aria-label',
-          userPaused ? 'Play ambient video' : 'Pause ambient video'
-        );
-        frame.classList.toggle('is-paused', userPaused);
-      };
-      coldToggle.addEventListener('click', () => {
-        userPaused = !userPaused;
-        if (userPaused) coldVideo.pause();
-        else coldVideo.play().catch(() => {});
+    /* Story-page media has its own visibility lifecycle. Shared entrances
+       remain owned by the site's motion system. Client-side navigation swaps
+       this page's DOM without re-running the module, so init rebinds on
+       astro:page-load and releases everything before each swap. */
+    let storyTeardown: (() => void) | null = null;
+    function initStory() {
+      const controller = new AbortController();
+      const { signal } = controller;
+      const motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
+      const reducedMotion = motionPreference.matches;
+      const ambientPaused = () => motionPreference.matches || document.documentElement.dataset.motionPaused === 'true';
+      const coldVideo = document.getElementById('cold-video') as HTMLVideoElement | null;
+      const coldToggle = document.getElementById('cold-toggle');
+      let coldObserver: IntersectionObserver | null = null;
+      if (coldVideo && coldToggle) {
+        const frame = coldVideo.closest('.cold-frame');
+        let userPaused = reducedMotion;
+        let explicitPlayback = false;
+        let inView = false;
+        const syncToggle = () => {
+          const paused = coldVideo.paused;
+          coldToggle.setAttribute('aria-pressed', String(paused));
+          coldToggle.setAttribute('aria-label', paused ? 'Play ambient video' : 'Pause ambient video');
+          frame?.classList.toggle('is-paused', paused);
+        };
+        const syncPlayback = () => {
+          if (userPaused || !inView || document.hidden || (ambientPaused() && !explicitPlayback)) coldVideo.pause();
+          else coldVideo.play().catch(syncToggle);
+          syncToggle();
+        };
+        coldVideo.addEventListener('error', () => {
+          // Keep the extracted poster visible if video playback is unavailable.
+          frame?.classList.add('no-video');
+          coldVideo.pause();
+          syncToggle();
+        }, { signal });
+        coldVideo.addEventListener('play', syncToggle, { signal });
+        coldVideo.addEventListener('pause', syncToggle, { signal });
+        coldToggle.addEventListener('click', () => {
+          userPaused = !coldVideo.paused;
+          // A deliberate film play remains available when ambient motion is paused.
+          explicitPlayback = !userPaused;
+          syncPlayback();
+        }, { signal });
+        coldObserver = new IntersectionObserver((entries) => {
+          inView = entries[0].isIntersecting;
+          syncPlayback();
+        }, { rootMargin: '120px' });
+        coldObserver.observe(coldVideo);
+        document.addEventListener('visibilitychange', syncPlayback, { signal });
+        document.addEventListener('zaddy:motionchange', () => {
+          explicitPlayback = false;
+          syncPlayback();
+        }, { signal });
+        motionPreference.addEventListener('change', (event) => {
+          if (event.matches) {
+            userPaused = true;
+            explicitPlayback = false;
+            syncPlayback();
+          }
+        }, { signal });
         syncToggle();
-      });
-
-      if (reducedMotion) {
-        coldVideo.pause();
-        syncToggle();
-      } else {
-        new IntersectionObserver(
-          (entries) => {
-            if (userPaused) return;
-            if (entries[0].isIntersecting) coldVideo.play().catch(() => {});
-            else coldVideo.pause();
-          },
-          { rootMargin: '120px' }
-        ).observe(coldVideo);
       }
-    }
 
-    // light parallax — whole frame drifts a few px against scroll.
-    // transform-only, rAF-throttled, disabled under reduced motion.
-    if (!reducedMotion) {
-      const driftEls = [...document.querySelectorAll('[data-parallax]')];
-      let ticking = false;
+      // Frame transforms are exclusively owned here. Re-read the live
+      // preference before scheduling/writing and clear them when it changes.
+      const driftEls = [...document.querySelectorAll<HTMLElement>('[data-parallax]')];
+      let driftFrame = 0;
+      const resetDrift = () => {
+        if (driftFrame) cancelAnimationFrame(driftFrame);
+        driftFrame = 0;
+        for (const el of driftEls) el.style.removeProperty('transform');
+      };
       const drift = () => {
-        ticking = false;
+        driftFrame = 0;
+        if (ambientPaused()) {
+          resetDrift();
+          return;
+        }
         const vh = window.innerHeight;
         for (const el of driftEls) {
           const r = el.getBoundingClientRect();
           if (r.bottom < -80 || r.top > vh + 80) continue;
-          const progress = (r.top + r.height / 2 - vh / 2) / vh; // -0.5 … 0.5
+          const progress = (r.top + r.height / 2 - vh / 2) / vh;
           el.style.transform = `translateY(${(progress * -26).toFixed(1)}px)`;
         }
       };
-      const onScroll = () => {
-        if (!ticking) {
-          ticking = true;
-          requestAnimationFrame(drift);
+      const scheduleDrift = () => {
+        if (ambientPaused()) {
+          resetDrift();
+          return;
         }
+        if (!driftFrame) driftFrame = requestAnimationFrame(drift);
       };
-      window.addEventListener('scroll', onScroll, { passive: true });
-      window.addEventListener('resize', onScroll, { passive: true });
-      drift();
+      window.addEventListener('scroll', scheduleDrift, { passive: true, signal });
+      window.addEventListener('resize', scheduleDrift, { passive: true, signal });
+      motionPreference.addEventListener('change', () => {
+        if (ambientPaused()) resetDrift();
+        else scheduleDrift();
+      }, { signal });
+      document.addEventListener('zaddy:motionchange', () => {
+        if (ambientPaused()) resetDrift();
+        else scheduleDrift();
+      }, { signal });
+      scheduleDrift();
+
+      return () => {
+        controller.abort();
+        coldObserver?.disconnect();
+        if (driftFrame) cancelAnimationFrame(driftFrame);
+      };
     }
+    function bootStory() {
+      storyTeardown?.();
+      storyTeardown = initStory();
+    }
+    bootStory();
+    document.addEventListener('astro:page-load', bootStory);
+    document.addEventListener('astro:before-swap', () => {
+      storyTeardown?.();
+      storyTeardown = null;
+    });
   </script>
 </Base>
 
 <style>
-  /* ---------- hero ---------- */
   .story-hero {
     position: relative;
-    padding-top: clamp(7rem, 18vh, 10rem);
-    padding-bottom: clamp(2rem, 5vh, 4rem);
-    min-height: 92svh;
     display: flex;
-    border-bottom: 1px solid var(--line);
+    min-height: min(62rem, 100svh);
+    padding-block: clamp(8rem, 16vh, 12rem) 5rem;
+    border-bottom: 1px solid #d7e6f129;
+    background: radial-gradient(ellipse at 77% 50%, #b7d4e51b, transparent 55%), linear-gradient(100deg, #070a0ef5, #11172065);
+    overflow: clip;
   }
+  .story-architecture { position: absolute; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+  .story-architecture::before { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, transparent 49.95%, #b9cbd816 50%, transparent 50.1%); }
+  .story-architecture i { position: absolute; top: -30%; bottom: -30%; left: 79%; width: 1px; background: linear-gradient(transparent, #d0e0eb3b, transparent); rotate: 32deg; }
+  .story-architecture i:nth-child(2) { left: 96%; opacity: .5; }
+  /* Portal architecture is 0; the original section canvas is 1. Do not
+     introduce a stacking context around the portal or hologram wrapper. */
+  .story-hero-inner { position: relative; z-index: auto; display: grid; gap: 4rem; width: 100%; align-items: center; background: transparent; }
+  .story-hero-heading { position: relative; z-index: 2; min-width: 0; }
+  .story-hero-title { margin-top: 1.6rem; font-size: clamp(3.2rem, 8vw, 7.5rem); font-stretch: 112%; letter-spacing: -.07em; line-height: .92; color: #f1f4f7; }
+  .story-hero-title span { color: #c9d6df; background: linear-gradient(170deg, #fbfdff 8%, #a6b5c0 48%, #e5edf2 75%); background-clip: text; -webkit-text-fill-color: transparent; }
+  .story-hero-sub { margin-top: 1.8rem; color: #bac7d1; font-size: clamp(1.4rem, 2.5vw, 2.1rem); line-height: 1.25; }
+  .story-hero-hint { display: flex; align-items: center; gap: 1rem; margin-top: 3rem; color: #93a4b2; font: 500 .58rem/1.5 var(--font-mono, monospace); letter-spacing: .18em; text-transform: uppercase; }
+  .story-hero-hint::before { content: ''; width: 3rem; height: 1px; background: linear-gradient(90deg, #c6d8e5, transparent); }
+  .story-projection { position: relative; z-index: auto; min-width: 0; padding-top: 1rem; }
+  .story-projection :global(.holo-wrap) { position: relative; z-index: auto; margin-top: 0; }
+  .story-projection :global(.holo-anchor) { position: relative; z-index: 2; min-height: 20rem; }
+  .story-projection :global(.holo-caption) { position: relative; z-index: 2; justify-content: center; color: #acbbc7; }
+  .identity-portal { position: absolute; inset: 0 0 6rem; z-index: 0; pointer-events: none; }
+  .identity-portal::after { content: ''; position: absolute; width: 128%; height: 19%; left: -14%; bottom: -4%; border-radius: 50%; border: 1px solid #c5d5e224; background: radial-gradient(ellipse, #afcde013, #10172080 58%, transparent 72%); box-shadow: 0 20px 35px #0008; }
+  .identity-orbit { position: absolute; top: 48%; left: 50%; aspect-ratio: 1; translate: -50% -50%; border-radius: 50%; }
+  .orbit-a { width: 140%; background: conic-gradient(from 25deg, #0f172133, #c1d0dc65 12%, #f5f8fc80 16%, #31404c26 28%, #0d111a19 40%, #c6d5df65 60%, #f0f5fa90 65%, #151e2826 78%, #0f172133); mask: radial-gradient(transparent 68.3%, #000 68.6% 70%, transparent 70.3%); animation: identity-turn 90s linear infinite; }
+  .orbit-b { width: 132%; border: 1px solid #d6e5ee45; box-shadow: 0 0 45px #c6ddec09, inset 0 0 30px #d4e8f608; }
+  .orbit-b::before { content: ''; position: absolute; inset: -1.2%; border-radius: 50%; border: 1px solid #17212e; box-shadow: 0 1px 1px #f3f6fb38; }
+  .orbit-c { width: 125%; border: 1px solid #b7d4e51f; }
+  .orbit-c::after { content: ''; position: absolute; inset: -2%; border-radius: 50%; border: 2px solid transparent; border-top-color: #dfebf373; border-bottom-color: #8c9fac3d; rotate: -35deg; }
+  @keyframes identity-turn { to { rotate: 360deg; } }
 
-  .story-hero-inner {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 1rem;
-    width: 100%;
-  }
+  .visual-media { display: block; width: 100%; height: 100%; object-fit: cover; filter: saturate(1) contrast(1.03); }
+  .visual-grade { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(0deg, #090a0ced, transparent 40%), linear-gradient(100deg, #b3bac510, transparent 45%); }
+  .visual-slate { position: absolute; left: clamp(1rem, 2.5vw, 2.5rem); bottom: clamp(1.25rem, 2.5vw, 2.5rem); max-width: calc(100% - 2.5rem); color: #e4eefc; font: 500 .59rem/1.7 monospace; letter-spacing: .15em; text-transform: uppercase; font-variant-numeric: tabular-nums; padding-left: .9rem; border-left: 2px solid #d3dce8; }
+  .cold-open { position: relative; padding: clamp(1rem, 3vw, 3rem); border-bottom: 1px solid #d7e0ed2b; background: linear-gradient(90deg, #b4bbc610, #0006, #b4bbc610); }
+  .cold-frame { position: relative; height: clamp(16rem, 45vw, 42rem); overflow: hidden; background: var(--surface) url('/story/cold-open-poster.jpg') center / cover; border: 1px solid #dae3f064; box-shadow: 0 0 55px #b2b9c41b, inset 0 0 60px #000; }
+  .cold-frame::after { content: ''; position: absolute; inset: 10px; pointer-events: none; z-index: 1; border: 1px solid #dae3f029; }
+  .cold-frame.no-video video { display: none; }
+  .cold-frame .visual-slate { max-width: calc(100% - 6rem); }
+  .film-index, .chapter-frame-index { position: absolute; top: 1.4rem; left: 1.4rem; z-index: 1; background: #0a0c0ede; border: 1px solid #dde6f34d; color: #dce5f2; padding: .55rem .75rem; font: 500 .53rem/1.2 monospace; letter-spacing: .18em; }
+  .cold-toggle { position: absolute; right: clamp(1rem, 2.5vw, 2.5rem); bottom: clamp(1rem, 2.5vw, 2.5rem); z-index: 2; display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; border: 1px solid #dde6f386; border-radius: 12px; background: #13151adf; color: #e2ebf8; backdrop-filter: blur(8px); box-shadow: 0 0 22px #bac2cd1a; }
+  .cold-toggle:hover { border-color: #d5deeb; color: #d5deeb; }
+  .cold-toggle .ct-play { display: none; }
+  .cold-frame.is-paused .ct-pause { display: none; }
+  .cold-frame.is-paused .ct-play { display: block; }
 
-  .story-hero-title {
-    font-size: clamp(2.4rem, 7vw, 4.6rem);
-    line-height: 0.98;
-  }
-
-  .story-hero-sub {
-    color: var(--accent);
-    font-size: clamp(1rem, 2.4vw, 1.35rem);
-  }
-
-  .story-hero-hint {
-    margin-top: 1.4rem;
-    font-size: 0.62rem;
-    letter-spacing: 0.24em;
-    text-transform: uppercase;
-    color: var(--faint);
-  }
-
-  /* ---------- shared visual-frame treatment ----------
-     every photo/video wears the same film dressing: inner
-     letterbox, grain, green-tint grade, corner ticks, slate label */
-  .visual-media {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-    filter: saturate(0.82) contrast(1.06) brightness(0.9);
-    animation: kenburns 26s ease-in-out infinite alternate;
-  }
-
-  @keyframes kenburns {
-    from {
-      transform: scale(1.03) translate(0, 0);
-    }
-    to {
-      transform: scale(1.12) translate(-1.6%, 1.4%);
-    }
-  }
-
-  .visual-grade {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    background:
-      /* inner letterbox */
-      linear-gradient(to bottom, #000 0 5.5%, transparent 5.5% 94.5%, #000 94.5% 100%),
-      /* legibility shade behind the slate */
-      linear-gradient(to top, rgba(0, 0, 0, 0.55), transparent 30%),
-      /* faint green duotone — ties stock footage to the brand */
-      linear-gradient(160deg, rgba(34, 216, 97, 0.07), transparent 45%);
-  }
-
-  .visual-grade::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: repeating-linear-gradient(
-      0deg,
-      rgba(34, 216, 97, 0.02) 0 1px,
-      transparent 1px 5px
-    );
-    mix-blend-mode: screen;
-  }
-
-  .visual-slate {
-    position: absolute;
-    left: 1rem;
-    bottom: 1rem;
-    font-size: 0.55rem;
-    font-weight: 600;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: rgba(236, 233, 226, 0.72);
-    font-variant-numeric: tabular-nums;
-    pointer-events: none;
-  }
-
-  /* corner HUD ticks */
-  .chapter-visual::before,
-  .chapter-visual::after,
-  .cold-frame::before,
-  .cold-frame::after {
-    content: '';
-    position: absolute;
-    width: 16px;
-    height: 16px;
-    pointer-events: none;
-    z-index: 2;
-  }
-
-  .chapter-visual::before,
-  .cold-frame::before {
-    top: 0.7rem;
-    left: 0.7rem;
-    border-top: 1px solid rgba(236, 233, 226, 0.5);
-    border-left: 1px solid rgba(236, 233, 226, 0.5);
-  }
-
-  .chapter-visual::after {
-    bottom: 0.7rem;
-    right: 0.7rem;
-    border-bottom: 1px solid rgba(236, 233, 226, 0.5);
-    border-right: 1px solid rgba(236, 233, 226, 0.5);
-  }
-
-  /* cold frame's bottom-right is taken by the pause control */
-  .cold-frame::after {
-    top: 0.7rem;
-    right: 0.7rem;
-    border-top: 1px solid rgba(236, 233, 226, 0.5);
-    border-right: 1px solid rgba(236, 233, 226, 0.5);
-  }
-
-  /* ---------- cold open ---------- */
-  .cold-open {
-    padding-block: clamp(1.5rem, 4vh, 3rem) 0;
-    border-bottom: 1px solid var(--line);
-  }
-
-  .cold-frame {
-    position: relative;
-    height: min(56vh, calc(100vw / 2.35));
-    overflow: hidden;
-    background: #0d0d10;
-  }
-
-  .cold-toggle {
-    position: absolute;
-    right: 1rem;
-    bottom: 1rem;
-    z-index: 3;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 2.4rem;
-    height: 2.4rem;
-    border-radius: 50%;
-    border: 1px solid var(--line-strong);
-    background: rgba(10, 10, 12, 0.55);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    color: var(--muted);
-    cursor: pointer;
-    touch-action: manipulation;
-    transition: color 0.2s ease, border-color 0.2s ease;
-  }
-
-  .cold-toggle:hover {
-    color: var(--text);
-    border-color: rgba(255, 255, 255, 0.32);
-  }
-
-  .cold-toggle .ct-play {
-    display: none;
-  }
-
-  .cold-frame.is-paused .ct-pause {
-    display: none;
-  }
-
-  .cold-frame.is-paused .ct-play {
-    display: block;
-  }
-
-  .cold-frame.is-paused .visual-media,
-  .cold-frame.no-video .visual-media {
-    animation-play-state: paused;
-  }
-
-  .cold-frame.no-video video {
-    display: none;
-  }
-
-  /* ---------- chapters ---------- */
-  .chapters {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .chapter {
-    display: grid;
-    gap: 1.4rem;
-    padding-block: clamp(2.8rem, 8vh, 5rem);
-    border-bottom: 1px solid var(--line);
-    align-items: center;
-  }
-
-  .chapter:last-child {
-    border-bottom: none;
-  }
-
-  .chapter-num {
-    font-size: clamp(2rem, 6vw, 4.4rem);
-    font-weight: 800;
-    font-stretch: 125%;
-    line-height: 0.9;
-    color: rgba(34, 216, 97, 0.22);
-    user-select: none;
-    order: 1;
-  }
-
-  @supports (-webkit-text-stroke: 1px black) {
-    .chapter-num {
-      color: transparent;
-      -webkit-text-stroke: 1px rgba(34, 216, 97, 0.4);
-    }
-  }
-
-  .chapter-visual {
-    position: relative;
-    margin: 0;
-    aspect-ratio: 16 / 10;
-    border-radius: 14px;
-    overflow: hidden;
-    border: 1px solid var(--line);
-    background: #0d0d10;
-    order: 2;
-    will-change: transform;
-  }
-
-  .chapter-body {
-    max-width: 64ch;
-    order: 3;
-  }
-
-  .chapter-title {
-    font-size: clamp(1.5rem, 3.4vw, 2.3rem);
-    margin-bottom: 1.1rem;
-  }
-
-  .chapter-body p {
-    color: var(--muted);
-    line-height: 1.8;
-  }
-
-  .chapter-body p + p {
-    margin-top: 1.2rem;
-  }
-
-  /* iZad's own voice — the pull-line under the narration,
-     styled like a documentary transcript quote */
-  .chapter-quote {
-    margin-top: 1.4rem;
-    padding-left: 1.1rem;
-    border-left: 2px solid var(--accent);
-    font-size: clamp(1.02rem, 1.9vw, 1.22rem);
-    line-height: 1.5;
-    color: var(--text);
-    text-wrap: pretty;
-  }
-
-  .chapter-body p:first-of-type::first-letter {
-    font-family: var(--font-display);
-    font-stretch: 125%;
-    font-weight: 800;
-    font-size: 2.6em;
-    float: left;
-    line-height: 0.85;
-    padding-right: 0.6rem;
-    padding-top: 0.15rem;
-    color: var(--accent);
-  }
-
+  .chapters { position: relative; display: flex; flex-direction: column; }
+  .chapters::before { content: ''; position: absolute; top: 0; bottom: 0; left: calc(var(--gutter) + 1.45rem); width: 1px; background: linear-gradient(#bfc7d252, #dde6f332 85%, transparent); pointer-events: none; }
+  .chapter { position: relative; display: grid; gap: 2rem; padding-block: clamp(4rem, 8vw, 8rem); border-bottom: 1px solid #d4dce926; align-items: start; }
+  .chapter:last-child { border-bottom: none; }
+  .chapter-num { position: relative; z-index: 1; justify-self: start; padding: .35rem 0 .65rem; background: #090a0c; color: #d7e0ed; font-size: clamp(2.3rem, 5vw, 4.8rem); font-weight: 700; font-stretch: 112%; letter-spacing: -.09em; line-height: 1; text-shadow: 0 0 35px #bbc3ce40; }
+  .chapter-num::after { content: ''; position: absolute; top: 100%; left: 1.3rem; height: 5px; width: 5px; border-radius: 50%; background: #dce5f2; box-shadow: 0 0 18px #c0c8d3; }
+  .chapter-body { position: relative; min-width: 0; padding: 1.4rem 0 1.4rem 1.4rem; border-left: 1px solid #dce5f22d; background: linear-gradient(90deg, #0e1013e0, #0b0c0fd9 65%, #0b0c0f00); }
+  .chapter-body::before { content: ''; position: absolute; top: 0; left: -1px; width: 2px; height: 36px; background: #d8e1ee; box-shadow: 0 0 18px #b4bbc680; }
+  .chapter-title { margin-bottom: 1.6rem; font-size: clamp(2.2rem, 4.2vw, 4rem); font-stretch: 112%; letter-spacing: -.057em; line-height: .96; color: #e4eefc; text-shadow: 0 0 50px #c4cdd819; }
+  .narration { max-width: 54ch; color: #b8c0cb; font-size: 1rem; line-height: 1.85; }
+  .chapter-quote { max-width: 33ch; margin-top: 2rem; padding-top: 1.8rem; border-top: 1px solid #d4dce934; color: #d3dce8; font-size: clamp(1.5rem, 2.6vw, 2.1rem); line-height: 1.35; text-wrap: pretty; }
+  .chapter-visual { position: relative; margin: 0; aspect-ratio: 4 / 3; overflow: hidden; background: #101216; border: 1px solid #d5deeb54; border-radius: 18px; box-shadow: 0 20px 60px #0007, 8px 8px 0 -6px #08090b, 8px 8px 0 -5px #cdd6e24f, 0 0 50px #b7bfca12; }
+  .chapter-visual::before { content: ''; position: absolute; inset: 9px; z-index: 1; pointer-events: none; border: 1px solid #dde6f334; border-radius: 11px; }
+  .chapter-visual::after { content: ''; position: absolute; top: 0; left: -30%; width: 22%; height: 100%; background: linear-gradient(90deg, transparent, #d9e2ef19, transparent); pointer-events: none; transform: skewX(-12deg); animation: chapter-light 12s ease-in-out infinite; }
+  .chapter:nth-of-type(2n) .chapter-visual::after { animation-delay: -6s; }
+  .chapter-frame-index { top: 1.3rem; left: 1.3rem; }
+  @keyframes chapter-light { 0%, 35% { left: -30%; } 75%, 100% { left: 135%; } }
+  .story-finale { position: relative; isolation: isolate; overflow: hidden; padding-block: clamp(7rem, 17vw, 16rem); border-top: 1px solid #d7e0ed46; }
+  .finale-bg { position: absolute; inset: 0; z-index: -3; width: 100%; height: 100%; object-fit: cover; filter: saturate(.95); }
+  .story-finale::before { content: ''; position: absolute; inset: 0; z-index: -2; background: linear-gradient(0deg, #08090bf5, #08090bbd, #090a0cef), linear-gradient(120deg, #b5bdc823, transparent); }
+  .finale-halo { position: absolute; inset: 0; z-index: -1; pointer-events: none; }
+  .finale-halo i { position: absolute; left: 50%; top: 50%; translate: -50% -50%; width: min(75vw, 70rem); aspect-ratio: 1; border-radius: 50%; border: 1px solid #ccd5e130; box-shadow: 0 0 80px #b4bbc612, inset 0 0 80px #b4bbc612; }
+  .finale-halo i:nth-child(2) { width: min(83vw, 76rem); border-style: dashed; border-color: #d3dce830; animation: identity-turn 110s linear infinite; }
+  .story-finale-inner { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 3rem; }
+  .finale-quote { max-width: 26ch; color: #e5effd; font-size: clamp(2rem, 4.8vw, 4.5rem); line-height: 1.18; text-wrap: balance; text-shadow: 0 3px 30px #000; }
+  .finale-quote::before { content: ''; display: block; margin: 0 auto 2.5rem; width: 4rem; height: 2px; background: #d5deeb; box-shadow: 0 0 25px #b5bdc8; }
+  .finale-ctas { display: flex; flex-wrap: wrap; justify-content: center; gap: 1rem; }
+  .finale-ctas a { min-height: 48px; }
   @media (min-width: 860px) {
-    .chapter {
-      grid-template-columns: 6rem minmax(0, 5fr) minmax(0, 6fr);
-      gap: 2.5rem;
-    }
-
-    .chapter-num {
-      position: sticky;
-      top: 8rem;
-      align-self: start;
-      order: 1;
-    }
-
-    .chapter-body {
-      order: 2;
-    }
-
-    .chapter-visual {
-      order: 3;
-    }
-
-    /* alternating sides — even chapters flip text/visual */
-    .chapter:nth-of-type(even) .chapter-body {
-      order: 3;
-    }
-
-    .chapter:nth-of-type(even) .chapter-visual {
-      order: 2;
-    }
+    .story-hero-inner { grid-template-columns: 1.12fr 1fr; gap: 2rem; }
+    .story-projection :global(.holo-anchor) { min-height: 24rem; height: clamp(24rem, 50vh, 38rem); }
+    .chapter { grid-template-columns: 4rem minmax(0, .95fr) minmax(0, 1.1fr); gap: clamp(2rem, 4vw, 4rem); align-items: center; }
+    .chapter-num { align-self: start; }
+    .chapter-visual { aspect-ratio: .93; }
+    .chapter:nth-of-type(even) .chapter-body { grid-column: 3; grid-row: 1; }
+    .chapter:nth-of-type(even) .chapter-visual { grid-column: 2; grid-row: 1; }
+    .chapter:nth-of-type(3n + 1) { grid-template-columns: 4rem minmax(0, 1fr); }
+    .chapter:nth-of-type(3n + 1) .chapter-body { grid-column: 2; grid-row: 1; display: grid; grid-template-columns: 1fr 1fr; column-gap: 3rem; padding-right: 1rem; }
+    .chapter:nth-of-type(3n + 1) .chapter-title { grid-column: 1 / -1; }
+    .chapter:nth-of-type(3n + 1) .chapter-quote { margin-top: 0; padding-top: 0; border-top: none; }
+    .chapter:nth-of-type(3n + 1) .chapter-visual { grid-column: 1 / -1; grid-row: 2; margin: 1.5rem 0 0 6rem; aspect-ratio: 2.1; }
   }
-
-  /* ---------- finale ---------- */
-  .story-finale {
-    position: relative;
-    overflow: hidden;
-    padding-block: clamp(4rem, 12vh, 8rem);
-    border-top: 1px solid var(--line);
-    background: linear-gradient(180deg, transparent, rgba(34, 216, 97, 0.04));
+  @media (max-width: 859px) {
+    .story-hero { min-height: auto; padding-bottom: 4rem; }
+    .story-hero-inner { gap: 3.5rem; }
+    .story-projection { padding-top: 1rem; }
+    .story-architecture span { right: 1rem; top: 7rem; opacity: .65; }
+    .chapter-num { margin-bottom: -.5rem; font-size: 3.5rem; }
+    .chapter-visual { margin-top: 1rem; }
+    .chapter-body { background: #0c0d10eb; }
+    .chapters::before { opacity: .5; }
+    .finale-halo i { width: 105vw; }
+    .finale-halo i:nth-child(2) { width: 120vw; }
   }
-
-  .finale-bg {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    opacity: 0.14;
-    filter: saturate(0.7) brightness(0.7);
-    pointer-events: none;
+  @media (max-width: 399px) {
+    .story-hero-title { font-size: 3rem; }
+    .chapter-title { font-size: 2rem; }
+    .film-index, .chapter-frame-index { left: 1rem; top: 1rem; font-size: .5rem; }
+    .visual-slate { font-size: .52rem; }
   }
-
-  .story-finale-inner {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    gap: 2.4rem;
-  }
-
-  .finale-quote {
-    max-width: 24ch;
-    font-size: clamp(1.5rem, 4.4vw, 2.6rem);
-    line-height: 1.3;
-    color: var(--text);
-    text-wrap: balance;
-  }
-
-  .finale-ctas {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 0.9rem;
-  }
-
+  :global(html[data-motion-paused='true']) .identity-orbit,
+  :global(html[data-motion-paused='true']) .chapter-visual::after,
+  :global(html[data-motion-paused='true']) .finale-halo i { animation-play-state: paused; }
   @media (prefers-reduced-motion: reduce) {
-    .visual-media {
-      animation: none;
-    }
+    .identity-orbit, .chapter-visual::after, .finale-halo i { animation: none; }
   }
 </style>

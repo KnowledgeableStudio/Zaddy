@@ -9,13 +9,14 @@
   role="dialog"
   aria-modal="true"
   aria-label="Image viewer"
+  aria-describedby="viewer-caption"
   hidden
 >
   <div class="viewer-backdrop" data-viewer-close></div>
 
   <figure class="viewer-shell">
     <img id="viewer-img" src="" alt="" draggable="false" />
-    <figcaption id="viewer-caption" class="viewer-caption"></figcaption>
+    <figcaption id="viewer-caption" class="viewer-caption" aria-live="polite"></figcaption>
   </figure>
 
   <button class="btn btn-icon viewer-nav viewer-prev" type="button" data-viewer-prev aria-label="Previous image">
@@ -39,122 +40,43 @@
 </div>
 
 <style>
-  .viewer {
-    position: fixed;
-    inset: 0;
-    z-index: 140;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: clamp(1rem, 4vw, 3rem);
+  .viewer { position: fixed; inset: 0; z-index: 140; display: flex; align-items: center; justify-content: center; padding: 5rem 6rem; color: #f1f4f7; overflow: auto; overscroll-behavior: contain; }
+  .viewer[hidden] { display: none !important; }
+  .viewer-backdrop { position: fixed; inset: 0; background: #060b12f5; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); opacity: 0; transition: opacity .25s ease; }
+  .viewer.show .viewer-backdrop { opacity: 1; }
+  .viewer-shell { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 1.3rem; width: fit-content; max-width: min(78rem, 100%); margin: 0; opacity: 0; transform: translateY(12px) scale(.985); transition: opacity .25s var(--ease-out), transform .25s var(--ease-out); }
+  .viewer.show .viewer-shell { opacity: 1; transform: none; }
+  .viewer-shell img { display: block; width: auto; height: auto; max-width: 100%; max-height: calc(100dvh - 14rem); object-fit: contain; border-radius: 6px; border: 1px solid #dce8f32a; background: #141c26; box-shadow: 0 25px 70px #0008; touch-action: pan-y; cursor: grab; }
+  .viewer-shell img:active { cursor: grabbing; }
+  .viewer-caption { max-width: 48ch; font-family: var(--font-body); font-weight: 550; font-size: clamp(.9rem, 1.3vw, 1.1rem); line-height: 1.5; text-align: center; letter-spacing: 0; color: #e3ebf1; }
+  .viewer-nav, .viewer-close { position: fixed; z-index: 2; display: grid; place-items: center; min-width: 48px; min-height: 48px; width: 48px; height: 48px; padding: 0; border: 1px solid #ffffff2a; border-radius: 7px; clip-path: none; background: #1c2733; color: #edf2f6; box-shadow: none; }
+  .viewer-nav:hover, .viewer-close:hover { background: #2c3a49; border-color: #c4d6e452; box-shadow: none; }
+  .viewer-nav:focus-visible, .viewer-close:focus-visible { outline: 2px solid #b7d4e5; outline-offset: 4px; }
+  .viewer-close { top: max(1.4rem, env(safe-area-inset-top)); right: 1.5rem; }
+  .viewer-nav { top: 50%; transform: translateY(-50%); }
+  .viewer-nav:hover { transform: translateY(-50%); }
+  .viewer-close:hover { transform: none; }
+  .viewer-prev { left: 1.5rem; }
+  .viewer-next { right: 1.5rem; }
+  .viewer-count { position: fixed; z-index: 2; bottom: max(1.75rem, env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%); font-size: .8rem; font-weight: 550; letter-spacing: .06em; color: #b6c4d1; font-variant-numeric: tabular-nums; }
+  @media (max-width: 720px) {
+    .viewer { padding: 5rem 1rem 7rem; }
+    .viewer-shell { gap: 1rem; }
+    .viewer-shell img { max-height: calc(100dvh - 15rem); }
+    .viewer-caption { font-size: .86rem; }
+    .viewer-close { right: 1rem; top: max(1rem, env(safe-area-inset-top)); }
+    .viewer-nav { top: auto; bottom: max(1.25rem, env(safe-area-inset-bottom)); transform: none; }
+    .viewer-nav:hover { transform: none; }
+    .viewer-prev { left: 1rem; }
+    .viewer-next { right: 1rem; }
+    .viewer-count { bottom: max(2.15rem, calc(env(safe-area-inset-bottom) + .9rem)); }
   }
-
-  .viewer-backdrop {
-    position: absolute;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.86);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    opacity: 0;
-    transition: opacity 0.3s ease;
+  @media (max-height: 500px) and (min-width: 721px) {
+    .viewer { padding-block: 2rem; }
+    .viewer-shell { gap: .5rem; }
+    .viewer-shell img { max-height: calc(100dvh - 7rem); }
+    .viewer-caption { font-size: .8rem; }
+    .viewer-count { bottom: .75rem; }
   }
-
-  .viewer.show .viewer-backdrop {
-    opacity: 1;
-  }
-
-  .viewer-shell {
-    position: relative;
-    z-index: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.8rem;
-    max-width: min(64rem, 92vw);
-    margin: 0;
-    overscroll-behavior: contain;
-    opacity: 0;
-    transform: translateY(18px) scale(0.97);
-    transition:
-      opacity 0.3s var(--ease-out),
-      transform 0.3s var(--ease-out);
-  }
-
-  .viewer.show .viewer-shell {
-    opacity: 1;
-    transform: none;
-  }
-
-  .viewer-shell img {
-    max-width: 100%;
-    max-height: 76svh;
-    object-fit: contain;
-    border-radius: 14px;
-    border: 1px solid var(--line-strong);
-    background: rgba(0, 0, 0, 0.4);
-    box-shadow: 0 40px 120px rgba(0, 0, 0, 0.7);
-    touch-action: pan-y; /* horizontal swipes are ours — vertical stays native */
-    cursor: grab;
-  }
-
-  .viewer-shell img:active {
-    cursor: grabbing;
-  }
-
-  .viewer-caption {
-    font-family: var(--font-display);
-    font-stretch: 118%;
-    font-weight: 800;
-    font-size: 0.78rem;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-  }
-
-  .viewer-nav,
-  .viewer-close {
-    position: absolute;
-    z-index: 2;
-    background: rgba(10, 10, 12, 0.6);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-  }
-
-  .viewer-close {
-    top: 1rem;
-    right: 1rem;
-  }
-
-  .viewer-nav {
-    top: 50%;
-    transform: translateY(-50%);
-    width: 2.9rem;
-    height: 2.9rem;
-  }
-
-  .viewer-prev {
-    left: 1rem;
-  }
-
-  .viewer-next {
-    right: 1rem;
-  }
-
-  .viewer-count {
-    position: absolute;
-    bottom: 1.15rem;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 0.66rem;
-    font-weight: 700;
-    letter-spacing: 0.18em;
-    color: var(--muted);
-    font-variant-numeric: tabular-nums;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .viewer-backdrop,
-    .viewer-shell {
-      transition: none;
-    }
-  }
+  @media (prefers-reduced-motion: reduce) { .viewer-backdrop, .viewer-shell { transition: none; transform: none; } }
 </style>

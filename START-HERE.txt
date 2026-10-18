@@ -1,0 +1,40 @@
+ZADDY COLLECTION — iZad Casanova
+COMPLETE WEBSITE PROJECT
+
+This archive contains the latest redesigned website source, original artwork,
+hologram models, music, videos, build configuration, dependency lockfile,
+tests, design notes, and the generated production website in dist/.
+
+RUN LOCALLY
+1. Extract the entire ZIP.
+2. Open a terminal in the Zaddy-Collection folder containing package.json.
+3. Install dependencies:
+   npm ci
+4. Start the development server:
+   npm run dev
+5. Open the local URL printed in the terminal.
+
+The included Astro dependency requires Node.js 22.12.0 or newer and npm 9.6.5
+or newer. Dependencies are installed locally with npm ci; this archive does
+not include node_modules, development caches, or Git history.
+
+OTHER COMMANDS
+npm run build     Rebuild the production website in dist/.
+npm run preview   Preview the production build locally.
+npm test          Run the catalog rendering checks after building.
+
+WHERE TO EDIT
+src/pages/        Home, story, and 404 routes.
+src/components/   Navigation, store, cart, music, hologram, and page sections.
+src/styles/       Shared styling and cinematic design.
+src/scripts/      Shopping, interaction, audio, motion, and 3D behavior.
+src/data/site.js  Existing product, release, and platform information.
+src/assets/       Original artwork and product images.
+public/           Original videos, music, hologram, icons, and domain files.
+docs/             Redesign notes and visual previews.
+dist/             Included production build; regenerate after source edits.
+
+See docs/redesign-notes.md for the current redesign and verification notes.
+The original README is included for existing project and hosting context.
+
+Export source revision: df74e4c0d2a82bc5a2c8369cf5f9e61a6c93d2eb

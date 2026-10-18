@@ -1,0 +1,42 @@
+<div id="matrix-world" class="matrix-world" aria-hidden="true" transition:persist="matrix-world">
+  <div class="matrix-aura matrix-aura--left" data-ambient></div>
+  <div class="matrix-aura matrix-aura--right" data-ambient></div>
+  <div class="studio-floor"></div>
+  <canvas id="matrix-code" class="matrix-code"></canvas>
+  <canvas id="matrix-geometry" class="matrix-geometry"></canvas>
+  <div class="matrix-world-vignette"></div>
+</div>
+<button id="motion-toggle" class="motion-toggle" type="button" aria-label="Pause ambient motion" aria-pressed="true" hidden transition:persist="motion-toggle">
+  <span class="motion-indicator" aria-hidden="true"><i></i><i></i></span>
+  <span class="motion-label">Motion on</span>
+</button>
+
+<script>
+  import '../scripts/matrix-world.js';
+</script>
+
+<style>
+  .matrix-world { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; contain: strict; background: #070a0e; isolation: isolate; }
+  .matrix-world canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .matrix-code { opacity: .15; mask-image: linear-gradient(90deg, #0009 0%, #0003 15%, transparent 30%, transparent 73%, #0003 88%, #0008 100%); }
+  .matrix-geometry { opacity: .96; }
+  .matrix-aura { position: absolute; width: min(70vw, 62rem); height: min(100vw, 80rem); border-radius: 50%; filter: blur(55px); opacity: .6; animation: matrix-aura-drift 25s ease-in-out infinite alternate; }
+  .matrix-aura--left { top: -48%; left: -36%; background: radial-gradient(ellipse, #cdddeb21 0%, #becddd08 39%, transparent 68%); }
+  .matrix-aura--right { right: -34%; bottom: -40%; background: radial-gradient(ellipse, #e5edf321 0%, #8496ae09 41%, transparent 68%); animation-delay: -12s; }
+  .matrix-world-vignette { position: absolute; inset: 0; background: linear-gradient(90deg, #070a0e00, #070a0e24 22%, #070a0e73 44%, #070a0e29 72%, #070a0e00), linear-gradient(0deg, #070a0e3d, transparent 28%, transparent 78%, #070a0e28); }
+  .studio-floor { position: absolute; inset: 57% -20% -20%; background: radial-gradient(ellipse at 50% 45%, #9fb4c511, #171f2910 43%, transparent 70%); }
+  .motion-toggle { position: fixed; left: max(var(--gutter), env(safe-area-inset-left)); bottom: max(5.2rem, calc(env(safe-area-inset-bottom) + 4rem)); z-index: 80; display: inline-flex; align-items: center; gap: .7rem; min-height: 44px; padding: .65rem .9rem; border: 1px solid #cedde53b; border-radius: 3px; background: linear-gradient(145deg, #222a33eb, #090d13f5); box-shadow: 0 5px 20px #0004, inset 0 1px 0 #e4edf317; color: #dce6ed; font: 500 .63rem/1.2 var(--font-body); letter-spacing: .11em; text-transform: uppercase; backdrop-filter: blur(12px); transition: color .2s, border-color .2s; }
+  .motion-toggle:hover { color: #fff; border-color: #d5e6efb3; }
+  .motion-toggle:disabled { cursor: default; opacity: .8; }
+  .motion-indicator { display: flex; align-items: center; justify-content: center; gap: 3px; width: 14px; height: 16px; }
+  .motion-indicator i { display: block; width: 3px; height: 12px; background: #e0ebf2; }
+  .motion-toggle[aria-pressed='false'] .motion-indicator i:first-child { width: 0; height: 0; border-block: 6px solid transparent; border-left: 8px solid #b7c4ce; background: none; box-shadow: none; }
+  .motion-toggle[aria-pressed='false'] .motion-indicator i:last-child { display: none; }
+  @keyframes matrix-aura-drift { to { transform: translate3d(10%, 12%, 0) scale(1.12); } }
+  @media (max-width: 700px) { .matrix-code { opacity: .1; } .matrix-geometry { opacity: .78; } .matrix-world-vignette { background: linear-gradient(90deg, transparent, #070a0e55 45%, transparent); } .matrix-aura { filter: blur(30px); } .motion-toggle { font-size: .58rem; min-height: 44px; padding-inline: .75rem; } }
+  @media (max-width: 700px) {
+    .motion-toggle { bottom: max(1.25rem, env(safe-area-inset-bottom)); width: 44px; height: 44px; padding: 0; justify-content: center; }
+    .motion-label { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) { .matrix-world [data-ambient] { animation: none; } }
+</style>

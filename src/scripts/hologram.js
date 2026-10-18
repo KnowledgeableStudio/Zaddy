@@ -5,30 +5,69 @@
    at the anchor element's screen position — nothing is boxed in.
    ============================================================ */
 
-const anchor = document.getElementById('holo-anchor');
-const story = document.getElementById('story');
+let hologramTeardown = null;
 
-if (anchor && story) {
-  const io = new IntersectionObserver(
-    (entries) => {
-      if (entries[0].isIntersecting) {
-        io.disconnect();
-        initHologram();
-      }
-    },
-    { rootMargin: '250px' }
-  );
-  io.observe(anchor);
+// The hologram lives on the story page only. Client-side navigation swaps the
+// DOM without re-running this module, so init is bound to astro:page-load and
+// fully disposed before each swap — otherwise the WebGL context and render
+// loop would leak into the next page.
+function initHologramPage() {
+  const anchor = document.getElementById('holo-anchor');
+  const story = document.getElementById('story');
+  if (!anchor || !story) return null;
+
+  const lifecycle = new AbortController();
+  const { signal } = lifecycle;
+  let requested = false;
+  let nearViewport = false;
+  let lazyObserver;
+
+  function requestHologram() {
+    if (requested || !nearViewport || document.hidden || signal.aborted) return;
+    requested = true;
+    lazyObserver?.disconnect();
+    initHologram(anchor, story, signal).catch((error) => {
+      if (signal.aborted) return;
+      console.error('Hologram initialization failed:', error);
+      const loading = document.getElementById('holo-loading');
+      if (loading) loading.textContent = 'Hologram unavailable';
+    });
+  }
+  if ('IntersectionObserver' in window) {
+    lazyObserver = new IntersectionObserver(([entry]) => {
+      nearViewport = entry.isIntersecting;
+      requestHologram();
+    }, { rootMargin: '250px' });
+    lazyObserver.observe(anchor);
+  } else {
+    nearViewport = true;
+    requestHologram();
+  }
+  document.addEventListener('visibilitychange', requestHologram, { signal });
+  window.addEventListener('pagehide', (event) => {
+    if (!event.persisted) {
+      lazyObserver?.disconnect();
+      lifecycle.abort();
+    }
+  }, { signal });
+
+  return () => {
+    lazyObserver?.disconnect();
+    lifecycle.abort();
+  };
 }
 
-async function initHologram() {
+async function initHologram(anchor, story, signal) {
   const [THREE, { GLTFLoader }, { MeshoptDecoder }] = await Promise.all([
     import('three'),
     import('three/examples/jsm/loaders/GLTFLoader.js'),
     import('three/examples/jsm/libs/meshopt_decoder.module.js'),
   ]);
 
-  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (signal.aborted) return;
+  const motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
+  let reduced = motionPreference.matches;
+  let disposed = false;
   const ACCENT = new THREE.Color('#22d861');
 
   let renderer;
@@ -44,7 +83,7 @@ async function initHologram() {
 
   // Canvas becomes the section's background layer — invisible bounds
   renderer.domElement.style.cssText =
-    'position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;';
+    'position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:none;';
   story.appendChild(renderer.domElement);
 
   const scene = new THREE.Scene();
@@ -514,8 +553,10 @@ async function initHologram() {
     if (!running) renderOnce();
   }
 
-  new ResizeObserver(relayout).observe(story);
-  window.addEventListener('resize', relayout);
+  const resizeObserver = new ResizeObserver(relayout);
+  resizeObserver.observe(story);
+  resizeObserver.observe(anchor);
+  window.addEventListener('resize', relayout, { signal });
 
   /* ---------------- model ---------------- */
   const loader = new GLTFLoader();
@@ -524,11 +565,28 @@ async function initHologram() {
   let model = null;
   let modelBaseY = 0; // rest height — idle float is added on top
   let spawnStart = -1;
-  const clock = new THREE.Clock(false);
+  let elapsed = 0;
+  let lastFrame = null;
+  let raf = 0;
+  let running = false;
+  let pageActive = true;
+  const initialBounds = anchor.getBoundingClientRect();
+  let inView = initialBounds.bottom > 0 && initialBounds.top < window.innerHeight;
+  const canRender = () => !disposed && pageActive && inView && !document.hidden && !!model;
+  const ambientPaused = () => reduced || document.documentElement.dataset.motionPaused === 'true';
+  const canAnimate = () => canRender() && !ambientPaused();
 
   loader.load(
     '/models/izad-hologram.glb',
     (gltf) => {
+      if (disposed || signal.aborted) {
+        gltf.scene.traverse((object) => {
+          object.geometry?.dispose();
+          const materials = Array.isArray(object.material) ? object.material : [object.material];
+          materials.forEach((material) => material?.dispose());
+        });
+        return;
+      }
       model = gltf.scene;
 
       const box = new THREE.Box3().setFromObject(model);
@@ -552,32 +610,12 @@ async function initHologram() {
       document.getElementById('holo-loading')?.classList.add('done');
       relayout();
 
-      if (reduced) {
-        shared.uSpawn.value = 1;
-        shared.uBeam.value = 1;
-        codeUniforms.uCode.value = 0.25;
-        lensRing.material.opacity = 0.5;
-        lens.material.opacity = 0.9;
-        lensGlow.material.opacity = 0.7;
-        lensLight.intensity = 8;
-        renderOnce();
-        // rig still tracks the sticky anchor on scroll
-        window.addEventListener(
-          'scroll',
-          () => {
-            positionRig();
-            renderOnce();
-          },
-          { passive: true }
-        );
-      } else {
-        clock.start();
-        spawnStart = 0.35;
-        loop();
-      }
+      spawnStart = 0.35;
+      syncPlayback();
     },
     undefined,
     (err) => {
+      if (disposed || signal.aborted) return;
       console.error('Hologram failed to load:', err);
       const el = document.getElementById('holo-loading');
       if (el) el.textContent = 'Hologram unavailable';
@@ -585,6 +623,10 @@ async function initHologram() {
   );
 
   function renderOnce() {
+    if (!canRender()) return;
+    // A static frame must apply input too: reduced motion still supports
+    // dragging and keyboard rotation, and tracks the sticky anchor.
+    positionRig();
     renderer.render(scene, camera);
   }
 
@@ -607,6 +649,7 @@ async function initHologram() {
   }
 
   story.addEventListener('pointerdown', (e) => {
+    if (!model || !canRender() || e.button !== 0) return;
     if (e.target.closest('a, button, input, select, textarea, .holo-caption')) return;
     const rp = rigScreenPos();
     const dx = e.clientX - rp.x;
@@ -616,7 +659,7 @@ async function initHologram() {
       lastX = e.clientX;
       story.setPointerCapture(e.pointerId);
     }
-  });
+  }, { signal });
 
   story.addEventListener('pointermove', (e) => {
     if (dragging) {
@@ -624,13 +667,14 @@ async function initHologram() {
       lastX = e.clientX;
       userYaw += dx * 0.009;
       manualVel = dx * 0.009;
-      if (reduced) renderOnce();
+      if (!running) renderOnce();
     }
-  });
+  }, { signal });
 
   const endDrag = () => (dragging = false);
-  story.addEventListener('pointerup', endDrag);
-  story.addEventListener('pointercancel', endDrag);
+  story.addEventListener('pointerup', endDrag, { signal });
+  story.addEventListener('pointercancel', endDrag, { signal });
+  story.addEventListener('lostpointercapture', endDrag, { signal });
 
   // Keyboard alternative — arrow keys rotate the figure
   anchor.tabIndex = 0;
@@ -638,8 +682,8 @@ async function initHologram() {
     if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
     e.preventDefault();
     userYaw += e.key === 'ArrowLeft' ? -0.18 : 0.18;
-    if (reduced) renderOnce();
-  });
+    if (!running) renderOnce();
+  }, { signal });
 
   /* ============================================================
      Spawn timeline
@@ -671,13 +715,52 @@ async function initHologram() {
   /* ============================================================
      Render loop — paused when section is offscreen
      ============================================================ */
-  let raf = 0;
-  let running = false;
+  function stopLoop() {
+    running = false;
+    cancelAnimationFrame(raf);
+    raf = 0;
+    lastFrame = null;
+  }
 
-  function loop() {
-    running = true;
-    const dt = clock.getDelta();
-    const t = clock.elapsedTime;
+  function staticPose() {
+    spawned = true;
+    shared.uSpawn.value = 1;
+    shared.uBeam.value = 1;
+    codeUniforms.uCode.value = 0.25;
+    lensRing.material.opacity = 0.5;
+    lens.material.opacity = 0.9;
+    lensGlow.material.opacity = 0.7;
+    lensLight.intensity = 8;
+    manualVel = 0;
+    if (model) {
+      model.position.y = modelBaseY;
+      model.rotation.x = 0;
+      model.rotation.z = 0;
+    }
+  }
+
+  function syncPlayback() {
+    if (!canAnimate()) {
+      stopLoop();
+      if (ambientPaused() && model) staticPose();
+      renderOnce();
+      return;
+    }
+    if (!running) {
+      running = true;
+      lastFrame = null;
+      raf = requestAnimationFrame(loop);
+    }
+  }
+
+  function loop(timestamp) {
+    if (!canAnimate()) return stopLoop();
+    // Accumulate only rendered time. Hidden/offscreen intervals must never
+    // advance the spawn timeline, angular motion, or shader clock.
+    const dt = lastFrame === null ? 0 : Math.min((timestamp - lastFrame) / 1000, 0.05);
+    lastFrame = timestamp;
+    elapsed += dt;
+    const t = elapsed;
     shared.uTime.value = t;
     positionRig();
     driveSpawn(t);
@@ -687,7 +770,7 @@ async function initHologram() {
     }
     rig.rotation.y = userYaw;
 
-    // alive idle — hover bob, micro-lean, breathing lens + beam
+    // Original avatar float and projector geometry are unchanged.
     if (spawned && model) {
       model.position.y = modelBaseY + Math.sin(t * 0.85) * 0.04;
       model.rotation.z = Math.sin(t * 0.6) * 0.018;
@@ -699,13 +782,70 @@ async function initHologram() {
     raf = requestAnimationFrame(loop);
   }
 
-  new IntersectionObserver((entries) => {
-    const visible = entries[0].isIntersecting;
-    if (reduced || !model) return;
-    if (visible && !running) loop();
-    else if (!visible && running) {
-      running = false;
-      cancelAnimationFrame(raf);
-    }
-  }).observe(anchor);
+  let viewObserver;
+  if ('IntersectionObserver' in window) {
+    viewObserver = new IntersectionObserver(([entry]) => {
+      inView = entry.isIntersecting;
+      syncPlayback();
+    });
+    viewObserver.observe(anchor);
+  } else {
+    inView = true;
+  }
+  motionPreference.addEventListener('change', () => {
+    reduced = motionPreference.matches;
+    syncPlayback();
+  }, { signal });
+  document.addEventListener('visibilitychange', syncPlayback, { signal });
+  document.addEventListener('zaddy:motionchange', syncPlayback, { signal });
+  window.addEventListener('scroll', () => {
+    if (!running && canRender()) renderOnce();
+  }, { passive: true, signal });
+  window.addEventListener('pagehide', () => {
+    pageActive = false;
+    stopLoop();
+  }, { signal });
+  window.addEventListener('pageshow', () => {
+    pageActive = true;
+    relayout();
+    syncPlayback();
+  }, { signal });
+  signal.addEventListener('abort', () => {
+    disposed = true;
+    stopLoop();
+    viewObserver?.disconnect();
+    resizeObserver.disconnect();
+    const geometries = new Set();
+    const materials = new Set();
+    const textures = new Set();
+    scene.traverse((object) => {
+      if (object.geometry) geometries.add(object.geometry);
+      const list = Array.isArray(object.material) ? object.material : [object.material];
+      list.forEach((material) => {
+        if (!material) return;
+        materials.add(material);
+        if (material.map) textures.add(material.map);
+        Object.values(material.uniforms || {}).forEach(({ value }) => {
+          if (value?.isTexture) textures.add(value);
+        });
+      });
+    });
+    geometries.forEach((geometry) => geometry.dispose());
+    materials.forEach((material) => material.dispose());
+    textures.forEach((texture) => texture.dispose());
+    renderer.dispose();
+    renderer.domElement.remove();
+  }, { once: true });
 }
+
+function bootHologram() {
+  hologramTeardown?.();
+  hologramTeardown = initHologramPage();
+}
+
+bootHologram();
+document.addEventListener('astro:page-load', bootHologram);
+document.addEventListener('astro:before-swap', () => {
+  hologramTeardown?.();
+  hologramTeardown = null;
+});

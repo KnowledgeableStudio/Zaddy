@@ -10,8 +10,8 @@ import zaddyWordmark from '../assets/zaddy-wordmark.png';
         src={zaddyWordmark}
         alt="Zaddy Collection"
         class="brand-logo"
-        widths={[160, 240]}
-        height={26}
+        widths={[240, 400]}
+        height={40}
         loading="eager"
         decoding="async"
       />
@@ -25,18 +25,18 @@ import zaddyWordmark from '../assets/zaddy-wordmark.png';
     </nav>
 
     <div class="nav-actions">
-      <button class="btn btn-primary btn-sm" id="cart-open" type="button" aria-label="Open cart">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M6 6h15l-1.5 9h-13z" />
-          <path d="M6 6l-2-3H2" />
-          <path d="M9 21a1 1 0 100-2 1 1 0 000 2zM18 21a1 1 0 100-2 1 1 0 000 2z" />
+      <div id="nav-experience" class="nav-experience" aria-label="Experience controls"></div>
+      <button class="btn btn-sm cart-open" id="cart-open" type="button" aria-label="Open cart">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M5 8h14l1 13H4L5 8Z" />
+          <path d="M8 8V6a4 4 0 0 1 8 0v2" />
         </svg>
         <span class="cart-label">Cart</span>
         <span id="cart-count" class="cart-count" aria-hidden="true">0</span>
       </button>
 
       <button class="btn btn-sm btn-icon" id="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-menu">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true">
           <path d="M4 7h16M4 12h16M4 17h16" />
         </svg>
       </button>
@@ -52,245 +52,60 @@ import zaddyWordmark from '../assets/zaddy-wordmark.png';
       <a href="/#store">Store</a>
       <a href="/#contact">Contact</a>
     </nav>
+    <div id="mobile-experience" class="mobile-experience" aria-label="Experience controls"></div>
   </div>
 </header>
 
 <style>
-  #site-nav {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 100;
-    transition: background-color 0.35s ease, backdrop-filter 0.35s ease, border-color 0.35s ease;
-    border-bottom: 1px solid transparent;
+  #site-nav { position: fixed; top: 18px; left: 50%; width: min(calc(100% - 40px), 1380px); transform: translateX(-50%); z-index: 100; border: 1px solid #d5e3f02b; border-radius: 11px; background: linear-gradient(160deg, #222b36cc, #11161ecc 42%, #090e15e8); box-shadow: inset 0 1px 0 #ffffff0b, 0 12px 40px #0004; backdrop-filter: blur(24px) saturate(.6); transition: background .3s, border-color .3s, box-shadow .3s; }
+  #site-nav::before { content: ''; position: absolute; left: 10%; right: 10%; top: -1px; height: 1px; background: linear-gradient(90deg, transparent, #f1f6ff7a, transparent); pointer-events: none; }
+  #site-nav.scrolled { background: linear-gradient(135deg, #1b232ded, #0b1017f2); border-color: #d5e3f034; box-shadow: inset 0 1px 0 #ffffff08, 0 14px 36px #0006; }
+  .nav-inner { display: flex; align-items: center; justify-content: space-between; gap: 2rem; min-height: 76px; padding-inline: clamp(1.1rem, 2.3vw, 2.2rem); transition: min-height .3s var(--ease-out); }
+  #site-nav.scrolled .nav-inner { min-height: 68px; }
+  .brand { display: flex; align-items: center; min-height: 48px; flex-shrink: 0; position: relative; }
+  .brand-logo { width: auto; height: 35px; max-width: 200px; object-fit: contain; filter: drop-shadow(0 3px 8px #0008); }
+  .nav-links { display: flex; align-items: center; gap: .4rem; }
+  .nav-links a { position: relative; display: flex; align-items: center; justify-content: center; min-height: 44px; padding: .65rem clamp(.8rem, 1.6vw, 1.4rem); font: 500 .71rem var(--font-body); letter-spacing: .12em; text-transform: uppercase; color: #b6c0cc; transition: color .2s; }
+  .nav-links a::after { content: ''; position: absolute; bottom: 3px; left: 35%; right: 35%; height: 1px; background: #e7eef5; transform: scaleX(0); transform-origin: center; transition: transform .3s var(--ease-out); }
+  .nav-links a:hover, .nav-links a.active { color: #fff; }
+  .nav-links a:hover::after, .nav-links a.active::after { transform: scaleX(1); }
+  .nav-actions { display: flex; align-items: center; gap: .6rem; }
+  #nav-experience { display: flex; align-items: center; gap: .5rem; }
+  #nav-experience :global(.motion-toggle), #nav-experience :global(.music-toggle),
+  #mobile-experience :global(.motion-toggle), #mobile-experience :global(.music-toggle) { position: static; inset: auto; min-width: 44px; min-height: 44px; height: 44px; border-radius: 6px; border-color: #d7e6f124; background: #ffffff04; box-shadow: inset 0 1px 0 #ffffff04; backdrop-filter: none; }
+  #nav-experience :global(.motion-toggle), #nav-experience :global(.music-toggle) { width: 44px; padding: 0; justify-content: center; }
+  #nav-experience :global(.motion-label), #nav-experience :global(.mt-on), #nav-experience :global(.mt-off) { display: none; }
+  #mobile-experience { display: flex; align-items: stretch; gap: .65rem; padding-top: .8rem; margin-top: .25rem; border-top: 1px solid #d6e5f11c; }
+  #mobile-experience :global(.motion-toggle), #mobile-experience :global(.music-toggle) { flex: 1; width: auto; padding: .65rem .8rem; justify-content: center; gap: .65rem; font-size: .63rem; }
+  #mobile-experience :global(.motion-label), #mobile-experience :global(.music-toggle .mt-off), #mobile-experience :global(.music-toggle.is-on .mt-on) { display: inline; }
+  #mobile-experience :global(.music-toggle .mt-on), #mobile-experience :global(.music-toggle.is-on .mt-off) { display: none; }
+  .cart-open { min-height: 44px; background: #ffffff05; border-color: #d7e6f124; gap: .65rem; padding-inline: .9rem; box-shadow: inset 0 1px 0 #ffffff06; }
+  .cart-open:hover { background: #ffffff0d; }
+  .cart-open svg { width: 18px; height: 18px; color: #e2eaf3; }
+  .cart-label { font: 500 .74rem var(--font-body); letter-spacing: .025em; }
+  .cart-count { display: grid; place-items: center; min-width: 1.2rem; height: 1.2rem; padding-inline: .25rem; background: #dce4ee; color: #11161e; border-radius: 50%; font: 600 .61rem var(--font-body); font-variant-numeric: tabular-nums; }
+  #menu-toggle { display: none; min-width: 44px; width: 44px; min-height: 44px; height: 44px; background: #ffffff04; border-color: #d7e6f124; }
+  .scroll-progress { position: absolute; left: 10px; right: 10px; bottom: -1px; height: 1px; background: linear-gradient(90deg, #a8bfd5, #f2f6fb); transform-origin: left; transform: scaleX(0); }
+  .mobile-menu { position: absolute; top: calc(100% + 8px); inset-inline: 0; border: 1px solid #d5e3f02b; border-radius: 10px; background: linear-gradient(135deg, #1d2631fc, #0c1119fc); box-shadow: inset 0 1px 0 #ffffff08, 0 24px 50px #0007; padding: .6rem 1.25rem 1rem; animation: menu-in .3s var(--ease-out) both; }
+  .mobile-menu nav { display: flex; flex-direction: column; }
+  .mobile-menu a { display: flex; align-items: center; min-height: 64px; border-bottom: 1px solid #d6e5f117; font: 600 1.6rem/1 var(--font-display); letter-spacing: -.035em; color: #e9eef4; }
+  .mobile-menu a::after { content: '↗'; margin-left: auto; font-size: 1.3rem; font-weight: 400; color: #9bafc4; }
+  .mobile-menu a:last-child { border-bottom: 0; }
+  .mobile-menu a:hover { color: #fff; }
+  @keyframes menu-in { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
+  @media (max-width: 1100px) { .nav-inner { gap: 1rem; } .nav-links a { padding-inline: .75rem; } }
+  @media (max-width: 859px) {
+    #site-nav { top: 12px; width: calc(100% - 24px); border-radius: 9px; }
+    .nav-inner, #site-nav.scrolled .nav-inner { min-height: 64px; gap: .75rem; padding-inline: .8rem; }
+    .mobile-menu { max-height: calc(100vh - 98px); max-height: calc(100dvh - 98px); overflow-y: auto; overscroll-behavior-y: contain; }
+    .brand-logo { height: 29px; max-width: 158px; }
+    .nav-links { display: none; }
+    #nav-experience { display: none; }
+    #menu-toggle { display: inline-flex; }
+    .cart-label { display: none; }
+    .cart-open { min-height: 44px; min-width: 44px; padding-inline: .65rem; gap: .5rem; }
   }
-
-  /* faint hairline glow under the bar at rest */
-  #site-nav::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: -1px;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-    opacity: 0;
-    transition: opacity 0.35s ease;
-  }
-
-  #site-nav.scrolled {
-    background: rgba(10, 10, 12, 0.78);
-    backdrop-filter: blur(22px) saturate(1.4);
-    -webkit-backdrop-filter: blur(22px) saturate(1.4);
-    border-bottom-color: var(--line);
-  }
-
-  #site-nav.scrolled::after {
-    opacity: 1;
-  }
-
-  .scroll-progress {
-    position: absolute;
-    bottom: -1px;
-    left: 0;
-    height: 2px;
-    width: 100%;
-    background: linear-gradient(90deg, var(--accent), #8ff5b4);
-    transform-origin: left;
-    transform: scaleX(0);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-  }
-
-  #site-nav.scrolled .scroll-progress {
-    opacity: 1;
-  }
-
-  .nav-inner {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    padding-block: 1.05rem;
-    transition: padding-block 0.35s var(--ease-out);
-  }
-
-  #site-nav.scrolled .nav-inner {
-    padding-block: 0.7rem;
-  }
-
-  .brand {
-    display: flex;
-    align-items: center;
-    white-space: nowrap;
-    transition: filter 0.25s ease, transform 0.25s var(--ease-out);
-  }
-
-  .brand:hover {
-    transform: translateY(-1px);
-    filter: brightness(1.15);
-  }
-
-  .brand-logo {
-    height: 26px;
-    width: auto;
-    filter: drop-shadow(0 2px 10px rgba(0, 0, 0, 0.7));
-  }
-
-  .nav-links {
-    display: none;
-    gap: 2.4rem;
-  }
-
-  .nav-links a {
-    font-size: 0.64rem;
-    font-weight: 600;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--muted);
-    position: relative;
-    padding-block: 0.45rem;
-    transition: color 0.25s ease;
-  }
-
-  /* dot + underline indicator that grows from center */
-  .nav-links a::before {
-    content: '';
-    position: absolute;
-    left: 50%;
-    bottom: -0.15rem;
-    width: 4px;
-    height: 4px;
-    border-radius: 50%;
-    background: var(--accent);
-    opacity: 0;
-    transform: translateX(-50%) scale(0);
-    transition: opacity 0.25s ease, transform 0.25s var(--ease-spring);
-  }
-
-  .nav-links a::after {
-    content: '';
-    position: absolute;
-    left: 50%;
-    bottom: -0.55rem;
-    width: 100%;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, var(--accent), transparent);
-    transform: translateX(-50%) scaleX(0);
-    transition: transform 0.3s var(--ease-out);
-  }
-
-  .nav-links a:hover,
-  .nav-links a.active {
-    color: var(--text);
-  }
-
-  .nav-links a:hover::before,
-  .nav-links a.active::before {
-    opacity: 1;
-    transform: translateX(-50%) scale(1);
-  }
-
-  .nav-links a.active::after {
-    transform: translateX(-50%) scaleX(1);
-  }
-
-  .nav-actions {
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-  }
-
-  .cart-count {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 1.3rem;
-    height: 1.3rem;
-    padding-inline: 0.3rem;
-    border-radius: 999px;
-    background: rgba(0, 0, 0, 0.28);
-    font-size: 0.6rem;
-    font-weight: 800;
-    font-variant-numeric: tabular-nums;
-  }
-
-  .cart-label {
-    display: none;
-  }
-
-  .mobile-menu {
-    position: absolute;
-    top: 100%;
-    left: var(--gutter);
-    right: var(--gutter);
-    background: rgba(14, 14, 17, 0.96);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid var(--line);
-    border-radius: var(--radius);
-    padding: 0.6rem;
-    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
-    animation: menu-in 0.25s var(--ease-out);
-  }
-
-  @keyframes menu-in {
-    from {
-      opacity: 0;
-      transform: translateY(-8px);
-    }
-    to {
-      opacity: 1;
-      transform: none;
-    }
-  }
-
-  .mobile-menu nav {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .mobile-menu a {
-    font-family: var(--font-display);
-    font-stretch: 118%;
-    font-weight: 700;
-    font-size: 1.15rem;
-    text-transform: uppercase;
-    letter-spacing: 0.02em;
-    padding: 0.85rem 1rem;
-    border-radius: 12px;
-    transition: background-color 0.2s ease;
-  }
-
-  .mobile-menu a:hover {
-    background: rgba(255, 255, 255, 0.05);
-  }
-
-  @media (min-width: 860px) {
-    .nav-links {
-      display: flex;
-    }
-
-    #menu-toggle {
-      display: none;
-    }
-
-    .cart-label {
-      display: inline;
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    #site-nav,
-    #site-nav::after,
-    .nav-inner,
-    .brand,
-    .nav-links a,
-    .nav-links a::before,
-    .nav-links a::after,
-    .mobile-menu a {
-      transition: none;
-    }
-  }
+  @media (max-width: 370px) { .brand-logo { max-width: 135px; height: 27px; } .nav-actions { gap: .35rem; } }
+  @media (max-width: 859px) and (max-height: 500px) { .mobile-menu a { min-height: 48px; font-size: 1.2rem; } #mobile-experience { padding-top: .55rem; margin-top: 0; } }
+  @media (prefers-reduced-motion: reduce) { #site-nav, .nav-inner, .nav-links a::after { transition: none; } .mobile-menu { animation: none; } }
 </style>

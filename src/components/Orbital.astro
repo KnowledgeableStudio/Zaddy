@@ -1,0 +1,60 @@
+---
+interface Props {
+  class?: string;
+  size?: string;
+  variant?: 'green' | 'silver';
+}
+const { class: className = '', size = '18rem', variant = 'green' } = Astro.props;
+---
+<div class:list={['orbital', `orbital--${variant}`, className]} style={`--orbital-size:${size}`} data-motion-scene aria-hidden="true">
+  <div class="orbital-shadow"></div>
+  <div class="orbital-float" data-float>
+    <div class="orbital-axis" data-ambient>
+      <div class="orbital-ring orbital-ring--outer" data-ambient></div>
+      <div class="orbital-ring orbital-ring--middle" data-ambient></div>
+      <div class="orbital-core"></div>
+    </div>
+  </div>
+</div>
+<style>
+  .orbital {
+    position: relative;
+    width: var(--orbital-size, 18rem);
+    max-width: 100%;
+    aspect-ratio: 1;
+    perspective: 850px;
+    pointer-events: none;
+    user-select: none;
+    --orbital-tint: #b7d4e5;
+  }
+  .orbital--silver { --orbital-tint: #e4edf3; }
+  .orbital-float, .orbital-axis { position: absolute; inset: 12%; transform-style: preserve-3d; }
+  .orbital-float { --float-duration: 9s; }
+  .orbital-axis { inset: 0; transform: rotateX(57deg) rotateY(-19deg) rotateZ(-22deg); animation: orbital-precession 28s ease-in-out infinite; }
+  .orbital-ring {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: clamp(8px, 1.15vw, 17px) solid transparent;
+    background: conic-gradient(from 28deg, #202833 0deg, #899aa7 32deg, #f4f7f9 57deg, #697784 67deg, #121923 90deg, #273440 130deg, #b9c8d2 177deg, #f1f5f8 191deg, #3c4956 215deg, #141c26 244deg, #a4b6c3 280deg, var(--orbital-tint) 303deg, #202833 360deg) border-box;
+    mask: linear-gradient(#000 0 0) padding-box, linear-gradient(#000 0 0);
+    mask-composite: exclude;
+    transform-style: preserve-3d;
+    filter: drop-shadow(0 5px 2px #0008);
+  }
+  .orbital-ring--outer { transform: rotateX(0deg); animation: orbital-outer 30s linear infinite; }
+  .orbital-ring--middle { inset: 14%; border-width: clamp(6px, .9vw, 13px); transform: rotateX(68deg) rotateY(18deg); animation: orbital-middle 24s linear infinite reverse; }
+  .orbital-core {
+    position: absolute;
+    inset: 38%;
+    border-radius: 50%;
+    transform: rotateZ(22deg) rotateY(19deg) rotateX(-57deg);
+    background: radial-gradient(ellipse at 35% 20%, #f1f7fa 0%, #c4d2dd 5%, #697d8c 15%, #18212c 36%, #333f4b 51%, #718796 65%, #111823 78%);
+    box-shadow: inset -5px -7px 14px #0009, 0 10px 24px #0005;
+  }
+  .orbital-shadow { position: absolute; bottom: 3%; left: 14%; width: 72%; height: 12%; border-radius: 50%; background: radial-gradient(ellipse, #0008, transparent 70%); filter: blur(10px); }
+  @keyframes orbital-precession { 0%, 100% { transform: rotateX(57deg) rotateY(-19deg) rotateZ(-22deg); } 50% { transform: rotateX(66deg) rotateY(14deg) rotateZ(15deg); } }
+  @keyframes orbital-outer { from { transform: rotateX(0deg) rotateZ(0deg); } to { transform: rotateX(0deg) rotateZ(360deg); } }
+  @keyframes orbital-middle { from { transform: rotateX(68deg) rotateY(18deg) rotateZ(0deg); } to { transform: rotateX(68deg) rotateY(18deg) rotateZ(360deg); } }
+  @media (prefers-reduced-motion: reduce) { .orbital [data-ambient], .orbital [data-float] { animation: none; } }
+</style>

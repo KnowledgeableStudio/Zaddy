@@ -1,107 +1,31 @@
 ---
 ---
 
-<div class="holo-wrap reveal">
+<div class="holo-wrap" data-motion-scene>
   <div id="holo-anchor" class="holo-anchor" role="img" aria-label="3D hologram of iZad Casanova in a masked hoodie — drag or use arrow keys to rotate">
-    <div class="holo-loading" id="holo-loading">Loading hologram…</div>
+    <div class="holo-loading" id="holo-loading" role="status">Loading hologram…</div>
   </div>
   <p class="holo-caption">
-    <span class="holo-dot" aria-hidden="true"></span>
+    <span class="holo-dot" aria-hidden="true" data-ambient></span>
     Live projection · drag to rotate
   </p>
 </div>
 
 <style>
-  .holo-wrap {
-    /* clear gap below the subtitle — the figure's head must not
-       overlap "The story behind the music." */
-    margin-top: clamp(3rem, 8vh, 5rem);
-    width: 100%;
-  }
-
-  /* Space reserved for the projection — the WebGL canvas itself
-     covers the whole Story section, so nothing is bounded */
-  .holo-anchor {
-    position: relative;
-    height: min(52vh, 28rem);
-    cursor: grab;
-  }
-
-  .holo-anchor:active {
-    cursor: grabbing;
-  }
-
-  .holo-anchor:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 6px;
-    border-radius: 8px;
-  }
-
-  .holo-loading {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.62rem;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    color: var(--faint);
-    transition: opacity 0.5s ease;
-    pointer-events: none;
-  }
-
-  .holo-loading.done {
-    opacity: 0;
-  }
-
-  .holo-caption {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-top: 0.6rem;
-    /* 5% of the anchor block's height — nudges the caption down
-       without affecting the hologram position */
-    transform: translateY(min(2.6vh, 1.4rem));
-    font-size: 0.6rem;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    color: var(--faint);
-  }
-
-  .holo-dot {
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: var(--accent);
-    box-shadow: 0 0 10px rgba(34, 216, 97, 0.8);
-    animation: pulse 2.4s ease-in-out infinite;
-  }
-
-  @keyframes pulse {
-    0%,
-    100% {
-      opacity: 1;
-    }
-    50% {
-      opacity: 0.4;
-    }
-  }
-
-  /* Canvas overlays the whole section — section content floats above it */
-  :global(#story .story-grid),
-  :global(#story .story-hero-inner) {
-    position: relative;
-    z-index: 1;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .holo-loading,
-    .holo-dot {
-      transition: none;
-      animation: none;
-    }
-  }
+  /* Do not transform this wrapper: the section-wide WebGL canvas maps its
+     original figure/projector geometry to the anchor's screen coordinates. */
+  .holo-wrap { margin-top: clamp(2rem, 5vh, 4rem); width: 100%; padding-bottom: 1.5rem; }
+  .holo-anchor { position: relative; z-index: 2; height: clamp(22rem, 52vh, 32rem); cursor: grab; touch-action: pan-y; }
+  .holo-anchor:active { cursor: grabbing; }
+  .holo-anchor:focus-visible { outline: 2px solid var(--accent, #22d861); outline-offset: 6px; border-radius: 2px; }
+  .holo-loading { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: .7rem; letter-spacing: .14em; text-transform: uppercase; color: #b3b8ae; transition: opacity .5s ease; pointer-events: none; }
+  .holo-loading.done { opacity: 0; visibility: hidden; }
+  .holo-caption { position: relative; z-index: 2; display: flex; align-items: center; justify-content: center; gap: .65rem; width: fit-content; margin: 1.5rem auto 0; padding-top: 1rem; border-top: 1px solid #c8d7cb24; font-size: .65rem; line-height: 1.6; letter-spacing: .13em; text-transform: uppercase; color: #abb5a9; }
+  .holo-dot { flex: 0 0 5px; width: 5px; height: 5px; border-radius: 50%; background: var(--accent, #22d861); box-shadow: 0 0 9px #22d86170; animation: holo-signal 4s ease-in-out infinite; animation-play-state: paused; }
+  @keyframes holo-signal { 0%, 100% { opacity: .9; } 50% { opacity: .5; } }
+  :global(#story .story-grid), :global(#story .story-hero-inner) { position: relative; z-index: auto; }
+  @media (max-width: 640px) { .holo-anchor { height: clamp(20rem, 52vh, 28rem); } .holo-caption { font-size: .6rem; } }
+  @media (prefers-reduced-motion: reduce) { .holo-loading, .holo-dot { transition: none; animation: none; } }
 </style>
 
 <script>
