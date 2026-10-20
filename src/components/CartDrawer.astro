@@ -145,7 +145,7 @@ const thumbs = {
 
 <div id="toast-region" aria-live="polite" aria-atomic="false"></div>
 
-<script is:inline id="product-thumbs" type="application/json" set:html={JSON.stringify(thumbs)} />
+<script is:inline id="product-thumbs" type="application/json" set:html={JSON.stringify(thumbs).replace(/</g, '\\u003c')} />
 
 <style is:global>
   #cart-backdrop { position: fixed; inset: 0; z-index: 110; background: #020408b8; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); opacity: 0; transition: opacity .3s ease; }

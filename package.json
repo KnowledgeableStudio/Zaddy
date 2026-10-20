@@ -1,7 +1,7 @@
 {
   "name": "zaddy-collection-site",
   "version": "1.0.0",
-  "description": "Official site for iZad Casanova \u2014 music and Zaddy Collection merch",
+  "description": "Official site for iZad Casanova — music and Zaddy Collection merch",
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",

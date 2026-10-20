@@ -291,7 +291,14 @@ function initMatrixWorld() {
     scene?.clear();
   }
 
-  resize(); sync(); loadThree();
+  resize(); sync();
+  // The rain canvas and CSS ambience paint immediately; the ~730KB Three.js
+  // module eval and scene build (incl. the PMREM environment bake) are moved
+  // off the critical path into the first idle window so first paint and input
+  // stay unblocked. Relics still fade in during page open.
+  const startScene = () => { if (!disposed) void loadThree(); };
+  if ('requestIdleCallback' in window) requestIdleCallback(startScene, { timeout: 1200 });
+  else setTimeout(startScene, 0);
   toggle.addEventListener('click', () => {
     // A click while auto-paused means "resume anyway" — clears the adaptive
     // freeze but keeps the lower quality level, which re-arms if still slow.
@@ -308,7 +315,13 @@ function initMatrixWorld() {
   }, { passive: true, signal });
   window.addEventListener('pointerout', (event) => { if (!event.relatedTarget) { pointer.tx = 0; pointer.ty = 0; } }, { passive: true, signal });
   window.addEventListener('scroll', () => { scrollTarget = window.scrollY; }, { passive: true, signal });
-  window.addEventListener('resize', resize, { passive: true, signal });
+  // Mobile URL-bar chrome fires resize on every scroll — debounce so canvas
+  // realloc (setSize) doesn't run per frame.
+  let resizeTimer = 0;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => { if (!disposed) resize(); }, 120);
+  }, { passive: true, signal });
   document.addEventListener('visibilitychange', sync, { signal });
   reduced.addEventListener('change', sync, { signal });
   narrow.addEventListener('change', resize, { signal });

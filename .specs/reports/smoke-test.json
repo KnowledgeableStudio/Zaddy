@@ -1,0 +1,110 @@
+{
+  "errors": [],
+  "checks": {
+    "hero video uses compressed mp4 + webp poster": {
+      "ok": true,
+      "detail": ""
+    },
+    "single #bg-music audio element": {
+      "ok": true,
+      "detail": ""
+    },
+    "audio preload=none": {
+      "ok": true,
+      "detail": ""
+    },
+    "music toggle present": {
+      "ok": true,
+      "detail": ""
+    },
+    "motion toggle present": {
+      "ok": true,
+      "detail": ""
+    },
+    "matrix-world canvases rendered": {
+      "ok": true,
+      "detail": ""
+    },
+    "CSP meta present in served HTML": {
+      "ok": true,
+      "detail": ""
+    },
+    "autoplay blocked → audio stays paused": {
+      "ok": true,
+      "detail": "paused=true"
+    },
+    "first page tap unlocks playback": {
+      "ok": true,
+      "detail": "{\"paused\":false,\"on\":true}"
+    },
+    "music toggle mutes": {
+      "ok": true,
+      "detail": "{\"paused\":false,\"muted\":true,\"on\":false}"
+    },
+    "toggle resumes playback": {
+      "ok": true,
+      "detail": "{\"paused\":false,\"on\":true}"
+    },
+    "navigated to /story": {
+      "ok": true,
+      "detail": ""
+    },
+    "still exactly one #bg-music after nav": {
+      "ok": true,
+      "detail": ""
+    },
+    "audio keeps playing across navigation": {
+      "ok": true,
+      "detail": "paused=false"
+    },
+    "story cold-open uses compressed media": {
+      "ok": true,
+      "detail": "ok"
+    },
+    "desktop toggle pauses/mutes music": {
+      "ok": true,
+      "detail": "{\"paused\":false,\"muted\":true}"
+    },
+    "mobile menu button visible": {
+      "ok": true,
+      "detail": "{\"x\":342.203125,\"y\":45}"
+    },
+    "mobile menu opens": {
+      "ok": true,
+      "detail": ""
+    },
+    "music toggle relocated into mobile menu": {
+      "ok": true,
+      "detail": "{\"x\":278.09375,\"y\":391.390625,\"inMenu\":true}"
+    },
+    "mobile music toggle resumes playback": {
+      "ok": true,
+      "detail": "{\"paused\":false,\"on\":true}"
+    },
+    "add-to-cart opens drawer with item": {
+      "ok": true,
+      "detail": "{\"shown\":true,\"items\":1}"
+    },
+    "PayPal SDK loads under CSP": {
+      "ok": true,
+      "detail": "{\"paypalLoaded\":true,\"buttons\":2}"
+    },
+    "PayPal buttons rendered": {
+      "ok": true,
+      "detail": "{\"paypalLoaded\":true,\"buttons\":2}"
+    },
+    "Enter in checkout form does not reload/navigate": {
+      "ok": true,
+      "detail": "{\"path\":\"/\",\"checkoutVisible\":true,\"search\":\"\"}"
+    },
+    "no CSP violations": {
+      "ok": true,
+      "detail": ""
+    },
+    "no JS exceptions/console errors": {
+      "ok": true,
+      "detail": ""
+    }
+  },
+  "consoleErrors": []
+}

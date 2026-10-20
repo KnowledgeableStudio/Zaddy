@@ -7,6 +7,9 @@ import '../styles/global.css';
 import { ClientRouter } from 'astro:transitions';
 import Soundtrack from '../components/Soundtrack.astro';
 import MatrixWorld from '../components/MatrixWorld.astro';
+import archivoWoff2 from '@fontsource-variable/archivo/files/archivo-latin-wght-normal.woff2?url';
+import interWoff2 from '@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url';
+import instrumentSerifWoff2 from '@fontsource/instrument-serif/files/instrument-serif-latin-400-normal.woff2?url';
 
 interface Props {
   title?: string;
@@ -25,11 +28,12 @@ const canonical = new URL(Astro.url.pathname, Astro.site).href;
 <html lang="en" class="no-js">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>{title}</title>
     <meta name="description" content={description} />
     <meta name="theme-color" content="#070a0e" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' data: https://*.paypal.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.paypalobjects.com; font-src 'self'; media-src 'self'; connect-src 'self' blob: https://*.paypal.com https://*.paypalobjects.com; frame-src https://*.paypal.com https://www.youtube-nocookie.com; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; manifest-src 'self'; upgrade-insecure-requests" />
     <link rel="canonical" href={canonical} />
     <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32" />
     <link rel="icon" href="/favicon-64.png" type="image/png" sizes="64x64" />
@@ -37,6 +41,10 @@ const canonical = new URL(Astro.url.pathname, Astro.site).href;
     <link rel="icon" href="/icon-192.png" type="image/png" sizes="192x192" />
     <link rel="icon" href="/icon-512.png" type="image/png" sizes="512x512" />
     <link rel="manifest" href="/site.webmanifest" />
+    <link rel="preload" href={archivoWoff2} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={interWoff2} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={instrumentSerifWoff2} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/hero-poster.webp" as="image" type="image/webp" />
 
     <meta property="og:type" content="website" />
     <meta property="og:title" content={title} />

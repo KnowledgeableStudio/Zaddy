@@ -44,6 +44,8 @@ import { ARTIST } from '../data/site.js';
 
 <style>
   .site-footer {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 620px;
     position: relative;
     z-index: 1;
     padding-block: clamp(4rem, 8vw, 7rem) 1.75rem;
@@ -53,7 +55,7 @@ import { ARTIST } from '../data/site.js';
   }
   .footer-horizon { position: absolute; inset: 0; pointer-events: none; }
   .footer-horizon::before { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(90deg, transparent 0 119px, #c5ced909 120px), repeating-linear-gradient(0deg, transparent 0 59px, #c5ced909 60px); mask-image: linear-gradient(#0008, transparent); }
-  .footer-horizon span { position: absolute; top: 0; left: -25%; width: 25%; height: 1px; background: linear-gradient(90deg, transparent, #dee7f4, #b8c0cb, transparent); box-shadow: 0 0 22px #c4ccd7; animation: footer-transmit 11s linear infinite; }
+  .footer-horizon span { position: absolute; top: 0; left: -25%; width: 25%; height: 1px; background: linear-gradient(90deg, transparent, #dee7f4, #b8c0cb, transparent); box-shadow: 0 0 22px #c4ccd7; animation: footer-transmit 11s linear infinite; will-change: transform; }
   .footer-horizon span:nth-child(2) { top: 45%; animation-duration: 17s; animation-delay: -8s; opacity: .2; }
   .footer-horizon span:nth-child(3) { top: 78%; animation-duration: 22s; animation-delay: -14s; opacity: .18; }
   .footer-echo { position: absolute; left: 50%; bottom: 3rem; translate: -50% 0; color: transparent; -webkit-text-stroke: 1px #cdd6e20c; font-size: clamp(8rem, 20vw, 24rem); white-space: nowrap; pointer-events: none; }
@@ -119,7 +121,7 @@ import { ARTIST } from '../data/site.js';
     .footer-nav { padding-top: 0.3rem; gap: .6rem; }
     .footer-meta { grid-column: 1 / -1; }
   }
-  @keyframes footer-transmit { to { left: 125%; } }
+  @keyframes footer-transmit { to { transform: translateX(600%); } }
   :global(html[data-motion-paused='true']) .footer-horizon span { animation-play-state: paused; }
   @media (prefers-reduced-motion: reduce) {
     .footer-nav a, .footer-signature { transition: none; }

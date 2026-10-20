@@ -6,4 +6,8 @@ export default defineConfig({
   image: {
     domains: [],
   },
+  build: {
+    // Inline all CSS — removes every render-blocking stylesheet request.
+    inlineStylesheets: 'always',
+  },
 });

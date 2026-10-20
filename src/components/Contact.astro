@@ -54,7 +54,7 @@ import { ARTIST } from '../data/site.js';
   .contact-field span:nth-child(1) { left: 25%; }
   .contact-field span:nth-child(2) { left: 50%; }
   .contact-field span:nth-child(3) { left: 75%; }
-  .contact-field span::after { content: ''; position: absolute; top: 0; width: 2px; height: 15%; background: linear-gradient(transparent, #d1dae6, transparent); animation: connection-flow 16s linear infinite; }
+  .contact-field span::after { content: ''; position: absolute; top: 0; width: 2px; height: 15%; background: linear-gradient(transparent, #d1dae6, transparent); animation: connection-flow 16s linear infinite; will-change: transform; }
   .contact-field span:nth-child(2)::after { animation-delay: -3s; }
   .contact-field span:nth-child(3)::after { animation-delay: -6s; }
   .section > .container { position: relative; z-index: 1; }
@@ -83,6 +83,8 @@ import { ARTIST } from '../data/site.js';
     gap: 1.5rem;
   }
   .contact-card {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 420px;
     position: relative;
     min-width: 0;
   }
@@ -128,7 +130,7 @@ import { ARTIST } from '../data/site.js';
   .contact-face :global(.platform-chip) { background: linear-gradient(145deg, #ffffff08, #0002); border-color: #d2dbe729; border-radius: 9px; box-shadow: inset 0 1px #dee7f40a, 0 3px 6px #0002; }
   .contact-face :global(.platform-chip:hover) { color: #e6f0fe; background: #c4ccd71b; box-shadow: 0 0 20px #b1b8c314; border-color: #d1dae697; }
   @keyframes network-orbit { from { rotate: 0deg; } to { rotate: 360deg; } }
-  @keyframes connection-flow { to { top: 110%; } }
+  @keyframes connection-flow { to { transform: translateY(733.33%); } }
   @media (min-width: 860px) {
     .section-head { grid-template-columns: 1fr 1fr; }
     .section-head .section-index { grid-column: 1 / -1; }

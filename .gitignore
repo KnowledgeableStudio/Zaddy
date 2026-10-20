@@ -10,3 +10,8 @@ dist/
 
 # task workflow scratchpad
 .specs/scratchpad/
+
+# secrets — never commit env files
+.env
+.env.*
+!.env.example

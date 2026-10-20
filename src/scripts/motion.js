@@ -15,9 +15,14 @@ export function initMotion() {
   const hologramAnchor = document.getElementById('holo-anchor');
   let observer;
   let active = null;
+  let activeSurface = null;
   let pointer = null;
   let frame = 0;
-  const properties = ['--depth-rx', '--depth-ry', '--depth-x', '--depth-y', '--depth-lift', '--light-x', '--light-y', '--glare-opacity'];
+  // Depth vars feed the surface's transform — write them on the surface itself
+  // so each frame invalidates its small subtree instead of the whole card's.
+  // Light vars stay on the card (its ::before glare consumes them there).
+  const depthProps = ['--depth-rx', '--depth-ry', '--depth-x', '--depth-y', '--depth-lift'];
+  const lightProps = ['--light-x', '--light-y', '--glare-opacity'];
   // motionAutoPaused is written by matrix-world's adaptive quality path — both
   // modules must agree on the effective pause or they'd fight over the dataset.
   const isPaused = () => reduced.matches || document.hidden || root.dataset.motionUserPaused === 'true' || root.dataset.motionAutoPaused === 'true';
@@ -26,10 +31,12 @@ export function initMotion() {
     cancelAnimationFrame(frame);
     frame = 0;
     if (active) {
-      properties.forEach((name) => active.style.removeProperty(name));
+      lightProps.forEach((name) => active.style.removeProperty(name));
+      (activeSurface || active) && depthProps.forEach((name) => (activeSurface || active).style.removeProperty(name));
       active.removeAttribute('data-depth-active');
     }
     active = null;
+    activeSurface = null;
     pointer = null;
   };
   const flushPointer = () => {
@@ -39,11 +46,12 @@ export function initMotion() {
     if (!rect.width || !rect.height) return resetDepth();
     const x = Math.max(-1, Math.min(1, (pointer.x - rect.left) / rect.width * 2 - 1));
     const y = Math.max(-1, Math.min(1, (pointer.y - rect.top) / rect.height * 2 - 1));
-    active.style.setProperty('--depth-rx', `${(-y * 6).toFixed(2)}deg`);
-    active.style.setProperty('--depth-ry', `${(x * 6).toFixed(2)}deg`);
-    active.style.setProperty('--depth-x', `${(x * 5).toFixed(2)}px`);
-    active.style.setProperty('--depth-y', `${(y * 5).toFixed(2)}px`);
-    active.style.setProperty('--depth-lift', '12px');
+    const surface = activeSurface || active;
+    surface.style.setProperty('--depth-rx', `${(-y * 6).toFixed(2)}deg`);
+    surface.style.setProperty('--depth-ry', `${(x * 6).toFixed(2)}deg`);
+    surface.style.setProperty('--depth-x', `${(x * 5).toFixed(2)}px`);
+    surface.style.setProperty('--depth-y', `${(y * 5).toFixed(2)}px`);
+    surface.style.setProperty('--depth-lift', '12px');
     active.style.setProperty('--light-x', `${((x + 1) * 50).toFixed(1)}%`);
     active.style.setProperty('--light-y', `${((y + 1) * 50).toFixed(1)}%`);
     active.style.setProperty('--glare-opacity', '.7');
@@ -94,6 +102,7 @@ export function initMotion() {
     if (next !== active) {
       resetDepth();
       active = next;
+      activeSurface = active?.querySelector('[data-depth-surface]') || null;
       active?.setAttribute('data-depth-active', 'true');
     }
     if (!active) return;

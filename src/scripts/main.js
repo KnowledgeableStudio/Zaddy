@@ -17,7 +17,9 @@ let cart = [];
 try {
   const saved = JSON.parse(localStorage.getItem('cart') || '[]');
   if (Array.isArray(saved)) {
-    cart = saved.filter((l) => catalog.has(l?.id) && Number.isInteger(l?.qty) && l.qty > 0);
+    cart = saved
+      .filter((l) => catalog.has(l?.id) && Number.isInteger(l?.qty) && l.qty > 0)
+      .map((l) => ({ id: l.id, qty: Math.min(l.qty, MAX_QTY) }));
   }
 } catch {
   cart = [];
@@ -39,9 +41,15 @@ function loadPayPal() {
       const s = document.createElement('script');
       s.src = `https://www.paypal.com/sdk/js?client-id=${PAYPAL_CLIENT_ID}&currency=USD&enable-funding=venmo,card&disable-funding=credit`;
       s.onload = resolve;
-      s.onerror = reject;
+      s.onerror = () => {
+        s.remove();
+        reject(new Error('PayPal SDK failed to load'));
+      };
       document.head.appendChild(s);
     });
+    // A rejected promise would poison every later checkout attempt —
+    // clear it so the next click retries a fresh SDK load.
+    paypalPromise.catch(() => { paypalPromise = null; });
   }
   return paypalPromise;
 }
@@ -309,6 +317,10 @@ function initMain() {
     }, { signal });
   });
 
+  // The checkout form has no action — without this, pressing Enter in a field
+  // reloads the page mid-checkout and loses the visitor's progress.
+  document.getElementById('checkout-form')?.addEventListener('submit', (e) => e.preventDefault(), { signal });
+
   document.getElementById('to-checkout').addEventListener('click', () => {
     setCheckoutMode(true);
     renderCart();
@@ -434,12 +446,15 @@ function initMain() {
   /* ---------------- Nav — scrolled state, mobile menu, active section ---------------- */
   const nav = document.getElementById('site-nav');
   const progressBar = document.getElementById('scroll-progress');
+  let scrollFrame = 0;
   const onScroll = () => {
+    scrollFrame = 0;
     nav.classList.toggle('scrolled', window.scrollY > 24);
     const max = document.documentElement.scrollHeight - window.innerHeight;
     progressBar.style.transform = `scaleX(${max > 0 ? window.scrollY / max : 0})`;
   };
-  window.addEventListener('scroll', onScroll, { passive: true, signal });
+  const scheduleScroll = () => { if (!scrollFrame) scrollFrame = requestAnimationFrame(onScroll); };
+  window.addEventListener('scroll', scheduleScroll, { passive: true, signal });
   onScroll();
 
   const menuToggle = document.getElementById('menu-toggle');
@@ -515,6 +530,9 @@ function initMain() {
   let videoTrigger = null;
 
   function openVideo(id, title) {
+    // YouTube video IDs are 11 chars of [A-Za-z0-9_-] — reject anything else
+    // so a tampered data-video attribute can't craft an unexpected URL.
+    if (!/^[\w-]{1,32}$/.test(id)) return;
     videoTrigger = document.activeElement;
     suspendSoundtrack();
     videoTitle.textContent = title;
