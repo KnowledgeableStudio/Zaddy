@@ -1,5 +1,6 @@
 node_modules/
-.astro/
 dist/
 .specs/
-*.py
+.astro/
+.env
+.env.*
