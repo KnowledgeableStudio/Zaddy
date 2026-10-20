@@ -38,7 +38,11 @@ function initMatrixWorld() {
   let THREE = null;
   let RoomEnvironment = null;
   let degraded = false;
-  let autoPaused = false;
+  // Second degradation level — replaces the old auto-freeze. Motion never
+  // stops on its own: quality steps down (lower DPR, sparser rain, ~15fps
+  // cap) but the world keeps animating. Only the visitor's toggle, an OS
+  // reduced-motion choice, or a hidden tab can pause it.
+  let deepDegraded = false;
   let slowMs = 0;
   let pageAway = false;
   let contextLost = false;
@@ -50,7 +54,7 @@ function initMatrixWorld() {
   const resources = new Set();
   const remember = (resource) => { resources.add(resource); return resource; };
   const glyphs = '01IZADカサノバネモラヌリムシトメヒソヤ光夢音愛ZADDY';
-  const canRun = () => !disposed && !pageAway && !document.hidden && !userPaused && !autoPaused && !reduced.matches;
+  const canRun = () => !disposed && !pageAway && !document.hidden && !userPaused && !reduced.matches;
 
   function createEnvironment() {
     const room = new RoomEnvironment();
@@ -152,12 +156,12 @@ function initMatrixWorld() {
     // The rain canvas is soft ambient texture — DPR 1 is enough, and every
     // pixel saved is per-frame cost. WebGL stays capped at 1.25 and drops
     // further when the adaptive check below degrades quality.
-    const dpr = Math.min(window.devicePixelRatio || 1, narrow.matches ? 1 : 1.25) / (degraded ? 1.25 : 1);
+    const dpr = Math.min(window.devicePixelRatio || 1, narrow.matches ? 1 : 1.25) / (deepDegraded ? 1.6 : degraded ? 1.25 : 1);
     if (context) {
       codeCanvas.width = Math.round(width);
       codeCanvas.height = Math.round(height);
       context.setTransform(1, 0, 0, 1, 0, 0);
-      const spacing = (narrow.matches ? 76 : 92) * (degraded ? 1.5 : 1);
+      const spacing = (narrow.matches ? 76 : 92) * (deepDegraded ? 2.2 : degraded ? 1.5 : 1);
       const count = Math.ceil(width / spacing);
       columns = Array.from({ length: count }, (_, i) => ({ x: i * spacing + 14, y: Math.random() * (height + 440) - 440, speed: 15 + Math.random() * 12, length: 5 + Math.floor(Math.random() * 8), seed: Math.floor(Math.random() * glyphs.length), opacity: .26 + Math.random() * .35 }));
     }
@@ -215,8 +219,9 @@ function initMatrixWorld() {
   function tick(time) {
     frame = 0;
     if (!canRun()) return;
-    // Render at 30 fps on small screens and cap elapsed time after interruptions.
-    const interval = narrow.matches ? 1000 / 30 : 1000 / 60;
+    // Render at 30 fps on small screens, ~15 fps when deep-degraded, and cap
+    // elapsed time after interruptions.
+    const interval = deepDegraded ? 1000 / 15 : narrow.matches ? 1000 / 30 : 1000 / 60;
     if (last && time - last < interval - 1) { frame = requestAnimationFrame(tick); return; }
     const delta = last ? Math.min((time - last) / 1000, .055) : 0;
     // Wall-clock gap between rendered frames — catches GPU-bound jank that a
@@ -229,13 +234,14 @@ function initMatrixWorld() {
     }
     drawGeometry(delta);
     // Adaptive quality, time-budgeted: sustained frames slower than ~30fps
-    // accumulate; ~1.2s of jank drops pixel/rain density, ~1.5s more freezes
-    // the world into a still so weak GPUs stay interactive.
-    if (!autoPaused) {
+    // accumulate; ~1.2s of jank drops pixel/rain density, ~1.5s more steps
+    // down to the ~15fps tier. Motion never freezes on its own — only the
+    // visitor's toggle, reduced-motion, or a hidden tab can pause it.
+    if (!deepDegraded) {
       const frameMs = Math.max(gapMs, performance.now() - drawStart);
       slowMs = frameMs > 30 ? slowMs + frameMs : Math.max(0, slowMs - 40);
       if (!degraded && slowMs > 1200) { slowMs = 0; degrade(); }
-      else if (degraded && slowMs > 1500) { autoPaused = true; slowMs = 0; sync(); return; }
+      else if (degraded && slowMs > 1500) { slowMs = 0; degrade(true); }
     }
     frame = requestAnimationFrame(tick);
   }
@@ -256,7 +262,12 @@ function initMatrixWorld() {
     }
   }
 
-  function degrade() {
+  function degrade(deep = false) {
+    if (deep) {
+      deepDegraded = true;
+      resize();
+      return;
+    }
     degraded = true;
     if (renderer) {
       renderer.setPixelRatio(1);
@@ -266,13 +277,12 @@ function initMatrixWorld() {
   }
 
   function sync() {
-    const paused = userPaused || autoPaused || reduced.matches || document.hidden || pageAway;
+    const paused = userPaused || reduced.matches || document.hidden || pageAway;
     root.dataset.motionUserPaused = String(userPaused);
-    root.dataset.motionAutoPaused = String(autoPaused);
     root.dataset.motionPaused = String(paused);
     toggle.hidden = false;
     toggle.disabled = reduced.matches;
-    const held = userPaused || autoPaused;
+    const held = userPaused;
     toggle.setAttribute('aria-pressed', String(!held && !reduced.matches));
     toggle.setAttribute('aria-label', reduced.matches ? 'Ambient motion follows your reduced motion setting' : held ? 'Resume ambient motion' : 'Pause ambient motion');
     const label = toggle.querySelector('.motion-label');
@@ -300,11 +310,7 @@ function initMatrixWorld() {
   if ('requestIdleCallback' in window) requestIdleCallback(startScene, { timeout: 1200 });
   else setTimeout(startScene, 0);
   toggle.addEventListener('click', () => {
-    // A click while auto-paused means "resume anyway" — clears the adaptive
-    // freeze but keeps the lower quality level, which re-arms if still slow.
-    const pausedNow = userPaused || autoPaused;
-    userPaused = !pausedNow;
-    autoPaused = false;
+    userPaused = !userPaused;
     try { sessionStorage.setItem('zaddy-ambient-motion', userPaused ? 'paused' : 'playing'); } catch { /* Preference remains valid for this document. */ }
     sync();
   }, { signal });

@@ -23,9 +23,7 @@ export function initMotion() {
   // Light vars stay on the card (its ::before glare consumes them there).
   const depthProps = ['--depth-rx', '--depth-ry', '--depth-x', '--depth-y', '--depth-lift'];
   const lightProps = ['--light-x', '--light-y', '--glare-opacity'];
-  // motionAutoPaused is written by matrix-world's adaptive quality path — both
-  // modules must agree on the effective pause or they'd fight over the dataset.
-  const isPaused = () => reduced.matches || document.hidden || root.dataset.motionUserPaused === 'true' || root.dataset.motionAutoPaused === 'true';
+  const isPaused = () => reduced.matches || document.hidden || root.dataset.motionUserPaused === 'true';
   const canMove = () => !isPaused() && finePointer.matches;
   const resetDepth = () => {
     cancelAnimationFrame(frame);
